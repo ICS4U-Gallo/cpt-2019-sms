@@ -3,8 +3,8 @@ import arcade
 import settings
 
 from menu import MenuView
-from chapter_1 import Chapter1View
 from sri_game import SriGameView
+from max_game import MaxGameView
 
 
 class Director(arcade.Window):
@@ -13,7 +13,8 @@ class Director(arcade.Window):
         self.view_index = 0
         self.views = [
             MenuView,
-            SriGameView
+            SriGameView,
+            MaxGameView
         ]
         self.next_view()
 
