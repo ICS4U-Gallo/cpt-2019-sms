@@ -4,6 +4,7 @@ import settings
 
 from menu import MenuView
 from chapter_1 import Chapter1View
+from sri_game import SriGameView
 
 
 class Director(arcade.Window):
@@ -12,7 +13,7 @@ class Director(arcade.Window):
         self.view_index = 0
         self.views = [
             MenuView,
-            Chapter1View
+            SriGameView
         ]
         self.next_view()
 
