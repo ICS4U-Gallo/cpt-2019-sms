@@ -2,9 +2,8 @@
 Program description. Replace with description of your program. Give a description of each scene.
 
 ### Group Members:
-- Sridhar S.
-- Max N.
-- Sarah H.
+- Member1
+- Member2
 
 
 # CPT 2019
