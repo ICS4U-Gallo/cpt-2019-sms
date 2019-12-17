@@ -11,10 +11,10 @@ class SriGameView(arcade.View):
         arcade.draw_text("Sridhar's Game", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=30, anchor_x="center")
     
-    '''
+
     def on_key_press(self, key, modifiers):
         self.director.next_view()
-    '''
+
 
 
 if __name__ == "__main__":
