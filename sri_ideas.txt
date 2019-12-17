@@ -1,6 +1,6 @@
 Sridhar's Ideas
 
-- Some platformer like cat mario
+- Some platformer (rpg?) 
 - All Stick men
 - Gravity (-9.8)
 - Use Physics stuff to determine stuff
