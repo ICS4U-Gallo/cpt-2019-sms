@@ -1,0 +1,19 @@
+
+Classes
+Grid itself will be a class
+Grid needs class method to generate itself (if too difficult, create a grid that does not vary)
+Attributes: row, column, width, height
+Perhaps the 9 blocks in the grid can inherit from the grid class (takes row, column, width and height?)
+Perhaps the 81 cells in the grid can inherit from the grid class (probably not)
+ 
+Searching
+Searching algorithm for validity of a number (linear search -- does this count??)
+Searching algorithm that zips the solution and the submitted solution to determine if the answer is correct (ONLY WORKS IF THERE IS 1 SOLUTION -- only use if generated sudoku boards are not used)
+Pencil tool that adds/removes a ‘penciled’ number depending on whether or not the cell already contains the number
+ 
+Sorting
+leaderboard???
+ 
+Recursion
+Solver algorithm that recursively calls the next/previous grid depending on the validity of the number in the current cell (base case is if the 81st cell is valid)
+

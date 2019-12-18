@@ -1,0 +1,19 @@
+Sridhar's Ideas
+
+- Some platformer (rpg?) 
+- All Stick men
+- Gravity (-9.8)
+- Use Physics stuff to determine stuff
+- Story:
+    * 
+- Have a pause menu with:
+    * resume
+    * change controls
+    * cheat codes
+    * 
+- Power-Ups:
+    * Invinsible
+    * 5 Heart system (half hearts?)
+- Enemies:
+    * 
+
