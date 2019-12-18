@@ -2,6 +2,7 @@ Game characteristics:
 - 
 
 
+
 - Classes
     > character class(name, image, ability, health points?) 
     
@@ -12,8 +13,8 @@ Game characteristics:
   - Class/static method
         >
 - Recursion
-    >
+    > returns
 - Sorting
-    >
+    > leaderboard
 - Searching
     >
