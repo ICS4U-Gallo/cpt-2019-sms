@@ -1,0 +1,19 @@
+Game characteristics:
+- 
+
+
+- Classes
+    > character class(name, image, ability, health points?) 
+    
+  - Inheritance
+        >
+  - Encapsulation
+        > encapsulate the name, ability
+  - Class/static method
+        >
+- Recursion
+    >
+- Sorting
+    >
+- Searching
+    >
