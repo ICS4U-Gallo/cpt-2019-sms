@@ -1,20 +1,29 @@
 Game characteristics:
-- 
+- shapes float across the screen, need atleast 3 to score points
+- when one of the selected shapes floats off the screen, selecting resets
+- if different shape is selected from previous shape, selecting resets
+- 1 min time limit
 
 
 
 - Classes
-    > character class(name, image, ability, health points?) 
+    > character class(shape, colour, point_value, speed) 
     
   - Inheritance
-        >
+        > inherited class for each shape
+            > 4 normal, 2 special abilities
   - Encapsulation
         > encapsulate the name, ability
   - Class/static method
-        >
+        > shape that ends the game early
+        > shape that clears all occurances of a shape
+        
 - Recursion
-    > returns
+    > controls the amount of shapes at the time
+        > while time > 40, return time*1.1
+    
 - Sorting
     > leaderboard
+    
 - Searching
-    >
+    > special shape: searches for all occurances of a shape and removes them, adding the points to the score
