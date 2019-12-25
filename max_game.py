@@ -143,7 +143,10 @@ class Sudoku(arcade.View):
     def on_show(self):
         global game
         arcade.set_background_color(arcade.color.EERIE_BLACK)
-        game = Grid(9, 9, 15)
+        if game != []:
+            pass
+        else:
+            game = Grid(9, 9, 15)
     
     def on_draw(self):
         time = f"Time: {str(int((round(self.timer, 0))))}"
@@ -219,9 +222,9 @@ class Sudoku(arcade.View):
                 game.board[y][x] = 9
         else:
             pass
-        print(game.board)
+
         if symbol == 65307:
-            pause_screen = PauseScreen()
+            pause_screen = PauseScreen(self)
             self.window.show_view(pause_screen)
         else:
             pass
@@ -236,8 +239,9 @@ class Sudoku(arcade.View):
             game.selected = (x_coordinate, y_coordinate)
 
 class PauseScreen(arcade.View):
-    def __init__(self):
+    def __init__(self, game_view):
         super().__init__()
+        self.game_view = game_view
 
     def on_show(self):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
@@ -254,7 +258,7 @@ class PauseScreen(arcade.View):
         if symbol == 65307: # escape
             self.window.next_view()
         elif symbol == 65293: # enter
-            self.window.show_view(game_view)
+            self.window.show_view(self.game_view)
         else:
             pass
 
@@ -275,8 +279,6 @@ if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
     game_view = Sudoku()
-    pause_screen = PauseScreen()
-    pause_screen.director = FakeDirector(close_on_next_view=True)
     window.show_view(game_view)
     arcade.run()
 
