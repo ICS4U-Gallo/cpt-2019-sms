@@ -9,8 +9,18 @@ class Grid:
         self.columns = columns
         self.rows = rows
         self.margin = margin
-        self.board = [[-1 for x in range(columns)] for y in range(rows)]
-        self.display_board = [[-1 for x in range(columns)] for y in range(rows)]
+        self.board = [[False for x in range(columns)] for y in range(rows)]
+        self.start_board = [
+            [7, 8, 0, 4, 0, 0, 1, 2, 0],
+            [6, 0, 0, 0, 7, 5, 0, 0, 9],
+            [0, 0, 0, 6, 0, 1, 0, 7, 8],
+            [0, 0, 7, 0, 4, 0, 2, 6, 0],
+            [0, 0, 1, 0, 5, 0, 9, 3, 0],
+            [9, 0, 4, 0, 6, 0, 0, 0, 5],
+            [0, 7, 0, 3, 0, 0, 0, 1, 2],
+            [1, 2, 0, 0, 0, 7, 4, 0, 0],
+            [0, 4, 9, 2, 0, 6, 0, 0, 7]
+        ]
         self.selected = (math.ceil(self.columns / 2), math.ceil(self.rows / 2))
         self.x_gap = settings.WIDTH / self.columns
         self.y_gap = settings.HEIGHT / self.rows
@@ -21,6 +31,7 @@ class Grid:
 
     
     def generate_board(self, difficulty):
+        # this will create a start_board for the game
         pass
     
     def solve(self):
@@ -64,13 +75,25 @@ class Grid:
 
             arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness, settings.WIDTH, color, tilt_angle=90)
 
-    def display_selected(self, radius):
+        # GIVEN NUMBERS
+        for row in range(self.rows):
+            for column in range(self.columns):
+                if self.start_board[row][column]:
+                    x = column
+                    y = row
+                    translated_x = self.x_gap * (3/2) + ((self.x_gap) * (x - 1))
+                    translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+                    arcade.draw_circle_filled(translated_x, translated_y - 51, 17, arcade.color.PAYNE_GREY)
+                    arcade.draw_text(str(self.start_board[row][column]), translated_x, translated_y - 60,
+                         arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+
+    def display_selected(self):
         x = self.selected[0]
         y = self.selected[1]
         translated_x = self.x_gap / 2 + ((self.x_gap) * (x - 1))
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
         
-        arcade.draw_circle_filled(translated_x, translated_y, radius, arcade.color.BLIZZARD_BLUE)
+        arcade.draw_circle_filled(translated_x, translated_y - 1, 17, arcade.color.BLIZZARD_BLUE)
 
 
 class Winner:
@@ -107,19 +130,16 @@ class Sudoku(arcade.View):
         arcade.start_render()
         arcade.draw_text(time, 50, 570,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+        game.display_selected()
         game.draw_grid()
-        game.display_selected(20)
     
     def on_key_press(self, symbol, modifiers):
         print(symbol)
         if symbol == 49:
-            print('ONE')
-
+            pass
         elif symbol == 65307:
-            print('Hello!')
             pause_screen = PauseScreen()
             self.window.show_view(pause_screen)
-        
         else:
             pass
     
@@ -129,7 +149,6 @@ class Sudoku(arcade.View):
     def on_mouse_press(self, x, y, button, modifiers):
         x_coordinate = math.ceil(x / (settings.WIDTH / 9))
         y_coordinate = 11 - math.ceil((y - (settings.HEIGHT / 12)) / (settings.HEIGHT / 12))
-        print(x_coordinate, y_coordinate)
         if x_coordinate <= 9 and y_coordinate <= 9 and x_coordinate > 0 and y_coordinate > 0:
             game.selected = (x_coordinate, y_coordinate)
 
@@ -153,7 +172,7 @@ class PauseScreen(arcade.View):
             self.window.next_view()
         elif symbol == 65293:
             self.window.show_view(game_view)
-        else:
+        elif symbol == 65457: # num_1
             pass
 
 class Leaderboard(arcade.View):
@@ -179,8 +198,6 @@ if __name__ == "__main__":
     arcade.run()
 
 # am I allowed to do this lol?
-
 if __name__ != "__main__":
     #set-up for main.py
-
     game_view = Sudoku()
