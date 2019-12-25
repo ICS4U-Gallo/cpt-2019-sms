@@ -9,8 +9,18 @@ class Grid:
         self.columns = columns
         self.rows = rows
         self.margin = margin
-        self.board = [[False for x in range(columns)] for y in range(rows)]
         self.start_board = [
+            [7, 8, 0, 4, 0, 0, 1, 2, 0],
+            [6, 0, 0, 0, 7, 5, 0, 0, 9],
+            [0, 0, 0, 6, 0, 1, 0, 7, 8],
+            [0, 0, 7, 0, 4, 0, 2, 6, 0],
+            [0, 0, 1, 0, 5, 0, 9, 3, 0],
+            [9, 0, 4, 0, 6, 0, 0, 0, 5],
+            [0, 7, 0, 3, 0, 0, 0, 1, 2],
+            [1, 2, 0, 0, 0, 7, 4, 0, 0],
+            [0, 4, 9, 2, 0, 6, 0, 0, 7]
+        ]
+        self.board = [
             [7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
             [0, 0, 0, 6, 0, 1, 0, 7, 8],
@@ -24,10 +34,6 @@ class Grid:
         self.selected = (math.ceil(self.columns / 2), math.ceil(self.rows / 2))
         self.x_gap = settings.WIDTH / self.columns
         self.y_gap = settings.HEIGHT / self.rows
-
-    def insert_number(self, x_cord, y_cord, number):
-        self.board[x_cord][y_cord] = number
-        self.display_board[x_cord][y_cord] = number
 
     
     def generate_board(self, difficulty):
@@ -86,6 +92,20 @@ class Grid:
                     arcade.draw_circle_filled(translated_x, translated_y - 51, 17, arcade.color.PAYNE_GREY)
                     arcade.draw_text(str(self.start_board[row][column]), translated_x, translated_y - 60,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+                elif self.board[row][column]:
+                    x = column
+                    y = row
+                    translated_x = self.x_gap * (3/2) + ((self.x_gap) * (x - 1))
+                    translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+
+                    if self.selected == (column + 1, row + 1):
+                        arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
+                         arcade.color.BLACK,font_size=18, font_name='arial', anchor_x="center")
+                    else:
+                        arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
+                            arcade.color.BLIZZARD_BLUE,font_size=18, font_name='arial', anchor_x="center")
+                else:
+                    pass
 
     def display_selected(self):
         x = self.selected[0]
@@ -134,10 +154,73 @@ class Sudoku(arcade.View):
         game.draw_grid()
     
     def on_key_press(self, symbol, modifiers):
-        print(symbol)
         if symbol == 49:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 1
+        elif symbol == 50:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 2
+        elif symbol == 51:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 3
+        elif symbol == 52:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 4
+        elif symbol == 53:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 5
+        elif symbol == 54:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 6
+        elif symbol == 55:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 7
+        elif symbol == 56:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 8
+        elif symbol == 57:
+            x = game.selected[0] - 1
+            y = game.selected[1] - 1
+            if game.start_board[y][x]:
+                pass
+            else:
+                game.board[y][x] = 9
+        else:
             pass
-        elif symbol == 65307:
+        print(game.board)
+        if symbol == 65307:
             pause_screen = PauseScreen()
             self.window.show_view(pause_screen)
         else:
@@ -168,11 +251,11 @@ class PauseScreen(arcade.View):
 
 
     def on_key_press(self, symbol, modifiers):
-        if symbol == 65307:
+        if symbol == 65307: # escape
             self.window.next_view()
-        elif symbol == 65293:
+        elif symbol == 65293: # enter
             self.window.show_view(game_view)
-        elif symbol == 65457: # num_1
+        else:
             pass
 
 class Leaderboard(arcade.View):
