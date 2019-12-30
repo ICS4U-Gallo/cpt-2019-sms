@@ -3,12 +3,12 @@ import settings
 import math
 
 game = []
+incorrect_coordinates = []
 
-class Grid:
-    def __init__(self, columns, rows, margin):
+class Sudoku:
+    def __init__(self, columns, rows):
         self.columns = columns
         self.rows = rows
-        self.margin = margin
         self.start_board = [
             [7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
@@ -34,9 +34,13 @@ class Grid:
         self.selected = (math.ceil(self.columns / 2), math.ceil(self.rows / 2))
         self.x_gap = settings.WIDTH / self.columns
         self.y_gap = settings.HEIGHT / self.rows
+        self.validate_button = arcade.Sprite(center_x=133.33, center_y = 50)
+        self.validate_button.texture = arcade.make_soft_circle_texture(65,
+                                                               arcade.color.LIGHT_SLATE_GRAY,
+                                                               outer_alpha=255)
 
     
-    def generate_board(self, difficulty):
+    def generate_board(self):
         # this will create a start_board for the game
         pass
     
@@ -44,12 +48,43 @@ class Grid:
         pass
 
     def validate(self):
-        pass
+        all_invalid_coordinates = []
+        for column in range(self.columns):
+            for row in range(self.rows):
+                target_x = column
+                target_y = row
+                target = self.board[target_y][target_x]
+                #row check
+                for y in range(self.rows):
+                    if target == self.board[y][column] and target_y != y and self.board[y][column] != 0:
+                        coordinate = (y, column)
+                        all_invalid_coordinates.append(coordinate)
+
+        for row in range(self.rows):
+            for column in range(self.columns):
+                target_x = column
+                target_y = row
+                target = self.board[target_y][target_x]
+                #column check
+                for x in range(self.columns):
+                    if target == self.board[row][x] and target_x != x and self.board[row][x] != 0:
+                        coordinate = (row, x)
+                        all_invalid_coordinates.append(coordinate)
+        
+        invalid_coordinates = []
+        for coordinate in all_invalid_coordinates:
+            y = coordinate[0]
+            x = coordinate[1]
+            if self.start_board[y][x] == 0:
+                #can implement search here
+                invalid_coordinates.append(coordinate)
+
+        return set(invalid_coordinates)
 
     def pencil(self, x_cord, y_cord, number):
         pass
 
-    def draw_grid(self):
+    def display_grid(self):
         # REMOVE -- y_bottom is 100 and y_top is 550
         x_start = settings.WIDTH / 9
         y_pos = settings.HEIGHT / 6
@@ -61,7 +96,6 @@ class Grid:
             if i % 3 != 0:
                 thickness = 1
                 color = arcade.color.LIGHT_SLATE_GRAY
-
             else:
                 thickness *= 3
                 color = arcade.color.BLIZZARD_BLUE
@@ -81,7 +115,7 @@ class Grid:
 
             arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness, settings.WIDTH, color, tilt_angle=90)
 
-        # GIVEN NUMBERS
+    def display_numbers(self):
         for row in range(self.rows):
             for column in range(self.columns):
                 if self.start_board[row][column]:
@@ -90,6 +124,7 @@ class Grid:
                     translated_x = self.x_gap * (3/2) + ((self.x_gap) * (x - 1))
                     translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
                     arcade.draw_circle_filled(translated_x, translated_y - 51, 17, arcade.color.PAYNE_GREY)
+                    # STARTING NUMBERS
                     arcade.draw_text(str(self.start_board[row][column]), translated_x, translated_y - 60,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
                 elif self.board[row][column]:
@@ -100,21 +135,37 @@ class Grid:
 
                     if self.selected == (column + 1, row + 1):
                         arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
+                        # INPUTTED NUMBERS WHILE SELECTED
                          arcade.color.BLACK,font_size=18, font_name='arial', anchor_x="center")
                     else:
+                        # INPUTTED NUMBERS
                         arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
                             arcade.color.BLIZZARD_BLUE,font_size=18, font_name='arial', anchor_x="center")
-                else:
-                    pass
 
     def display_selected(self):
         x = self.selected[0]
         y = self.selected[1]
         translated_x = self.x_gap / 2 + ((self.x_gap) * (x - 1))
-        translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
-        
+        translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y) 
         arcade.draw_circle_filled(translated_x, translated_y - 1, 17, arcade.color.BLIZZARD_BLUE)
 
+    def display_incorrect_background(self, coordinate):
+        x = coordinate[1]
+        y = coordinate[0]
+        translated_x = self.x_gap / 2 + ((self.x_gap) * (x - 1))
+        translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)      
+        arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17, arcade.color.CADMIUM_RED)
+        arcade.draw_text(str(self.board[y][x]), translated_x + 88.88, translated_y - 60,
+                            arcade.color.GHOST_WHITE,font_size=18, font_name='arial', anchor_x="center")
+
+class EasySudoku(Sudoku):
+    pass
+
+class MediumSudoku(Sudoku):
+    pass
+
+class HardSudoku(Sudoku):
+    pass
 
 class Winner:
     all_winners = []
@@ -135,7 +186,7 @@ class Menu(arcade.View):
 class Instructions(arcade.View):
     pass
 
-class Sudoku(arcade.View):
+class MaxGameView(arcade.View):
     def __init__(self):
         super().__init__()
         self.timer = 0
@@ -146,80 +197,114 @@ class Sudoku(arcade.View):
         if game != []:
             pass
         else:
-            game = Grid(9, 9, 15)
+            game = Sudoku(9, 9)
     
     def on_draw(self):
         time = f"Time: {str(int((round(self.timer, 0))))}"
         arcade.start_render()
-        arcade.draw_text(time, 50, 570,
+        arcade.draw_text(time, 65, 570,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+        game.display_grid()
         game.display_selected()
-        game.draw_grid()
-    
+        game.display_numbers()
+
+        if incorrect_coordinates:
+            for coordinate in incorrect_coordinates:
+                game.display_incorrect_background(coordinate)
+
+        game.validate_button.draw()
+        arcade.draw_text('V', 133.33, 30,
+                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+        arcade.draw_text('P', 400, 30,
+                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+        arcade.draw_text('R', 666.66, 30,
+                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+
     def on_key_press(self, symbol, modifiers):
+        x = game.selected[0] - 1
+        y = game.selected[1] - 1
+        coordinate = (y, x)
+        
         if symbol == 49:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 1
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 1
         elif symbol == 50:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 2
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 2
         elif symbol == 51:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 3
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 3
         elif symbol == 52:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 4
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 4
         elif symbol == 53:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 5
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 5
         elif symbol == 54:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 6
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 6
         elif symbol == 55:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 7
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 7
         elif symbol == 56:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 8
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 8
         elif symbol == 57:
-            x = game.selected[0] - 1
-            y = game.selected[1] - 1
             if game.start_board[y][x]:
                 pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 9
+                incorrect_coordinates.remove(coordinate)
             else:
                 game.board[y][x] = 9
+        elif symbol == 65288 or symbol == 48:
+            if game.start_board[y][x]:
+                pass
+            elif coordinate in incorrect_coordinates:
+                game.board[y][x] = 0
+                incorrect_coordinates.remove(coordinate)
+            else:
+                game.board[y][x] = 0
         else:
             pass
 
@@ -233,10 +318,14 @@ class Sudoku(arcade.View):
         self.timer += delta_time
     
     def on_mouse_press(self, x, y, button, modifiers):
+        global incorrect_coordinates
         x_coordinate = math.ceil(x / (settings.WIDTH / 9))
         y_coordinate = 11 - math.ceil((y - (settings.HEIGHT / 12)) / (settings.HEIGHT / 12))
         if x_coordinate <= 9 and y_coordinate <= 9 and x_coordinate > 0 and y_coordinate > 0:
             game.selected = (x_coordinate, y_coordinate)
+        
+        if game.validate_button.collides_with_point([x, y]):
+            incorrect_coordinates = game.validate()
 
 class PauseScreen(arcade.View):
     def __init__(self, game_view):
@@ -278,11 +367,11 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    game_view = Sudoku()
+    game_view = MaxGameView()
     window.show_view(game_view)
     arcade.run()
 
 # am I allowed to do this lol?
 if __name__ != "__main__":
     #set-up for main.py
-    game_view = Sudoku()
+    game_view = MaxGameView()
