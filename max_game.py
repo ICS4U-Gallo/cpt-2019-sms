@@ -51,26 +51,62 @@ class Sudoku:
         all_invalid_coordinates = []
         for column in range(self.columns):
             for row in range(self.rows):
-                target_x = column
-                target_y = row
-                target = self.board[target_y][target_x]
+                target = self.board[row][column]
                 #row check
                 for y in range(self.rows):
-                    if target == self.board[y][column] and target_y != y and self.board[y][column] != 0:
+                    if target == self.board[y][column] and row != y and self.board[y][column] != 0:
                         coordinate = (y, column)
                         all_invalid_coordinates.append(coordinate)
 
         for row in range(self.rows):
             for column in range(self.columns):
-                target_x = column
-                target_y = row
-                target = self.board[target_y][target_x]
+                target = self.board[row][column]
                 #column check
                 for x in range(self.columns):
-                    if target == self.board[row][x] and target_x != x and self.board[row][x] != 0:
+                    if target == self.board[row][x] and column != x and self.board[row][x] != 0:
                         coordinate = (row, x)
                         all_invalid_coordinates.append(coordinate)
         
+        for row in range(self.rows):
+            for column in range(self.columns):
+                if not self.board[row][column]:
+                    continue
+
+                coordinate = (row, column)
+                target = self.board[row][column]
+                block_x = column // 3
+                block_y = row // 3
+
+                if block_x == 0:
+                        start_x = 1
+                        multiplier_x = 0
+                elif block_x == 1:
+                    start_x = 4
+                    multiplier_x = 1
+                else:
+                    start_x = 7
+                    multiplier_x = 2
+                
+                if block_y == 0:
+                    start_y = 1
+                    multiplier_y = 0
+                elif block_y == 1:
+                    start_y = 4
+                    multiplier_y = 1
+                else:
+                    start_y = 7
+                    multiplier_y = 2
+                
+                block = self.board[start_y-1:start_y+2]
+                for y in range(len(block)):
+                    new_row = block[y][start_x-1:start_x+2]
+                    for x, number in enumerate(new_row):
+                        number_coordinate_y = y + 3 * multiplier_y
+                        number_coordinate_x = x + 3 * multiplier_x
+                        number_coordinate = (number_coordinate_y, number_coordinate_x)
+                        if number == target and number_coordinate != coordinate:
+                            all_invalid_coordinates.append(coordinate)
+
         invalid_coordinates = []
         for coordinate in all_invalid_coordinates:
             y = coordinate[0]
@@ -79,6 +115,8 @@ class Sudoku:
                 #can implement search here
                 invalid_coordinates.append(coordinate)
 
+        # if not invalid_coordinates: MISSING FIND EMPTY FUNCTION FOR SOLVER
+        #     print('Winner!')
         return set(invalid_coordinates)
 
     def pencil(self, x_cord, y_cord, number):
@@ -194,6 +232,7 @@ class MaxGameView(arcade.View):
     def on_show(self):
         global game
         arcade.set_background_color(arcade.color.EERIE_BLACK)
+        # if/else statement is necessary for the game instance to be created when the program runs from max_game.py and main.py
         if game != []:
             pass
         else:
@@ -202,7 +241,7 @@ class MaxGameView(arcade.View):
     def on_draw(self):
         time = f"Time: {str(int((round(self.timer, 0))))}"
         arcade.start_render()
-        arcade.draw_text(time, 65, 570,
+        arcade.draw_text(time, settings.WIDTH / 2, 565,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
         game.display_grid()
         game.display_selected()
