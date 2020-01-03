@@ -1,45 +1,87 @@
 import arcade
+import settings
 
-WIDTH = 800
-HEIGHT = 600
-
-
-class MyGame(arcade.Window):
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
-
-        arcade.set_background_color(arcade.color.WHITE)
-
-        self.sprite1 = arcade.Sprite(center_x=100, center_y=200)
-        self.sprite1.change_x = 1
-        self.sprite1.texture = arcade.make_soft_square_texture(50,
-                                                               arcade.color.BLACK,
-                                                               outer_alpha=255)
-
-        self.sprite2 = arcade.Sprite(center_x=WIDTH-100, center_y=200)
-        self.sprite2.texture = arcade.make_soft_square_texture(500,
-                                                               arcade.color.BLUE,
-                                                               outer_alpha=255)
-
+key_translator = {
+    48: '0',
+    49: '1',
+    50: '2',
+    51: '3',
+    52: '4',
+    53: '5',
+    54: '6',
+    55: '7',
+    56: '8',
+    57: '9',
+    95: '_',
+    97: 'A',
+    98: 'B',
+    99: 'C',
+    100: 'D',
+    101: 'E',
+    102: 'F',
+    103: 'G',
+    104: 'H',
+    105: 'I',
+    106: 'J',
+    107: 'K',
+    108: 'L',
+    109: 'M',
+    110: 'N',
+    111: 'O',
+    112: 'P',
+    113: 'Q',
+    114: 'R',
+    115: 'S',
+    116: 'T',
+    117: 'U',
+    118: 'V',
+    119: 'W',
+    120: 'X',
+    121: 'Y',
+    122: 'Z'
+}
+class SriGameView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.BLUE_SAPPHIRE)
+    
     def on_draw(self):
-        arcade.start_render()  # keep as first line
+        arcade.start_render()
+        arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2, arcade.color.WHITE)
 
-        # Draw everything below here.
-        self.sprite1.draw()
-        self.sprite2.draw()
+    def on_key_press(self, key, modifiers):
+        global text
+        try:
+            for num_key, value in key_translator.items():
+                if key == 65288 and len(text) > 1:
+                    try:
+                        text[:-1]
+                    except:
+                        pass
+                elif num_key == key:
+                    letter = value
+                    text += letter
+                else:
+                    continue
+        except:
+            pass
 
-    def update(self, delta_time):
-        self.sprite1.update()
-        self.sprite2.update()
-
-        if self.sprite1.collides_with_sprite(self.sprite2):
-            print("COLLIDING")
-
-
-def main():
-    game = MyGame(WIDTH, HEIGHT, "My Game")
-    arcade.run()
 
 
 if __name__ == "__main__":
-    main()
+    """This section of code will allow you to run your View
+    independently from the main.py file and its Director.
+
+    You can ignore this whole section. Keep it at the bottom
+    of your code.
+
+    It is advised you do not modify it unless you really know
+    what you are doing.
+    """
+    from utils import FakeDirector
+    typing = False
+    text = 'Username: '
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    my_view = SriGameView()
+    my_view.director = FakeDirector(close_on_next_view=True)
+    window.show_view(my_view)
+    arcade.run()
