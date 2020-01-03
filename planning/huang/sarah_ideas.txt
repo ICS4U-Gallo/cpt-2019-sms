@@ -7,23 +7,24 @@ Game characteristics:
 
 
 - Classes
-    > character class(shape, colour, point_value, speed) 
+    > game view class
     
   - Inheritance
         > inherited class for each shape
             > 4 normal, 2 special abilities
   - Encapsulation
-        > encapsulate the name, ability
+        > encapsulate the name
+        
   - Class/static method
         > shape that ends the game early
         > shape that clears all occurances of a shape
         
 - Recursion
-    > controls the amount of shapes at the time
-        > while time > 40, return time*1.1
+    > calculates points
     
 - Sorting
+    > bubble sort to invert lists
     > leaderboard
     
 - Searching
-    > special shape: searches for all occurances of a shape and removes them, adding the points to the score
+    > for loops, seaching through lists for characters to delete
