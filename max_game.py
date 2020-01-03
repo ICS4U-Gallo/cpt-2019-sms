@@ -6,6 +6,7 @@ from time import strftime, gmtime
 import copy
 
 game = []
+game_view = ''
 incorrect_coordinates = []
 all_start_boards = [
             [[7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -58,8 +59,8 @@ class Sudoku:
         self.solve_button.texture = arcade.make_soft_circle_texture(65,
                                                                arcade.color.LIGHT_SLATE_GRAY,
                                                                outer_alpha=255)
-        self.reset_button = arcade.Sprite(center_x=750, center_y=575)
-        self.reset_button.texture = arcade.make_soft_circle_texture(35,
+        self.reset_button = arcade.Sprite(center_x=751.5, center_y=575)
+        self.reset_button.texture = arcade.make_soft_circle_texture(37,
                                                                arcade.color.LIGHT_SLATE_GRAY,
                                                                outer_alpha=255)
         self.pencil_button = arcade.Sprite(center_x=400, center_y=50)
@@ -296,11 +297,60 @@ class Winner:
         return Winner('Anonymous', time)
 
 
-class Menu(arcade.View):
-    pass
+class SudokuMenu(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.play_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=500)
+        self.play_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.LIGHT_SLATE_GRAY,
+                                                               outer_alpha=255)
+        self.instruction_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=350)
+        self.instruction_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.LIGHT_SLATE_GRAY,
+                                                               outer_alpha=255)
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
+    
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550, arcade.color.BLIZZARD_BLUE, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
+        self.play_button.draw()
+        arcade.draw_text('P', settings.WIDTH / 2, 485, arcade.color.BLIZZARD_BLUE, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
+        self.instruction_button.draw()
+        arcade.draw_text('I', settings.WIDTH / 2, 335, arcade.color.BLIZZARD_BLUE, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
+    
+    def on_mouse_press(self, x, y, button, modifiers):
+        global game_view, game
+        if self.play_button.collides_with_point([x, y]):
+            game_view = MaxGameView()
+            board_index = random.randrange(len(all_start_boards))
+            game = Sudoku(all_start_boards[board_index])
+            self.window.show_view(game_view)
+        if self.instruction_button.collides_with_point([x, y]):
+            instruction_view = Instructions()
+            self.window.show_view(instruction_view)
 
 class Instructions(arcade.View):
-    pass
+    def __init__(self):
+        super().__init__()
+        with open('sudoku_instructions.txt', 'r', errors='ignore') as f:
+            self.contents = f.read()
+    
+    def on_show(self):
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
+    
+    def on_key_press(self, symbol, modifiers):
+        if symbol == 65307:
+            self.window.show_view(menu_view)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text(self.contents, settings.WIDTH - 450, 200, arcade.color.BLIZZARD_BLUE, 
+                font_size = 13, font_name = 'arial', anchor_x='center')
 
 class MaxGameView(arcade.View):
     def __init__(self):
@@ -308,14 +358,7 @@ class MaxGameView(arcade.View):
         self.seconds_elapsed = 0
 
     def on_show(self):
-        global game
         arcade.set_background_color(arcade.color.EERIE_BLACK)
-        # if/else statement is necessary for the game instance to be created when the program runs from max_game.py and main.py
-        if game != []:
-            pass
-        else:
-            board_index = random.randrange(len(all_start_boards))
-            game = Sudoku(all_start_boards[board_index])
     
     def on_draw(self):
         self.timer = strftime("%H:%M:%S", gmtime(self.seconds_elapsed))
@@ -516,6 +559,9 @@ class MaxGameView(arcade.View):
         
         if game.validate_button.collides_with_point([x, y]):
             incorrect_coordinates = game.find_invalid()
+            if not incorrect_coordinates and not game.find_empty():
+                win_view = WinView(self.seconds_elapsed)
+                self.window.show_view(win_view)
         
         if game.solve_button.collides_with_point([x, y]):
             game.solve()
@@ -551,6 +597,8 @@ class PauseScreen(arcade.View):
                          arcade.color.LIGHT_GRAY,font_size=25, font_name='arial', anchor_x="center")
         arcade.draw_text('>PRESS <ENTER> TO RESUME GAME', settings.WIDTH / 2, settings.HEIGHT / 1.5,
                          arcade.color.LIGHT_GRAY,font_size=25, font_name='arial', anchor_x="center")
+        arcade.draw_text('>PRESS <M> TO RETURN TO THE MENU', settings.WIDTH / 2, settings.HEIGHT / 3,
+                         arcade.color.LIGHT_GRAY, font_size=25, font_name='arial', anchor_x="center")
 
 
     def on_key_press(self, symbol, modifiers):
@@ -558,12 +606,42 @@ class PauseScreen(arcade.View):
             self.window.next_view()
         elif symbol == 65293: # enter
             self.window.show_view(self.game_view)
+        elif symbol == 109: # M
+            self.window.show_view(menu_view)
         else:
             pass
 
 class Leaderboard(arcade.View):
     pass
 
+class WinView(arcade.View):
+    def __init__(self, time):
+        super().__init__()
+        self.time = round(time, 0)
+    
+    def on_show(self):
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
+    
+    def on_draw(self):
+        arcade.start_render()
+        text = f'Congratulation on winning <USER>! You completed this board with a time of: {self.time}'
+        arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2,
+                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+        arcade.draw_text('To return to the menu, press <M>', settings.WIDTH / 2, settings.HEIGHT / 1.5,
+                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+        arcade.draw_text('To see the leaderboard, press <L>', settings.WIDTH / 2, settings.HEIGHT / 3,
+                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+    
+    def on_key_press(self, symbol, modifiers):
+        if symbol == 109:
+            global game, game_view
+            del game
+            del game_view
+            self.window.show_view(menu_view)
+        if symbol == 108:
+            board_index = random.randrange(len(all_start_boards))
+            leaderboard = Leaderboard()
+            self.window.show_view(leaderboard)
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
@@ -577,10 +655,10 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    game_view = MaxGameView()
-    window.show_view(game_view)
+    menu_view = SudokuMenu()
+    window.show_view(menu_view)
     arcade.run()
 
 if __name__ != "__main__":
     #set-up for main.py
-    game_view = MaxGameView()
+    menu_view = SudokuMenu()
