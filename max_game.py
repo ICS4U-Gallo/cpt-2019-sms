@@ -278,6 +278,8 @@ class Sudoku:
     def display_incorrect_background(self, coordinate):
         x = coordinate[1]
         y = coordinate[0]
+        if self.board[y][x] == 0:
+            return None 
         translated_x = self.x_gap / 2 + ((self.x_gap) * (x - 1))
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)      
         arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17, arcade.color.CADMIUM_RED)
@@ -365,14 +367,14 @@ class MaxGameView(arcade.View):
         arcade.start_render()
         arcade.draw_text(self.timer, settings.WIDTH / 2, 565,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+        if incorrect_coordinates:
+            for coordinate in incorrect_coordinates:
+                game.display_incorrect_background(coordinate)
+        
         game.display_grid()
         game.display_selected()
         game.display_numbers()
         game.display_temp_values()
-
-        if incorrect_coordinates:
-            for coordinate in incorrect_coordinates:
-                game.display_incorrect_background(coordinate)
 
         game.validate_button.draw()
         game.solve_button.draw()
@@ -660,5 +662,4 @@ if __name__ == "__main__":
     arcade.run()
 
 if __name__ != "__main__":
-    #set-up for main.py
     menu_view = SudokuMenu()
