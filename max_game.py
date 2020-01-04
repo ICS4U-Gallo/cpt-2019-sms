@@ -820,7 +820,10 @@ class WinView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        text = f'Congratulation on winning, {user.name}! You completed this board with a time of: {self.time}'
+        if not user.name:
+            text = f'Congratulation on winning, Anonymous! You completed this board with a time of: {self.time}'
+        else:
+            text = f'Congratulation on winning, {user.name}! You completed this board with a time of: {self.time}'
         arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2,
                         user.preferred_color, font_size=15, font_name='arial', anchor_x="center")
         arcade.draw_text('To return to the menu, press <M>', settings.WIDTH / 2, settings.HEIGHT / 1.5,
