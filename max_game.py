@@ -12,13 +12,6 @@ game = None
 game_view = None
 data = []
 
-with open("sudoku_data.p", "rb") as f:
-    try:
-        data = pickle.load(f)
-    except:
-        print('failed')
-        pass
-
 all_start_boards = [
             [[7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
@@ -857,8 +850,12 @@ if __name__ == "__main__":
     introduction_view = IntroductionView()
     menu_view = SudokuMenu()
     window.show_view(introduction_view)
+    with open("sudoku_data.p", "rb") as f:
+        data = pickle.load(f)
     arcade.run()
 
 if __name__ != "__main__":
     introduction_view = IntroductionView()
     menu_view = SudokuMenu()
+    with open("sudoku_data.p", "rb") as f:
+        data = pickle.load(f)
