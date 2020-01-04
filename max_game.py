@@ -2,12 +2,23 @@ import arcade
 import settings
 import math
 import random
+import pickle
 from time import strftime, gmtime
 import copy
 
-game = []
-game_view = ''
-incorrect_coordinates = []
+user = None
+winner = None
+game = None
+game_view = None
+data = []
+
+with open("sudoku_data.p", "rb") as f:
+    try:
+        data = pickle.load(f)
+    except:
+        print('failed')
+        pass
+
 all_start_boards = [
             [[7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
@@ -51,6 +62,7 @@ class Sudoku:
         self.x_gap = settings.WIDTH / self.columns
         self.y_gap = settings.HEIGHT / self.rows
         self.pencil_mode = False
+        self.incorrect_coordinates = []
         self.validate_button = arcade.Sprite(center_x=133.33, center_y=50)
         self.validate_button.texture = arcade.make_soft_circle_texture(65,
                                                                arcade.color.LIGHT_SLATE_GRAY,
@@ -71,6 +83,7 @@ class Sudoku:
     def reset_board(self):
         self.board = copy.deepcopy(self.start_board)
         self.temp_values = {(i, j):[] for i in range(9) for j in range(9)}
+        self.incorrect_coordinates = []
 
     def find_temp_value(self, target, coordinate):
         present = False
@@ -184,21 +197,35 @@ class Sudoku:
 
         return set(invalid_coordinates)
 
-    def sort_temp_values(self):
-        for y in range(self.rows):
-            for x in range(self.columns):
-                coordinate = (y, x)
-                times_through = 0
-                sorted = False
-                while not sorted:
-                    sorted = True
-                    for i in range(len(self.temp_values[coordinate]) - 1 - times_through):
-                        if self.temp_values[coordinate][i] > self.temp_values[coordinate][i + 1]:
-                            self.temp_values[coordinate][i], self.temp_values[coordinate][i + 1] = self.temp_values[coordinate][i + 1], self.temp_values[coordinate][i]
-                            sorted = False
-                        else:
-                            pass
-                    times_through += 1
+    def sort_temp_values(self, numbers):
+        if len(numbers) <= 1:
+            return numbers
+        
+        mid = len(numbers) // 2
+        left_side = self.sort_temp_values(numbers[:mid])
+        right_side = self.sort_temp_values(numbers[mid:])
+        sorted_list = []
+        
+        left_pointer = 0
+        right_pointer = 0
+
+        while left_pointer < len(left_side) and right_pointer < len(right_side):
+            if left_side[left_pointer] < right_side[right_pointer]:
+                sorted_list.append(left_side[left_pointer])
+                left_pointer += 1
+            else:
+                sorted_list.append(right_side[right_pointer])
+                right_pointer += 1
+        
+        while left_pointer < len(left_side):
+            sorted_list.append(left_side[left_pointer])
+            left_pointer += 1
+    
+        while right_pointer < len(right_side):
+            sorted_list.append(right_side[right_pointer])
+            right_pointer += 1
+
+        return sorted_list
 
     def display_temp_values(self):
         for y in range(self.rows):
@@ -224,7 +251,7 @@ class Sudoku:
                 color = arcade.color.LIGHT_SLATE_GRAY
             else:
                 thickness *= 3
-                color = arcade.color.BLIZZARD_BLUE
+                color = user.preferred_color
 
             arcade.draw_rectangle_filled(x_pos, settings.HEIGHT / 1.865, thickness, settings.HEIGHT / (4/3), color)
         
@@ -237,7 +264,7 @@ class Sudoku:
                 color = arcade.color.LIGHT_SLATE_GRAY
             else:
                 thickness *= 3
-                color = arcade.color.BLIZZARD_BLUE
+                color = user.preferred_color
 
             arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness, settings.WIDTH, color, tilt_angle=90)
 
@@ -266,14 +293,14 @@ class Sudoku:
                     else:
                         # INPUTTED NUMBERS
                         arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
-                            arcade.color.BLIZZARD_BLUE,font_size=18, font_name='arial', anchor_x="center")
+                            user.preferred_color,font_size=18, font_name='arial', anchor_x="center")
 
     def display_selected(self):
         x = self.selected[0]
         y = self.selected[1]
         translated_x = self.x_gap / 2 + ((self.x_gap) * (x - 1))
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y) 
-        arcade.draw_circle_filled(translated_x, translated_y - 1, 17, arcade.color.BLIZZARD_BLUE)
+        arcade.draw_circle_filled(translated_x, translated_y - 1, 17, user.preferred_color)
 
     def display_incorrect_background(self, coordinate):
         x = coordinate[1]
@@ -286,13 +313,15 @@ class Sudoku:
         arcade.draw_text(str(self.board[y][x]), translated_x + 88.88, translated_y - 60,
                             arcade.color.GHOST_WHITE,font_size=18, font_name='arial', anchor_x="center")
 
-class Winner:
-    all_winners = []
+class User:
+    def __init__(self, name, preferred_color):
+        self.name = name
+        self.preferred_color = preferred_color
 
+class Winner():
     def __init__(self, name, time):
         self.name = name
         self.time = time
-        all_winners.append(self)
     
     @classmethod
     def create_anon_winner(cls, time):
@@ -310,19 +339,26 @@ class SudokuMenu(arcade.View):
         self.instruction_button.texture = arcade.make_soft_square_texture(50,
                                                                arcade.color.LIGHT_SLATE_GRAY,
                                                                outer_alpha=255)
+        self.leaderboard_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y = 200)
+        self.leaderboard_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.LIGHT_SLATE_GRAY,
+                                                               outer_alpha=255)
 
     def on_show(self):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550, arcade.color.BLIZZARD_BLUE, 
+        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
         self.play_button.draw()
-        arcade.draw_text('P', settings.WIDTH / 2, 485, arcade.color.BLIZZARD_BLUE, 
+        arcade.draw_text('P', settings.WIDTH / 2, 485, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
         self.instruction_button.draw()
-        arcade.draw_text('I', settings.WIDTH / 2, 335, arcade.color.BLIZZARD_BLUE, 
+        arcade.draw_text('I', settings.WIDTH / 2, 335, user.preferred_color, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
+        self.leaderboard_button.draw()
+        arcade.draw_text('L', settings.WIDTH / 2, 185, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
     
     def on_mouse_press(self, x, y, button, modifiers):
@@ -335,6 +371,9 @@ class SudokuMenu(arcade.View):
         if self.instruction_button.collides_with_point([x, y]):
             instruction_view = Instructions()
             self.window.show_view(instruction_view)
+        if self.leaderboard_button.collides_with_point([x, y]):
+            leaderboard_view = LeaderboardView(data)
+            self.window.show_view(leaderboard_view)
 
 class Instructions(arcade.View):
     def __init__(self):
@@ -351,8 +390,8 @@ class Instructions(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text(self.contents, settings.WIDTH - 450, 200, arcade.color.BLIZZARD_BLUE, 
-                font_size = 13, font_name = 'arial', anchor_x='center')
+        arcade.draw_text(self.contents, settings.WIDTH - 450, 200, user.preferred_color, 
+                        font_size = 13, font_name = 'arial', anchor_x='center')
 
 class MaxGameView(arcade.View):
     def __init__(self):
@@ -367,8 +406,8 @@ class MaxGameView(arcade.View):
         arcade.start_render()
         arcade.draw_text(self.timer, settings.WIDTH / 2, 565,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
-        if incorrect_coordinates:
-            for coordinate in incorrect_coordinates:
+        if game.incorrect_coordinates:
+            for coordinate in game.incorrect_coordinates:
                 game.display_incorrect_background(coordinate)
         
         game.display_grid()
@@ -382,13 +421,13 @@ class MaxGameView(arcade.View):
         game.pencil_button.draw()
 
         arcade.draw_text('V', 133.33, 30,
-                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+                         user.preferred_color,font_size=40, font_name='arial', anchor_x="center")
         arcade.draw_text('P', 400, 30,
-                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+                         user.preferred_color,font_size=40, font_name='arial', anchor_x="center")
         arcade.draw_text('S', 666.66, 30,
-                         arcade.color.BLIZZARD_BLUE,font_size=40, font_name='arial', anchor_x="center")
+                         user.preferred_color,font_size=40, font_name='arial', anchor_x="center")
         arcade.draw_text('R', 750, 565,
-                         arcade.color.BLIZZARD_BLUE,font_size=20, font_name='arial', anchor_x="center")
+                         user.preferred_color,font_size=20, font_name='arial', anchor_x="center")
 
     def on_key_press(self, symbol, modifiers):
         x = game.selected[0] - 1
@@ -401,64 +440,64 @@ class MaxGameView(arcade.View):
             if game.start_board[y][x]:
                     pass
             elif symbol == 49:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 1
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 1
             elif symbol == 50:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 2
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 2
             elif symbol == 51:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 3
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 3
             elif symbol == 52:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 4
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 4
             elif symbol == 53:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 5
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 5
             elif symbol == 54:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 6
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 6
             elif symbol == 55:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 7
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 7
             elif symbol == 56:
                 
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 8
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 8
             elif symbol == 57:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 9
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 9
             elif symbol == 65288 or symbol == 48:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                 else:
                     game.board[y][x] = 0
             else:
@@ -468,80 +507,84 @@ class MaxGameView(arcade.View):
             if game.start_board[y][x]:
                     pass
             elif symbol == 49:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(1, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(1, coordinate)
             elif symbol == 50:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(2, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(2, coordinate)
             elif symbol == 51:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(3, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(3, coordinate)
             elif symbol == 52:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(4, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(4, coordinate)
             elif symbol == 53:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(5, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(5, coordinate)
             elif symbol == 54:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(6, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(6, coordinate)
             elif symbol == 55:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(7, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(7, coordinate)
             elif symbol == 56:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(8, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(8, coordinate)
             elif symbol == 57:
-                if coordinate in incorrect_coordinates:
+                if coordinate in game.incorrect_coordinates:
                     game.board[y][x] = 0
-                    incorrect_coordinates.remove(coordinate)
+                    game.incorrect_coordinates.remove(coordinate)
                     game.find_temp_value(9, coordinate)
                 else:
                     game.board[y][x] = 0
                     game.find_temp_value(9, coordinate)
             else:
                 pass
-            game.sort_temp_values()
+            for y in range(game.rows):
+                for x in range(game.columns):
+                    coordinate = (y, x)
+                    numbers = game.temp_values[coordinate]
+                    game.temp_values[coordinate] = game.sort_temp_values(numbers)
 
         if symbol == 65307:
             pause_screen = PauseScreen(self)
@@ -553,15 +596,24 @@ class MaxGameView(arcade.View):
         self.seconds_elapsed += delta_time
     
     def on_mouse_press(self, x, y, button, modifiers):
-        global incorrect_coordinates
         x_coordinate = math.ceil(x / (settings.WIDTH / 9))
         y_coordinate = 11 - math.ceil((y - (settings.HEIGHT / 12)) / (settings.HEIGHT / 12))
         if x_coordinate <= 9 and y_coordinate <= 9 and x_coordinate > 0 and y_coordinate > 0:
             game.selected = (x_coordinate, y_coordinate)
         
         if game.validate_button.collides_with_point([x, y]):
-            incorrect_coordinates = game.find_invalid()
-            if not incorrect_coordinates and not game.find_empty():
+            game.incorrect_coordinates = game.find_invalid()
+            if not game.incorrect_coordinates and not game.find_empty():
+                if not user.name:
+                    winner = Winner.create_anon_winner(round(self.seconds_elapsed, 1))
+                else:
+                    winner = Winner(user.name, round(self.seconds_elapsed, 1))
+                
+                data.append(winner)
+                
+                with open("sudoku_data.p", "wb") as f:
+                    pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+
                 win_view = WinView(self.seconds_elapsed)
                 self.window.show_view(win_view)
         
@@ -613,26 +665,168 @@ class PauseScreen(arcade.View):
         else:
             pass
 
-class Leaderboard(arcade.View):
-    pass
+class IntroductionView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.text = 'USERNAME: '
+        self.preferred_color = None
+        self.green_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=500)
+        self.green_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.GREEN_YELLOW,
+                                                               outer_alpha=255)
+        self.blue_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=350)
+        self.blue_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.BLIZZARD_BLUE,
+                                                               outer_alpha=255)
+        self.white_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y = 200)
+        self.white_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.WHITE,
+                                                               outer_alpha=255)
+        self.key_translator = {
+            48: '0',
+            49: '1',
+            50: '2',
+            51: '3',
+            52: '4',
+            53: '5',
+            54: '6',
+            55: '7',
+            56: '8',
+            57: '9',
+            95: '_',
+            97: 'A',
+            98: 'B',
+            99: 'C',
+            100: 'D',
+            101: 'E',
+            102: 'F',
+            103: 'G',
+            104: 'H',
+            105: 'I',
+            106: 'J',
+            107: 'K',
+            108: 'L',
+            109: 'M',
+            110: 'N',
+            111: 'O',
+            112: 'P',
+            113: 'Q',
+            114: 'R',
+            115: 'S',
+            116: 'T',
+            117: 'U',
+            118: 'V',
+            119: 'W',
+            120: 'X',
+            121: 'Y',
+            122: 'Z'
+        }
+    
+    def on_show(self):
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
+
+    def on_draw(self):
+        arcade.start_render()
+        if not self.preferred_color:
+            arcade.draw_text('CLICK YOUR PREFERRED COLOR', settings.WIDTH / 2, settings.HEIGHT - 50,
+                            arcade.color.LIGHT_GRAY,font_size=15, font_name='arial', anchor_x="center")
+            self.green_button.draw()
+            self.blue_button.draw()
+            self.white_button.draw()
+        else:
+            arcade.draw_text(self.text, settings.WIDTH / 2, settings.HEIGHT / 2, arcade.color.BLIZZARD_BLUE, font_size=25, anchor_x='center')
+            arcade.draw_text('TYPE IN YOUR USERNAME AND PRESS <ENTER> TO CONTINUE', settings.WIDTH / 2, settings.HEIGHT - 50,
+                            arcade.color.LIGHT_GRAY,font_size=15, font_name='arial', anchor_x="center")
+    
+    def on_key_press(self, symbol, modifiers):
+        global user
+        if self.preferred_color:
+            try:
+                for num_symbol, value in self.key_translator.items():
+                    if symbol == 65288 and len(self.text) > 1:
+                        self.text = self.text[:10]
+                    elif num_symbol == symbol:
+                        if len(self.text) > 18:
+                            break
+                        else:
+                            letter = value
+                            self.text += letter
+                    else:
+                        continue
+            except:
+                pass
+            if symbol == 65293:
+                name = self.text[10:]
+                user = User(name, self.preferred_color)
+                menu_view = SudokuMenu()
+                self.window.show_view(menu_view)
+    
+    def on_mouse_press(self, x, y, button, modifiers):
+        if self.green_button.collides_with_point([x, y]):
+            self.preferred_color = arcade.color.GREEN_YELLOW
+        if self.blue_button.collides_with_point([x, y]):
+            self.preferred_color = arcade.color.BLIZZARD_BLUE
+        if self.white_button.collides_with_point([x, y]):
+            self.preferred_color = arcade.color.WHITE
+
+class LeaderboardView(arcade.View):
+    def __init__(self, data):
+        super().__init__()
+
+    @staticmethod
+    def order_winner_times():
+        sorted = False
+        times_through = 0
+
+        while not sorted:
+            sorted = True
+            for i in range(len(data) - 1 - times_through):
+                if data[i].time > data[i + 1].time:
+                    data[i], data[i + 1] = data[i + 1], data[i]
+                    sorted = False
+            times_through += 1
+
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
+        self.order_winner_times()
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text('>PRESS <M> TO RETURN TO MENU', settings.WIDTH / 2, settings.HEIGHT - 50,
+                         arcade.color.LIGHT_GRAY,font_size=25, font_name='arial', anchor_x="center")
+        y_pos = 500
+        i = 0
+        for i in range(len(data)):
+            if i > 9:
+                break
+            
+            text = f"{i + 1}. {data[i].name} ------- {data[i].time}s"
+            arcade.draw_text(text, settings.WIDTH / 2, y_pos,
+                         arcade.color.LIGHT_GRAY, font_size=15, font_name='arial', anchor_x="center")
+            y_pos -= 50
+    
+    def on_key_press(self, symbol, modifiers):
+        if symbol == 109: # M
+            self.window.show_view(menu_view)
 
 class WinView(arcade.View):
     def __init__(self, time):
         super().__init__()
-        self.time = round(time, 0)
+        self.time = round(time, 1)
     
     def on_show(self):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
     
     def on_draw(self):
         arcade.start_render()
-        text = f'Congratulation on winning <USER>! You completed this board with a time of: {self.time}'
+        text = f'Congratulation on winning, {user.name}! You completed this board with a time of: {self.time}'
         arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2,
-                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+                        user.preferred_color, font_size=15, font_name='arial', anchor_x="center")
         arcade.draw_text('To return to the menu, press <M>', settings.WIDTH / 2, settings.HEIGHT / 1.5,
-                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+                        user.preferred_color, font_size=15, font_name='arial', anchor_x="center")
         arcade.draw_text('To see the leaderboard, press <L>', settings.WIDTH / 2, settings.HEIGHT / 3,
-                         arcade.color.BLIZZARD_BLUE, font_size=15, font_name='arial', anchor_x="center")
+                        user.preferred_color, font_size=15, font_name='arial', anchor_x="center")
     
     def on_key_press(self, symbol, modifiers):
         if symbol == 109:
@@ -642,7 +836,7 @@ class WinView(arcade.View):
             self.window.show_view(menu_view)
         if symbol == 108:
             board_index = random.randrange(len(all_start_boards))
-            leaderboard = Leaderboard()
+            leaderboard = LeaderboardView(data)
             self.window.show_view(leaderboard)
 
 if __name__ == "__main__":
@@ -657,9 +851,11 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    introduction_view = IntroductionView()
     menu_view = SudokuMenu()
-    window.show_view(menu_view)
+    window.show_view(introduction_view)
     arcade.run()
 
 if __name__ != "__main__":
+    introduction_view = IntroductionView()
     menu_view = SudokuMenu()

@@ -40,6 +40,8 @@ key_translator = {
     121: 'Y',
     122: 'Z'
 }
+
+text = ' '
 class SriGameView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.BLUE_SAPPHIRE)
@@ -53,13 +55,13 @@ class SriGameView(arcade.View):
         try:
             for num_key, value in key_translator.items():
                 if key == 65288 and len(text) > 1:
-                    try:
-                        text[:-1]
-                    except:
-                        pass
+                    text = text[:10]
                 elif num_key == key:
-                    letter = value
-                    text += letter
+                    if len(text) > 18:
+                        break
+                    else:
+                        letter = value
+                        text += letter
                 else:
                     continue
         except:

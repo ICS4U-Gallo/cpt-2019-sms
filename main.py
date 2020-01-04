@@ -4,7 +4,7 @@ import settings
 
 from menu import MenuView
 from sri_game import SriGameView
-from max_game import SudokuMenu
+from max_game import IntroductionView
 from sarah_game import SarahGameView
 
 class Director(arcade.Window):
@@ -14,7 +14,7 @@ class Director(arcade.Window):
         self.views = [
             MenuView,
             SriGameView,
-            SudokuMenu,
+            IntroductionView,
             SarahGameView
         ]
         self.next_view()
