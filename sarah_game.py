@@ -16,7 +16,7 @@ GAME_RUNNING = 2
 LEADERBOARD = 3
 
 class SarahGameView(arcade.View):
-    def __init__(self, screen_width, screen_height, title):
+    def __init__(self):
         super().__init__()
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
@@ -117,7 +117,7 @@ class SarahGameView(arcade.View):
         global x
         x = 0
 
-        self.counter = 20
+        self.counter = 24
         self.prevselection = -1
         self.timer = 60
 
@@ -581,7 +581,7 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = SarahGameView(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    my_view = SarahGameView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     arcade.run()
