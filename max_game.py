@@ -44,6 +44,7 @@ ALL_START_BOARDS = [
             [1, 0, 2, 0, 0, 9, 0, 8, 0]]
 ]
 
+
 class Sudoku:
     def __init__(self, start_board):
         self.columns = 9
@@ -336,6 +337,10 @@ class SudokuMenu(arcade.View):
         self.leaderboard_button.texture = arcade.make_soft_square_texture(50,
                                                                arcade.color.LIGHT_SLATE_GRAY,
                                                                outer_alpha=255)
+        self.quit_button = arcade.Sprite(center_x=50, center_y = 550)
+        self.quit_button.texture = arcade.make_soft_square_texture(50,
+                                                               arcade.color.LIGHT_SLATE_GRAY,
+                                                               outer_alpha=255)
 
     def on_show(self):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
@@ -353,6 +358,9 @@ class SudokuMenu(arcade.View):
         self.leaderboard_button.draw()
         arcade.draw_text('L', settings.WIDTH / 2, 185, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
+        self.quit_button.draw()
+        arcade.draw_text('X', 50, 535, user.preferred_color, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
     
     def on_mouse_press(self, x, y, button, modifiers):
         global game_view, game
@@ -367,6 +375,9 @@ class SudokuMenu(arcade.View):
         if self.leaderboard_button.collides_with_point([x, y]):
             leaderboard_view = LeaderboardView(data)
             self.window.show_view(leaderboard_view)
+        if self.quit_button.collides_with_point([x, y]):
+            self.window.next_view()
+            
 
 class Instructions(arcade.View):
     def __init__(self):
