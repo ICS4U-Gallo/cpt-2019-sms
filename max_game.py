@@ -12,7 +12,7 @@ game = None
 game_view = None
 data = []
 
-all_start_boards = [
+ALL_START_BOARDS = [
             [[7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
             [0, 0, 0, 6, 0, 1, 0, 7, 8],
@@ -51,7 +51,7 @@ class Sudoku:
         self.start_board = start_board
         self.board = copy.deepcopy(start_board)
         self.selected = (math.ceil(self.columns / 2), math.ceil(self.rows / 2))
-        self.temp_values = {(i, j):[] for i in range(9) for j in range(9)}
+        self.temp_values = {(i, j):[] for i in range(self.columns) for j in range(self.rows)}
         self.x_gap = settings.WIDTH / self.columns
         self.y_gap = settings.HEIGHT / self.rows
         self.pencil_mode = False
@@ -358,8 +358,8 @@ class SudokuMenu(arcade.View):
         global game_view, game
         if self.play_button.collides_with_point([x, y]):
             game_view = MaxGameView()
-            board_index = random.randrange(len(all_start_boards))
-            game = Sudoku(all_start_boards[board_index])
+            board_index = random.randrange(len(ALL_START_BOARDS))
+            game = Sudoku(ALL_START_BOARDS[board_index])
             self.window.show_view(game_view)
         if self.instruction_button.collides_with_point([x, y]):
             instruction_view = Instructions()
@@ -379,8 +379,12 @@ class Instructions(arcade.View):
     
     def on_key_press(self, symbol, modifiers):
         if symbol == 65307:
-            self.window.show_view(menu_view)
-
+            try:
+                self.window.show_view(menu_view)
+            except:
+                menu_view = SudokuMenu()
+                self.window.show_view(menu_view)
+    
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text(self.contents, settings.WIDTH - 450, 200, user.preferred_color, 
@@ -654,7 +658,11 @@ class PauseScreen(arcade.View):
         elif symbol == 65293: # enter
             self.window.show_view(self.game_view)
         elif symbol == 109: # M
-            self.window.show_view(menu_view)
+            try:
+                self.window.show_view(menu_view)
+            except:
+                menu_view = SudokuMenu()
+                self.window.show_view(menu_view)
         else:
             pass
 
@@ -801,7 +809,11 @@ class LeaderboardView(arcade.View):
     
     def on_key_press(self, symbol, modifiers):
         if symbol == 109: # M
-            self.window.show_view(menu_view)
+            try:
+                self.window.show_view(menu_view)
+            except:
+                menu_view = SudokuMenu()
+                self.window.show_view(menu_view)
 
 class WinView(arcade.View):
     def __init__(self, time):
@@ -831,7 +843,7 @@ class WinView(arcade.View):
             del game_view
             self.window.show_view(menu_view)
         if symbol == 108:
-            board_index = random.randrange(len(all_start_boards))
+            board_index = random.randrange(len(ALL_START_BOARDS))
             leaderboard = LeaderboardView(data)
             self.window.show_view(leaderboard)
 
@@ -846,16 +858,10 @@ if __name__ == "__main__":
     what you are doing.
     """
     from utils import FakeDirector
+    with open("sudoku_data.p", "rb") as f:
+        data = pickle.load(f)
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
     introduction_view = IntroductionView()
     menu_view = SudokuMenu()
     window.show_view(introduction_view)
-    with open("sudoku_data.p", "rb") as f:
-        data = pickle.load(f)
     arcade.run()
-
-if __name__ != "__main__":
-    introduction_view = IntroductionView()
-    menu_view = SudokuMenu()
-    with open("sudoku_data.p", "rb") as f:
-        data = pickle.load(f)
