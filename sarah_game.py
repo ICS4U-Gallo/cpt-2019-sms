@@ -29,11 +29,36 @@ class SarahGameView(arcade.View):
         arcade.draw_text(output, 310, 300, arcade.color.BLACK, 24, font_name='GARA')
 
     def draw_instructions(self):
-        output = "instructions"
-        arcade.draw_text(output, 240, 400, arcade.color.BLACK, 54, font_name='GARA')
+        output = "MATCH OFF INSTRUCTIONS"
+        arcade.draw_text(output, settings.WIDTH/2, 540, arcade.color.BLACK, 30, font_name='GARA', anchor_x="center")
 
-        output = "Press Space to Continue"
-        arcade.draw_text(output, 310, 300, arcade.color.BLACK, 24, font_name='GARA')
+        output = "The objective of the game is to match the colours in sets of 3, each matched shape is worth 10 points."
+        arcade.draw_text(output, settings.WIDTH/2, 500, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = "There are 60 seconds to attempt to attain the highest score."
+        arcade.draw_text(output, settings.WIDTH/2, 450, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = "Use the mouse to click on the desired colour."
+        arcade.draw_text(output, settings.WIDTH/2, 400, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = " Clicking on a colour that does not match the previous colour will cancel the selection."
+        arcade.draw_text(output, settings.WIDTH/2, 350, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = "A high score could snag a spot on the leaderboard!"
+        arcade.draw_text(output, settings.WIDTH/2, 300, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = "If you would like to leave the game at any time, press enter."
+        arcade.draw_text(output, settings.WIDTH/2, 250, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+
+        output = "Press Space to Start the Game!"
+        arcade.draw_text(output, settings.WIDTH/2, 50, arcade.color.BLACK, 18, font_name='GARA', anchor_x="center")
+
+        arcade.draw_rectangle_filled(x, 200, 50, 50, arcade.color.BANANA_YELLOW)
+        arcade.draw_circle_filled(x + 150, 100, 25, arcade.color.BABY_BLUE)
+        arcade.draw_rectangle_filled(x + 300, 125, 50, 50, arcade.color.FOREST_GREEN)
+        arcade.draw_circle_filled(x - 450, 175, 25, arcade.color.BABY_BLUE)
+        arcade.draw_circle_filled(x - 150, 135, 25, arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 300, 150, 50, 50, arcade.color.FOREST_GREEN)
 
     def draw_game(self):
         global x
@@ -355,7 +380,7 @@ class SarahGameView(arcade.View):
             if self.ysqselected[i]:
                 self.ysqclicked += 1
 
-        if self.ysqclicked == 3:
+        if self.ysqclicked >= 3:
             for i in range(len(self.ysqselected)):
                 if self.ysqselected[i]:
                     self.ysqrid.append(i)
@@ -381,7 +406,7 @@ class SarahGameView(arcade.View):
             if self.rcirselected[i]:
                 self.rcirclicked += 1
 
-        if self.rcirclicked == 3:
+        if self.rcirclicked >= 3:
             for i in range(len(self.rcirselected)):
                 if self.rcirselected[i]:
                     self.rcirrid.append(i)
@@ -407,7 +432,7 @@ class SarahGameView(arcade.View):
             if self.bcirselected[i]:
                 self.bcirclicked += 1
 
-        if self.bcirclicked == 3:
+        if self.bcirclicked >= 3:
             for i in range(len(self.bcirselected)):
                 if self.bcirselected[i]:
                     self.bcirrid.append(i)
