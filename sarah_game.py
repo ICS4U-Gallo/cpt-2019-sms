@@ -1,17 +1,96 @@
 import arcade
 import settings
 import random
+import os
 
 total_points = str(0)
 
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "MATCH OFF"
 
+#game states
+MENU = 0
+INSTRUCTIONS = 1
+GAME_RUNNING = 2
+LEADERBOARD = 3
 
 class SarahGameView(arcade.View):
+    def __init__(self, screen_width, screen_height, title):
+        super().__init__()
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(file_path)
+        self.current_state = MENU
+
+    def draw_menu(self):
+        arcade.draw_text(SCREEN_TITLE, 240, 400, arcade.color.BLACK, 54, font_name='GARA')
+
+        output = "Press Space to Continue"
+        arcade.draw_text(output, 310, 300, arcade.color.BLACK, 24, font_name='GARA')
+
+    def draw_instructions(self):
+        output = "instructions"
+        arcade.draw_text(output, 240, 400, arcade.color.BLACK, 54, font_name='GARA')
+
+        output = "Press Space to Continue"
+        arcade.draw_text(output, 310, 300, arcade.color.BLACK, 24, font_name='GARA')
+
+    def draw_game(self):
+        global x
+
+        time = f"Time: {str(int((round(self.timer))))}"
+        arcade.draw_text(time, settings.WIDTH / 2, settings.HEIGHT/8,
+                         arcade.color.BLACK,font_size=18, font_name='GARA', anchor_x="center")
+
+        arcade.draw_text(total_points, settings.WIDTH/2, settings.HEIGHT/16,
+                         arcade.color.BLACK, font_size=30, font_name='GARA', anchor_x="center")
+
+        for i in self.gsqsprites:
+            i.draw()
+
+        for i in self.ysqsprites:
+            i.draw()
+
+        for i in self.rcirsprites:
+            i.draw()
+
+        for i in self.bcirsprites:
+            i.draw()
+
+    def draw_leaderboard(self):
+        # leaderboard slide
+        arcade.draw_text("LEADERBOARD", settings.WIDTH / 2, 530,arcade.color.BLACK, font_size=30, anchor_x="center")
+
+        arcade.draw_rectangle_filled(x, 570, 50, 50, arcade.color.BANANA_YELLOW)
+        arcade.draw_circle_filled(x + 150, 526, 25, arcade.color.BABY_BLUE)
+        arcade.draw_rectangle_filled(x + 300, 560, 50, 50, arcade.color.FOREST_GREEN)
+        arcade.draw_circle_filled(x - 450, 530, 25, arcade.color.BABY_BLUE)
+        arcade.draw_circle_filled(x - 150, 550, 25, arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 300, 574, 50, 50, arcade.color.FOREST_GREEN)
+        arcade.draw_line(0, settings.HEIGHT / 6, settings.WIDTH, settings.HEIGHT / 6, arcade.color.BLACK)
+        arcade.draw_line(0, (settings.HEIGHT / 6) * 2, settings.WIDTH, (settings.HEIGHT / 6) * 2,
+                         arcade.color.BLACK)
+        arcade.draw_line(0, (settings.HEIGHT / 6) * 3, settings.WIDTH, (settings.HEIGHT / 6) * 3,arcade.color.BLACK)
+        arcade.draw_line(0, (settings.HEIGHT / 6) * 4, settings.WIDTH, (settings.HEIGHT / 6) * 4,arcade.color.BLACK)
+        arcade.draw_line(0, (settings.HEIGHT / 6) * 5, settings.WIDTH, (settings.HEIGHT / 6) * 5,arcade.color.BLACK)
+        arcade.draw_text("1.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,font_size=24)
+        arcade.draw_text("2.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK,font_size=24)
+        arcade.draw_text("3.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK,font_size=24)
+        arcade.draw_text("4.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK,font_size=24)
+        arcade.draw_text("5.", settings.WIDTH / 10, (settings.HEIGHT / 6) - 50, arcade.color.BLACK, font_size=24)
+        arcade.draw_text("Press enter to continue",settings.WIDTH / 2, 30,arcade.color.BLACK, font_size=30, anchor_x="center")
+
     def on_show(self):
+        '''
+        if self.current_state == GAME_RUNNING:
+            self.__class__ = Hard
+            self.on_show()
+
+        else:
+        '''
         arcade.set_background_color(arcade.color.WHITE_SMOKE)
         global x
         x = 0
-
 
         self.counter = 20
         self.prevselection = -1
@@ -33,14 +112,14 @@ class SarahGameView(arcade.View):
             speedysq = random.uniform(-1,-0.01)
             speedrcir = random.uniform(-1,-0.01)
             speedbcir = random.uniform(0.01,1)
-            gsq_posy = random.randrange(0,settings.HEIGHT)
-            ysq_posy = random.randrange(0,settings.HEIGHT)
-            rcir_posy = random.randrange(0, settings.HEIGHT)
-            bcir_posy = random.randrange(0, settings.HEIGHT)
-            gsq_posx = random.randrange(-1000,settings.WIDTH)
-            ysq_posx = random.randrange(settings.WIDTH,1850)
-            rcir_posx = random.randrange(settings.WIDTH, 1850)
-            bcir_posx = random.randrange(-1000, settings.WIDTH)
+            gsq_posy = random.randrange(0,SCREEN_HEIGHT)
+            ysq_posy = random.randrange(0,SCREEN_HEIGHT)
+            rcir_posy = random.randrange(0, SCREEN_HEIGHT)
+            bcir_posy = random.randrange(0, SCREEN_HEIGHT)
+            gsq_posx = random.randrange(-1000,SCREEN_WIDTH)
+            ysq_posx = random.randrange(SCREEN_WIDTH,1850)
+            rcir_posx = random.randrange(SCREEN_WIDTH, 1850)
+            bcir_posx = random.randrange(-1000, SCREEN_WIDTH)
 
             # define greensquare
             self.gsq = arcade.Sprite(center_x=gsq_posx, center_y=gsq_posy)
@@ -74,58 +153,74 @@ class SarahGameView(arcade.View):
             self.bcirsprites.append(self.bcir)
             self.bcirselected.append(False) # False means not selected
 
-
     def on_draw(self):
-        global x
         arcade.start_render()
 
-        time = f"Time: {str(int((round(self.timer))))}"
-        arcade.draw_text(time, settings.WIDTH / 2, settings.HEIGHT/8,
-                         arcade.color.BLACK,font_size=18, anchor_x="center")
+        if self.current_state == MENU:
+            self.draw_menu()
+        elif self.current_state == INSTRUCTIONS:
+            self.draw_instructions()
+            self.timer = 60
+        elif self.current_state == GAME_RUNNING:
+            self.draw_game()
+        else:
+            self.draw_leaderboard()
 
-        arcade.draw_text(total_points, settings.WIDTH/2, settings.HEIGHT/16,
-                         arcade.color.BLACK, font_size=30, anchor_x="center")
-
-        for i in self.gsqsprites:
-            i.draw()
-
-        for i in self.ysqsprites:
-            i.draw()
-
-        for i in self.rcirsprites:
-            i.draw()
-
-        for i in self.bcirsprites:
-            i.draw()
-
-        #leaderboard slide
-        if self.timer <= 0 :
-            arcade.draw_rectangle_filled(settings.WIDTH/2, settings.HEIGHT/2, 800, 600, arcade.color.WHITE_SMOKE)
-            arcade.draw_text("LEADERBOARD", settings.WIDTH/2, 530,
-                             arcade.color.BLACK, font_size=30, anchor_x="center")
-
-            arcade.draw_rectangle_filled(x, 570, 50, 50, arcade.color.BANANA_YELLOW)
-            arcade.draw_circle_filled(x+150, 526, 25, arcade.color.BABY_BLUE)
-            arcade.draw_rectangle_filled(x+300, 560, 50, 50, arcade.color.FOREST_GREEN)
-            arcade.draw_circle_filled(x-450, 530, 25, arcade.color.BABY_BLUE)
-            arcade.draw_circle_filled(x-150, 550, 25, arcade.color.RED)
-            arcade.draw_rectangle_filled(x-300, 574, 50, 50, arcade.color.FOREST_GREEN)
-            arcade.draw_line(0, settings.HEIGHT / 6, settings.WIDTH, settings.HEIGHT / 6, arcade.color.BLACK)
-            arcade.draw_line(0, (settings.HEIGHT / 6)*2, settings.WIDTH, (settings.HEIGHT / 6)*2, arcade.color.BLACK)
-            arcade.draw_line(0, (settings.HEIGHT / 6)*3, settings.WIDTH, (settings.HEIGHT / 6)*3, arcade.color.BLACK)
-            arcade.draw_line(0, (settings.HEIGHT / 6)*4, settings.WIDTH, (settings.HEIGHT / 6)*4, arcade.color.BLACK)
-            arcade.draw_line(0, (settings.HEIGHT / 6)*5, settings.WIDTH, (settings.HEIGHT / 6)*5, arcade.color.BLACK)
-            arcade.draw_text("1.", settings.WIDTH/10, (settings.HEIGHT/6)*5 - 50, arcade.color.BLACK, font_size=24)
-            arcade.draw_text("2.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK, font_size=24)
-            arcade.draw_text("3.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK, font_size=24)
-            arcade.draw_text("4.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK, font_size=24)
-            arcade.draw_text("5.", settings.WIDTH / 10, (settings.HEIGHT / 6) - 50, arcade.color.BLACK, font_size=24)
+        '''
+        if self.current_state == MENU:
+            self.draw_menu()
+            if self.easy_mode: #selected easy game mode:
+                if self.current_state == INSTRUCTIONS:
+                    self.draw_instructions_page()
+                    self.timer = 60
+                elif self.current_state == GAME_RUNNING_EASY:
+                    self.draw_game()
+                else:
+                    self.draw_leaderboard()
+        
+        if self.current_state == MENU:
+            self.draw_menu()
+            if not self.easy_mode: #selected hard game mode:
+                if self.current_state == INSTRUCTIONS:
+                    self.draw_instructions_page()
+                    self.timer = 60
+                elif self.current_state == GAME_RUNNING_HARD:
+                    self.draw_game()
+                else:
+                    self.draw_leaderboard()
+        '''
 
     def on_key_press(self, key, modifiers):
-        self.director.next_view()
+        '''
+        if self.current_state == MENU:
+            if key == arcade.key.E: #easy mode
+                self.easy_mode = True
+                if key == arcade.key.SPACE:
+                    if self.current_state == MENU:
+                        self.current_state = INSTRUCTIONS
+                    elif self.current_state == INSTRUCTIONS:
+                        self.current_state = GAME_RUNNING_EASY
+
+            elif key == arcade.key.H: #hard mode
+                self.easy_mode = False
+                if key == arcade.key.SPACE:
+                    if self.current_state == MENU:
+                        self.current_state = INSTRUCTIONS
+                    elif self.current_state == INSTRUCTIONS:
+                        self.current_state = GAME_RUNNING_HARD
+        '''
+        #changes slides
+        if key == arcade.key.SPACE:
+            if self.current_state == MENU:
+                self.current_state = INSTRUCTIONS
+            elif self.current_state == INSTRUCTIONS:
+                self.current_state = GAME_RUNNING
+
+        #skips the entire game
+        if key == arcade.key. ENTER:
+            self.director.next_view()
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-
         self.select = [self.gsqselected,self.ysqselected,self.rcirselected,self.bcirselected]
         self.sprite = [self.gsqsprites, self.ysqsprites, self.rcirsprites, self.bcirsprites]
         self.color = [arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN,outer_alpha=200),
@@ -234,7 +329,7 @@ class SarahGameView(arcade.View):
             if self.gsqselected[i]:
                 self.gsqclicked += 1
 
-        if self.gsqclicked == 3:
+        if self.gsqclicked >= 3:
             for i in range(len(self.gsqselected)):
                 if self.gsqselected[i]:
                     self.gsqrid.append(i)
@@ -358,7 +453,97 @@ class SarahGameView(arcade.View):
         for c in self.bcirsprites:
             c.update()
 
+        if self.current_state == GAME_RUNNING and self.timer <= 0:
+            self.current_state = LEADERBOARD
 
+'''
+class Difficulty(arcade.View):
+    def on_press(self):
+        if key == arcade.key.E:
+            Easy(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        elif key == arcade.key.H:
+            Hard(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.set_background_color(arcade.color.AMAZON)
+
+class Easy(SarahGameView):
+    def __init__(self):
+        super.__init__()
+
+
+class Hard(SarahGameView):
+    def __init__(self):
+        super.__init__()
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.WHITE_SMOKE)
+        global x
+        x = 0
+
+
+        self.counter = 22
+        self.prevselection = -1
+        self.timer = 60
+
+        self.gsqsprites = []
+        self.ysqsprites = []
+        self.rcirsprites = []
+        self.bcirsprites = []
+
+        self.gsqselected = []
+        self.ysqselected = []
+        self.rcirselected = []
+        self.bcirselected = []
+
+        #randomly draws all sprites
+        for i in range(self.counter):
+            speedgsq = random.uniform(0.01,2)
+            speedysq = random.uniform(-2,-0.01)
+            speedrcir = random.uniform(-2,-0.01)
+            speedbcir = random.uniform(0.01,2)
+            gsq_posy = random.randrange(0,SCREEN_HEIGHT)
+            ysq_posy = random.randrange(0,SCREEN_HEIGHT)
+            rcir_posy = random.randrange(0, SCREEN_HEIGHT)
+            bcir_posy = random.randrange(0, SCREEN_HEIGHT)
+            gsq_posx = random.randrange(-1000,SCREEN_WIDTH)
+            ysq_posx = random.randrange(SCREEN_WIDTH,1850)
+            rcir_posx = random.randrange(SCREEN_WIDTH, 1850)
+            bcir_posx = random.randrange(-1000, SCREEN_WIDTH)
+
+            # define greensquare
+            self.gsq = arcade.Sprite(center_x=gsq_posx, center_y=gsq_posy)
+            self.gsq.texture = arcade.make_soft_square_texture(40, arcade.color.FOREST_GREEN, outer_alpha=200)
+            self.gsq.change_x = speedgsq
+
+            self.gsqsprites.append(self.gsq)
+            self.gsqselected.append(False) # False means not selected
+
+            #define yellowsquare
+            self.ysq = arcade.Sprite(center_x= ysq_posx, center_y=ysq_posy)
+            self.ysq.texture = arcade.make_soft_square_texture(40, arcade.color.BANANA_YELLOW, outer_alpha=200)
+            self.ysq.change_x = speedysq
+
+            self.ysqsprites.append(self.ysq)
+            self.ysqselected.append(False) # False means not selected
+
+            # define redcircle
+            self.rcir = arcade.Sprite(center_x= rcir_posx, center_y=rcir_posy)
+            self.rcir.texture = arcade.make_soft_circle_texture(40, arcade.color.RED, outer_alpha=200)
+            self.rcir.change_x = speedrcir
+
+            self.rcirsprites.append(self.rcir)
+            self.rcirselected.append(False) # False means not selected
+
+            #define bluecircle
+            self.bcir = arcade.Sprite(center_x=bcir_posx, center_y=bcir_posy)
+            self.bcir.texture = arcade.make_soft_circle_texture(40, arcade.color.BABY_BLUE, outer_alpha=200)
+            self.bcir.change_x = speedbcir
+
+            self.bcirsprites.append(self.bcir)
+            self.bcirselected.append(False) # False means not selected
+'''
 if __name__ == "__main__":
     """This section of code will allow you to run your View
     independently from the main.py file and its Director.
@@ -371,7 +556,8 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = SarahGameView()
+    my_view = SarahGameView(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     arcade.run()
+
