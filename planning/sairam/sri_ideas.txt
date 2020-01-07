@@ -1,19 +1,53 @@
 Sridhar's Ideas
 
-- Some platformer (rpg?) 
-- All Stick men
-- Gravity (-9.8)
-- Use Physics stuff to determine stuff
-- Story:
-    * 
-- Have a pause menu with:
-    * resume
-    * change controls
-    * cheat codes
-    * 
-- Power-Ups:
-    * Invinsible
-    * 5 Heart system (half hearts?)
-- Enemies:
-    * 
+Word building Game
+
+As if you were reading a newspaper, a jumble of random words pop in in your face.
+
+You think the stress of the week is getting to you, but it is actually a game! 
+
+You have to find words that start with the same letter as the last letter of the previous word.
+
+You must find as many words as possible in the allocated time.
+
+
+
+
+
+
+
+
+HOW PROGRAMMING CONCEPTS WILL BE IMPLEMENTED
+
+Functions:
+    - Getting small tasks done
+
+Annotation & Doc Strings:
+    - Applies to all
+
+Classes:
+    - The "article" is a class
+        words (List[str]): The list of all of the words
+        chosen_words (List[str]): The list of all of the chosen words
+        not_chosen_words (List[str]): The list of all of the not yet chosen words
+        
+        sequence (List[str]): The sequence of the words that were chosen
+    
+    - Score
+        sequence_length (int): The number of words in the chosen sequence
+        time_taken (int): The number of seconds taken in the round
+        player_name (str): The name of the player_name
+        points (int): The number of points recieved
+        epoch_time_ms (int): The time when the game was played
+
+Recursion:
+    Merge Sort
+
+Sorting:
+    Merge Sort
+
+Searching:
+    Binary Search
+
+
 

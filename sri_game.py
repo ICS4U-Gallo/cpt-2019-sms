@@ -2,18 +2,80 @@ import arcade
 import settings
 
 
+TITLE = "Some disasterous Game"
+TEXT_COLOR = arcade.color.ARSENIC
+SCREEN_COLOR = arcade.color.BONE
+
+WIDTH = settings.WIDTH
+HEIGHT = settings.HEIGHT
+
+
 class SriGameView(arcade.View):
+    
     def on_show(self):
-        arcade.set_background_color(arcade.color.BLUE_SAPPHIRE)
+        arcade.set_background_color(SCREEN_COLOR)
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Sridhar's Game", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=30, anchor_x="center")
+        arcade.draw_text(TITLE, WIDTH/2, HEIGHT/2,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+    
+    def update(self, delta_time: float):
+        global TITLE
+        # TITLE += 'a'
+
+    def on_key_press(self, key, modifiers):
+        self.window.show_view(SriMenuView(self))
+        # self.director.next_view()
+
+
+
+
+class SriMenuView(arcade.View):
+    def __init__(self, game_view):
+        super().__init__()
+        self.game_view = game_view
+
+    def on_show(self):
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("adfsadfs", WIDTH/2, HEIGHT/2,
+                         TEXT_COLOR, font_size=30, anchor_x="center", align="right")
     
 
     def on_key_press(self, key, modifiers):
-        self.director.next_view()
+        self.window.show_view(SriGameView())
+
+
+class SriScoreBoardView(arcade.View):
+    def __init__(self, game_view):
+        super().__init__()
+        self.game_view = game_view
+
+    def on_show(self):
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("adfsadfs", WIDTH/2, HEIGHT/2,
+                         TEXT_COLOR, font_size=30, anchor_x="center", align="right")
+    
+
+    def on_key_press(self, key, modifiers):
+        self.window.show_view(SriGameView())
+
+
+
+
+
+
+
+
+
+
+
 
 
 
