@@ -82,9 +82,25 @@ class SriInstructionsView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("instructttiions\nhow do you do fellow kids", WIDTH/2, HEIGHT/2,
+        instruction_text = """
+
+        CONTROLS:
+
+        Move the mouse and
+        click on the
+        words and buttons
+
+        """
+        arcade.draw_text(instruction_text, 0.6 * WIDTH,  0 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
+        arcade.draw_text("MENU", 0.035 * WIDTH, 0.003 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+        
+        arcade.draw_lrtb_rectangle_outline(0 * WIDTH, 0.07 * WIDTH,
+                                           0.035 * HEIGHT, 0 * HEIGHT, arcade.color.BLACK)
+
+
 
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
@@ -124,6 +140,7 @@ class SaveData:
 
     def save_to(self, save_file: str):
         # save object to save file
+        pass
 
 
 
