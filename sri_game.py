@@ -35,7 +35,7 @@ class SriMenuView(arcade.View):
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
         arcade.draw_text("SCOREBOARD (S)", WIDTH/2, 0.3 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-        
+
     
 
     def on_key_press(self, key, modifiers):
@@ -94,11 +94,9 @@ class SriInstructionsView(arcade.View):
         arcade.draw_text(instruction_text, 0.6 * WIDTH,  0 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
-        arcade.draw_text("MENU", 0.035 * WIDTH, 0.003 * HEIGHT,
+        arcade.draw_text("Press any key to return to the Menu", 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         
-        arcade.draw_lrtb_rectangle_outline(0 * WIDTH, 0.07 * WIDTH,
-                                           0.035 * HEIGHT, 0 * HEIGHT, arcade.color.BLACK)
 
 
 
@@ -116,8 +114,15 @@ class SriScoreBoardView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Score Board", WIDTH/2, HEIGHT/2,
+        arcade.draw_text("Score Board", WIDTH/2, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+
+        top_5_names = ["bob", "Bil;", "JImob", "asdfasdf", "sridhar"] # in order from first to last
+        top_5_scores = [10, 10, 11, 12 , 31] # in order from first to last
+
+        for i in range(5):
+            arcade.draw_text(f"{i + 1}. {top_5_names[i]} ---- {top_5_scores[i]}",
+                             WIDTH * 0.01, 0.8 * HEIGHT - HEIGHT * 0.07 * i, arcade.color.BLUE, 12, align="left")
     
 
     def on_key_press(self, key, modifiers):
