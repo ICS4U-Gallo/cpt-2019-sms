@@ -9,24 +9,32 @@ SCREEN_COLOR = arcade.color.BONE
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 
+global mode
+mode = "menu"
 
-class SriGameView(arcade.View):
+class SriGameView(arcade.View):  
     
+    ### MAKE IT SO IT GOES DIRECTLY TO MENU IN THE BEGINNING OF SRI GAME VIEW (perhaps without init as
+    # init seems to be making problems)
+
+
     def on_show(self):
+        if mode == "menu":
+            self.window.show_view(SriMenuView(self))
         arcade.set_background_color(SCREEN_COLOR)
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text(TITLE, WIDTH/2, HEIGHT/2,
+        arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
     def update(self, delta_time: float):
-        global TITLE
-        # TITLE += 'a'
+        pass
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriMenuView(self))
+        # self.window.show_view(SriMenuView(self))
         # self.director.next_view()
+        pass
 
 
 
@@ -41,12 +49,32 @@ class SriMenuView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("adfsadfs", WIDTH/2, HEIGHT/2,
-                         TEXT_COLOR, font_size=30, anchor_x="center", align="right")
+
+        # Title
+        arcade.draw_text(TITLE, WIDTH/2, 0.85 * HEIGHT,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 30), anchor_x="center", align="right")
+
+        # Labels
+        arcade.draw_text("PLAY (P)", WIDTH/2, 0.7 * HEIGHT,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+        arcade.draw_text("INSTRUCTIONS (I)", WIDTH/2, 0.5 * HEIGHT,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+        arcade.draw_text("SCOREBOARD (S)", WIDTH/2, 0.3 * HEIGHT,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+        
     
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriGameView())
+        global mode
+        if key == 112: # P for Play
+            mode = "play"
+            self.window.show_view(SriGameView())
+        elif key == 105: # I for Instructions
+            mode = "instructions"
+            self.window.show_view(SriInstructionsView(self))
+        elif key == 115: # S for Scoreboard
+            mode = "scoreboard"
+            self.window.show_view(SriScoreBoardView(self))
 
 
 class SriScoreBoardView(arcade.View):
@@ -60,7 +88,7 @@ class SriScoreBoardView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("adfsadfs", WIDTH/2, HEIGHT/2,
-                         TEXT_COLOR, font_size=30, anchor_x="center", align="right")
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
 
     def on_key_press(self, key, modifiers):
