@@ -15,6 +15,34 @@ INSTRUCTIONS = 1
 GAME_RUNNING = 2
 LEADERBOARD = 3
 
+
+def calculate_points(shapes: int) -> int:
+    '''takes cleared shapes and calculates the point value
+    Args:
+        shapes = amount of shapes cleared
+
+    Returns:
+        point score
+    '''
+    if shapes == 1:
+        return 10
+
+    return 10 + calculate_points(shapes-1)
+
+class Leaderboard:
+    def __init__(self, name: str, score: int):
+        self.name = name
+        self.score = score
+
+    def __str__(self):
+        return f"{self.name}---------------{self.score}"
+
+    @classmethod
+    def player(cls):
+        players = ["Lauren", "Aden", "Stevo", "Vince", "Charlotte",
+        "Annika", "Kirsten"]
+        return cls(players[random.randrange(7)], random.randrange(300, 600, 10))
+
 class SarahGameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -98,11 +126,16 @@ class SarahGameView(arcade.View):
         arcade.draw_line(0, (settings.HEIGHT / 6) * 3, settings.WIDTH, (settings.HEIGHT / 6) * 3,arcade.color.BLACK)
         arcade.draw_line(0, (settings.HEIGHT / 6) * 4, settings.WIDTH, (settings.HEIGHT / 6) * 4,arcade.color.BLACK)
         arcade.draw_line(0, (settings.HEIGHT / 6) * 5, settings.WIDTH, (settings.HEIGHT / 6) * 5,arcade.color.BLACK)
-        arcade.draw_text("1.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,font_size=24)
-        arcade.draw_text("2.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK,font_size=24)
-        arcade.draw_text("3.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK,font_size=24)
-        arcade.draw_text("4.", settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK,font_size=24)
-        arcade.draw_text("5.", settings.WIDTH / 10, (settings.HEIGHT / 6) - 50, arcade.color.BLACK, font_size=24)
+        player_1 = Leaderboard.player()
+        arcade.draw_text(f"1. {player_1}", settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,font_size=24)
+        player_2 = Leaderboard.player()
+        arcade.draw_text(f"2. {player_2}", settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK,font_size=24)
+        player_3 = Leaderboard.player()
+        arcade.draw_text(f"3. {player_3}", settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK,font_size=24)
+        player_4 = Leaderboard.player()
+        arcade.draw_text(f"4. {player_4}", settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK,font_size=24)
+        player_5 = Leaderboard.player()
+        arcade.draw_text(f"5. {player_5}", settings.WIDTH / 10, (settings.HEIGHT / 6) - 50, arcade.color.BLACK, font_size=24)
         arcade.draw_text("Press enter to continue",settings.WIDTH / 2, 30,arcade.color.BLACK, font_size=30, anchor_x="center")
 
     def on_show(self):
@@ -246,6 +279,8 @@ class SarahGameView(arcade.View):
             self.director.next_view()
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        global total_points
+        
         self.select = [self.gsqselected,self.ysqselected,self.rcirselected,self.bcirselected]
         self.sprite = [self.gsqsprites, self.ysqsprites, self.rcirsprites, self.bcirsprites]
         self.color = [arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN,outer_alpha=200),
@@ -358,6 +393,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.gsqselected)):
                 if self.gsqselected[i]:
                     self.gsqrid.append(i)
+            total_points = str(int(total_points) + calculate_points(self.gsqclicked))
 
             #bubble sort to reverse list
             gsq_sorted = False
@@ -384,6 +420,8 @@ class SarahGameView(arcade.View):
             for i in range(len(self.ysqselected)):
                 if self.ysqselected[i]:
                     self.ysqrid.append(i)
+            total_points = str(int(total_points) + calculate_points(self.ysqclicked))
+            
 
             #bubble sort to reverse list
             ysq_sorted = False
@@ -410,6 +448,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.rcirselected)):
                 if self.rcirselected[i]:
                     self.rcirrid.append(i)
+            total_points = str(int(total_points) + calculate_points(self.rcirclicked))
 
             #bubble sort to reverse list
             rcir_sorted = False
@@ -436,6 +475,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.bcirselected)):
                 if self.bcirselected[i]:
                     self.bcirrid.append(i)
+            total_points = str(int(total_points) + calculate_points(self.bcirclicked))            
 
             #bubble sort to reverse list
             bcir_sorted = False
