@@ -12,32 +12,6 @@ HEIGHT = settings.HEIGHT
 global mode
 mode = "menu"
 
-class SriGameView(arcade.View):  
-    
-    ### MAKE IT SO IT GOES DIRECTLY TO MENU IN THE BEGINNING OF SRI GAME VIEW (perhaps without init as
-    # init seems to be making problems)
-
-
-    def on_show(self):
-        if mode == "menu":
-            self.window.show_view(SriMenuView(self))
-        arcade.set_background_color(SCREEN_COLOR)
-    
-    def on_draw(self):
-        arcade.start_render()
-        arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
-                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-    
-    def update(self, delta_time: float):
-        pass
-
-    def on_key_press(self, key, modifiers):
-        # self.window.show_view(SriMenuView(self))
-        # self.director.next_view()
-        pass
-
-
-
 
 class SriMenuView(arcade.View):
     def __init__(self, game_view):
@@ -77,6 +51,45 @@ class SriMenuView(arcade.View):
             self.window.show_view(SriScoreBoardView(self))
 
 
+class SriGameView(arcade.View):  
+
+    def on_show(self):
+        if mode == "menu":
+            self.window.show_view(SriMenuView(self))
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+    
+    def update(self, delta_time: float):
+        pass
+
+    def on_key_press(self, key, modifiers):
+        self.window.show_view(SriMenuView(self))
+        # self.director.next_view()
+        # pass
+
+
+class SriInstructionsView(arcade.View):
+    def __init__(self, game_view):
+        super().__init__()
+        self.game_view = game_view
+
+    def on_show(self):
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("instructttiions\nhow do you do fellow kids", WIDTH/2, HEIGHT/2,
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+    
+
+    def on_key_press(self, key, modifiers):
+        self.window.show_view(SriMenuView(self))
+
+
 class SriScoreBoardView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
@@ -87,18 +100,30 @@ class SriScoreBoardView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("adfsadfs", WIDTH/2, HEIGHT/2,
+        arcade.draw_text("Score Board", WIDTH/2, HEIGHT/2,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriGameView())
+        self.window.show_view(SriMenuView(self))
 
 
+class Score:
+    pass
 
 
+class Article:
+    pass
 
 
+class SaveData:
+    def __init__(self, game_mode: str, scores):
+        self.game_mode = game_mode
+        self.scores = scores
+    
+
+    def save_to(self, save_file: str):
+        # save object to save file
 
 
 
