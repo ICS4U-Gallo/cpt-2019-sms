@@ -116,7 +116,6 @@ class Sudoku:
             self.board[row][column] = 0
         
         return False
-            
 
     def find_invalid(self):
         all_invalid_coordinates = []
@@ -352,12 +351,18 @@ class SudokuMenu(arcade.View):
         self.play_button.draw()
         arcade.draw_text('P', settings.WIDTH / 2, 485, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
+        arcade.draw_text('LAY', settings.WIDTH / 2 + 25, 485, user.preferred_color, 
+                        font_size = 30, font_name = 'arial')
         self.instruction_button.draw()
         arcade.draw_text('I', settings.WIDTH / 2, 335, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
+        arcade.draw_text('NSTRUCTIONS', settings.WIDTH / 2 + 25, 335, user.preferred_color, 
+                        font_size = 30, font_name = 'arial')
         self.leaderboard_button.draw()
         arcade.draw_text('L', settings.WIDTH / 2, 185, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
+        arcade.draw_text('EADERBOARD', settings.WIDTH / 2 + 25, 185, user.preferred_color, 
+                        font_size = 30, font_name = 'arial')
         self.quit_button.draw()
         arcade.draw_text('X', 50, 535, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
