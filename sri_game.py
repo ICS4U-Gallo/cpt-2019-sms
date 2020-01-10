@@ -18,7 +18,6 @@ PICKLE_FILE = "sri_data.p"
 
 global mode, save_file
 mode = "menu"
-# save_file = SaveData()
 
 
 class SriMenuView(arcade.View):
@@ -46,7 +45,9 @@ class SriMenuView(arcade.View):
         arcade.draw_text("Press (N) to go to the next game", 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
-    
+    def update(self, delta_time: float):
+        global save_file
+        save_file.save()
 
     def on_key_press(self, key, modifiers):
         global mode
@@ -63,14 +64,23 @@ class SriMenuView(arcade.View):
             self.window.next_view()
 
 
+
 class SriGameView(arcade.View):
     def __init__(self):
         super().__init__()
 
     def on_show(self):
+        global mode
+        arcade.set_background_color(SCREEN_COLOR)
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
-        arcade.set_background_color(SCREEN_COLOR)
+        elif mode == "instructions":
+            self.window.show_view(SriInstructionsView(self))
+        elif mode == "scoreboard":
+            self.window.show_view(SriScoreBoardView(self))
+        elif mode == "play":
+            pass
+            
     
     def on_draw(self):
         arcade.start_render()
@@ -78,12 +88,16 @@ class SriGameView(arcade.View):
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
     
     def update(self, delta_time: float):
-        pass
+        global save_file
+        save_file.save()
+
 
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
+        global mode
+        mode = "menu"
         
-        self.director.next_view()
+        # self.director.next_view()
 
 
 class SriInstructionsView(arcade.View):
@@ -111,21 +125,26 @@ class SriInstructionsView(arcade.View):
         arcade.draw_text(PRESS_ANY_KEY_TEXT, 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         
+    def update(self, delta_time: float):
+        global save_file
+        save_file.save()
 
 
 
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
+        global mode
+        mode = "menu"
 
 
 class SriScoreBoardView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
-
+    
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-    
+
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("Score Board", WIDTH/2, 0.9 * HEIGHT,
@@ -149,9 +168,14 @@ class SriScoreBoardView(arcade.View):
             arcade.draw_text(f"{i + 1}. {top_5_names[i]} ---- {top_5_scores[i]}",
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
+    def update(self, delta_time: float):
+        global save_file
+        save_file.save()
 
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
+        global mode
+        mode = "menu"
 
 
 class Score:
@@ -231,10 +255,20 @@ class SaveData:
         
 
     def load_from_file(self, save_file: str = PICKLE_FILE):
-        save_files = pickle.load(open(save_file, "rb"))
+        
+        try:
+            save_files = pickle.load(open(save_file, "rb"))
+        except EOFError:
+            self.game_mode = "menu"
 
-        self.game_mode = save_files["game_mode"]
-        self.scores = save_files["scores"]
+        try:
+            self.game_mode = save_files["game_mode"]
+            self.scores = save_files["scores"]
+        except NameError:
+            self.game_mode = "menu"
+            self.scores = []
+
+
 
         global mode
         Score.all_scores = self.scores
@@ -251,9 +285,10 @@ class SaveData:
         }
 
         pickle.dump(save_files, open(save_file, "wb"))
+
 global save_file
 save_file = SaveData()
-
+save_file.load_from_file()
 
 
 def get_words():
