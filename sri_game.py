@@ -14,9 +14,11 @@ WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
-PICKLE_FILE = "sri_data.p"
+PICKLE_FILE = "sri_data.p"        # self.director.next_view()
 
-global mode, save_file
+
+
+global mode, save_file, cur_article
 mode = "menu"
 
 
@@ -64,7 +66,6 @@ class SriMenuView(arcade.View):
             self.window.next_view()
 
 
-
 class SriGameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -84,20 +85,44 @@ class SriGameView(arcade.View):
     
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
-                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+        
+        # Top Middle of screen
+        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+        
+        # Middle of Screen
+        arcade.draw_text("PLAY", 0.5 * WIDTH, 0.5 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.05 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+        
+        # Play Button
+        arcade.draw_rectangle_outline(0.5 * WIDTH, 0.57 * HEIGHT, WIDTH * 0.5, HEIGHT * 0.3, TEXT_COLOR, (WIDTH + HEIGHT) * 0.003, )
+
+        # Click play button (using mouse)
+
+        '''
+
+        timer comes on top of screen
+        words pop up on screen in boxes
+
+        bottom of screen: score, words joined, word_speed (time it took from your previous word to current word)
+
+        '''
+        # Game ends
+
+        # Asks for player name
     
+
+
     def update(self, delta_time: float):
         global save_file
         save_file.save()
 
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriMenuView(self))
-        global mode
-        mode = "menu"
-        
-        # self.director.next_view()
+        if key == 65307: # ESCAPE for menu
+            global mode
+            mode = "menu"
+            self.window.show_view(SriMenuView(self))
 
 
 class SriInstructionsView(arcade.View):
@@ -141,9 +166,11 @@ class SriScoreBoardView(arcade.View):
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
-    
+
+
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
+
 
     def on_draw(self):
         arcade.start_render()
@@ -161,8 +188,6 @@ class SriScoreBoardView(arcade.View):
         for i in range(len(top_scores)):
             top_5_scores.append(top_scores[i].get_points())
             top_5_names.append(top_scores[i].get_player())
-        
-
 
         for i in range(len(top_scores)):
             arcade.draw_text(f"{i + 1}. {top_5_names[i]} ---- {top_5_scores[i]}",
