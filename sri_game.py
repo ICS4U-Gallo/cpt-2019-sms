@@ -55,7 +55,7 @@ class SriMenuView(arcade.View):
             self.window.show_view(SriScoreBoardView(self))
 
 
-class SriGameView(arcade.View):  
+class SriGameView(arcade.View):
 
     def on_show(self):
         if mode == "menu":
@@ -66,18 +66,17 @@ class SriGameView(arcade.View):
         arcade.start_render()
         arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-        
-        sri = Score(15, "Sridhar", 1231231.33, "adf")
-        Score(20, "haha", 1.1, "adf")
+
+        b = Article()
+        print(b.author, b.date)
     
     def update(self, delta_time: float):
         pass
 
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
+        
         # self.director.next_view()
-        # pass
-
 
 class SriInstructionsView(arcade.View):
     def __init__(self, game_view):
@@ -132,13 +131,10 @@ class SriScoreBoardView(arcade.View):
 
         top_scores = Score.get_top_5_scores()
 
-        for score in top_scores:
-            top_5_names.append(score.get_player())
-            top_5_scores.append(score.get_points())
+        for i in range(len(top_scores)):
+            top_5_scores.append(top_scores[i].get_points())
+            top_5_names.append(top_scores[i].get_player())
         
-        print(top_scores)
-        print(top_5_names)
-        print(top_5_scores)
 
 
         for i in range(len(top_scores)):
@@ -153,10 +149,10 @@ class SriScoreBoardView(arcade.View):
 class Score:
     all_scores = []
     
-    def __init__(self, points: int, player: int, time: float, article: "Article"):
+    def __init__(self, points: int, player: int, article: "Article"):
         self._points = points
         self._player = player
-        self._time = time
+        self._time = float(time())
         self.article = article
 
         Score.all_scores.append(self)
@@ -189,28 +185,22 @@ class Score:
         return time
 
     @classmethod
-    def get_top_5_scores(cls):
-        return cls.all_scores
-
-        mabye just a regular merge sort sending only the player names and scores.
-
-        """ FIX THE SORTING AND DISPLAYING OF SCORES!!! """
-
-        return sort_scores(cls.all_scores)[0:5]
+    def get_top_5_scores(cls): 
+        return merge_sort_scores(cls.all_scores)
 
         
 
 
 class Article:
     def __init__(self):
-        used_words = []
+        self.used_words = []
         unused_words = get_words()
         random.shuffle(unused_words)
-        unused_words = unused_words[0:100]
-        all_words = unused_words
+        self.unused_words = unused_words[0:100]
+        self.all_words = unused_words[0:100]
 
-        author = Article.make_name("Berock") + Article.make_name("Obamer")
-        date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
+        self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
+        self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
 
     
     @staticmethod
@@ -254,17 +244,15 @@ def get_words():
     return lines
 
 
-def sort_scores(scores: List["Score"]):
-    # Merge Sort
-    # Greatest to least
-
-    if len(scores) == 1 or len(scores) == 0:
-        return scores
-
-    midpoint = len(scores) // 2
+def merge_sort_scores(nums: List["Score"]) -> List["Score"]:
     
-    left_side = sort_scores(scores[:midpoint])
-    right_side = sort_scores(scores[midpoint:])
+    if len(nums) <= 1:
+        return nums
+    
+    midpoint = len(nums) // 2
+
+    left_side = merge_sort_scores(nums[:midpoint])
+    right_side = merge_sort_scores(nums[midpoint:])
 
     sorted_list = []
 
@@ -272,23 +260,25 @@ def sort_scores(scores: List["Score"]):
     right_marker = 0
 
     while left_marker < len(left_side) and right_marker < len(right_side):
-        if left_side[left_marker].get_points() < right_side[right_marker].get_points():
-            sorted_list.append(right_side[right_marker])
-            right_marker += 1
-        else:
+        
+        if left_side[left_marker].get_points() > right_side[right_marker].get_points():
             sorted_list.append(left_side[left_marker])
             left_marker += 1
-
-    
-    while right_marker < len(right_side):
-        sorted_list.append(right_side[right_marker])
-        right_marker += 1
+        else:
+            sorted_list.append(right_side[right_marker])
+            right_marker += 1
+        
     
     while left_marker < len(left_side):
         sorted_list.append(left_side[left_marker])
         left_marker += 1
     
+    while right_marker < len(right_side):
+        sorted_list.append(right_side[right_marker])
+        right_marker += 1
+    
     return sorted_list
+
 
 
 
