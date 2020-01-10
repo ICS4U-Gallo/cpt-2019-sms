@@ -4,6 +4,7 @@ import settings
 from time import time
 import random
 from typing import List
+import pickle
 
 TITLE = "Some disasterous Game"
 TEXT_COLOR = arcade.color.ARSENIC
@@ -13,8 +14,11 @@ WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
-global mode
+PICKLE_FILE = "sri_data.p"
+
+global mode, save_file
 mode = "menu"
+# save_file = SaveData()
 
 
 class SriMenuView(arcade.View):
@@ -39,6 +43,8 @@ class SriMenuView(arcade.View):
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
         arcade.draw_text("SCOREBOARD (S)", WIDTH/2, 0.3 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
+        arcade.draw_text("Press (N) to go to the next game", 0.175 * WIDTH, 0.003 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
     
 
@@ -53,9 +59,13 @@ class SriMenuView(arcade.View):
         elif key == 115: # S for Scoreboard
             mode = "scoreboard"
             self.window.show_view(SriScoreBoardView(self))
+        elif key == 110: # N for Next Game
+            self.window.next_view()
 
 
 class SriGameView(arcade.View):
+    def __init__(self):
+        super().__init__()
 
     def on_show(self):
         if mode == "menu":
@@ -66,9 +76,6 @@ class SriGameView(arcade.View):
         arcade.start_render()
         arcade.draw_text("game ma doode", WIDTH/2, HEIGHT/2,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-
-        b = Article()
-        print(b.author, b.date)
     
     def update(self, delta_time: float):
         pass
@@ -76,7 +83,8 @@ class SriGameView(arcade.View):
     def on_key_press(self, key, modifiers):
         self.window.show_view(SriMenuView(self))
         
-        # self.director.next_view()
+        self.director.next_view()
+
 
 class SriInstructionsView(arcade.View):
     def __init__(self, game_view):
@@ -188,8 +196,6 @@ class Score:
     def get_top_5_scores(cls): 
         return merge_sort_scores(cls.all_scores)
 
-        
-
 
 class Article:
     def __init__(self):
@@ -202,7 +208,6 @@ class Article:
         self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
         self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
 
-    
     @staticmethod
     def make_name(backup: str):
         words = get_words()
@@ -215,23 +220,39 @@ class Article:
             else:
                 name = backup
     
-        return name
-        
-
-
-
-    
+        return name 
 
 
 class SaveData:
-    def __init__(self, game_mode: str, scores):
-        self.game_mode = game_mode
-        self.scores = scores
-    
+    def __init__(self):
+        global mode
+        self.game_mode = mode
+        self.scores = Score.all_scores
+        
 
-    def save_to(self, save_file: str):
-        # save object to save file
-        pass
+    def load_from_file(self, save_file: str = PICKLE_FILE):
+        save_files = pickle.load(open(save_file, "rb"))
+
+        self.game_mode = save_files["game_mode"]
+        self.scores = save_files["scores"]
+
+        global mode
+        Score.all_scores = self.scores
+        mode = self.game_mode
+
+    def save(self, save_file: str = PICKLE_FILE):
+        global mode
+        self.game_mode = mode
+        self.scores = Score.all_scores
+
+        save_files = {
+            "game_mode": self.game_mode,
+            "scores": self.scores
+        }
+
+        pickle.dump(save_files, open(save_file, "wb"))
+global save_file
+save_file = SaveData()
 
 
 
@@ -278,10 +299,6 @@ def merge_sort_scores(nums: List["Score"]) -> List["Score"]:
         right_marker += 1
     
     return sorted_list
-
-
-
-
 
 
 if __name__ == "__main__":
