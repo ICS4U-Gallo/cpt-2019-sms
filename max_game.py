@@ -364,7 +364,9 @@ class SudokuMenu(arcade.View):
         arcade.draw_text('EADERBOARD', settings.WIDTH / 2 + 25, 185, user.preferred_color, 
                         font_size = 30, font_name = 'arial')
         self.quit_button.draw()
-        arcade.draw_text('X', 50, 535, user.preferred_color, 
+        arcade.draw_text('Q', 50, 535, user.preferred_color, 
+                        font_size = 30, font_name = 'arial', anchor_x='center')
+        arcade.draw_text('UIT', 50 + 55, 535, user.preferred_color, 
                         font_size = 30, font_name = 'arial', anchor_x='center')
     
     def on_mouse_press(self, x, y, button, modifiers):
