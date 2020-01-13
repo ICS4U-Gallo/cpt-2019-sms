@@ -201,6 +201,8 @@ class SriInstructionsView(arcade.View):
 
 
 class SriScoreBoardView(arcade.View):
+    nuke_counter = 0
+
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
@@ -241,9 +243,18 @@ class SriScoreBoardView(arcade.View):
         save_file.save()
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriMenuView(self))
-        global mode
-        mode = "menu"
+        
+        if key == 110: # N for nuke
+            SriScoreBoardView.nuke_counter += 1
+            if SriScoreBoardView.nuke_counter >= 10:
+                global save_file
+                SriScoreBoardView.nuke_counter = 0
+                save_file.nuke()
+                save_file.load_from_file()
+        else:
+            self.window.show_view(SriMenuView(self))
+            global mode
+            mode = "menu"
 
 
 class Game:
@@ -344,7 +355,7 @@ class SaveData:
         try:
             self.game_mode = save_files["game_mode"]
             self.scores = save_files["scores"]
-        except NameError:
+        except KeyError:
             self.game_mode = "menu"
             self.scores = []
 
@@ -363,7 +374,7 @@ class SaveData:
         pickle.dump(save_files, open(save_file, "wb"))
     
     def nuke(self, save_file: str = PICKLE_FILE):
-        pickle.dump("", open(save_file, "wb"))
+        pickle.dump({}, open(save_file, "wb"))
 
 global save_file
 save_file = SaveData()
