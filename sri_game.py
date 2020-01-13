@@ -18,7 +18,7 @@ PICKLE_FILE = "sri_data.p"        # self.director.next_view()
 
 
 
-global mode, save_file, cur_article
+global mode, save_file, cur_game
 mode = "menu"
 
 
@@ -54,7 +54,7 @@ class SriMenuView(arcade.View):
     def on_key_press(self, key, modifiers):
         global mode
         if key == 112: # P for Play
-            mode = "play"
+            mode = "ask player name"
             self.window.show_view(SriGameView())
         elif key == 105: # I for Instructions
             mode = "instructions"
@@ -66,13 +66,52 @@ class SriMenuView(arcade.View):
             self.window.next_view()
 
 
+class SriAskPlayerNameView(arcade.View):
+    name = ""
+
+    def __init__(self):
+        super().__init__()
+        SriAskPlayerNameView.name = ""
+    
+    def on_show(self):
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        
+        arcade.draw_text("Please type your name | Your name must be 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+        arcade.draw_text("Press (ENTER) when complete | Press (ESC) to go to the Menu", 0.5 * WIDTH, HEIGHT - (0.07 * HEIGHT),
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+
+        arcade.draw_text(f'"{SriAskPlayerNameView.name}"', 0.5 * WIDTH, 0.5 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.02 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+    
+    def update(self, delta_time: float):
+        pass
+
+    def on_key_press(self, key, modifiers):
+        global mode
+        if key == 65307: # ESCAPE
+            mode = "play"
+            self.window.show_view(SriMenuView(self))
+        elif key == 65288: # BACKSPACE
+            SriAskPlayerNameView.name = SriAskPlayerNameView.name[:-1]
+        elif key == 65293: # ENTER
+            mode = "play"
+            self.window.show_view(SriGameView())
+        elif len(SriAskPlayerNameView.name) >= 5:
+            pass
+        elif key in range(97, 122 + 1):
+            SriAskPlayerNameView.name += key_code_to_letter(key)
+
+
 class SriGameView(arcade.View):
     def __init__(self):
         super().__init__()
 
     def on_show(self):
-        global mode
-        arcade.set_background_color(SCREEN_COLOR)
+        global mode, cur_game
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
         elif mode == "instructions":
@@ -80,27 +119,26 @@ class SriGameView(arcade.View):
         elif mode == "scoreboard":
             self.window.show_view(SriScoreBoardView(self))
         elif mode == "play":
-            pass
-            
+            cur_player = SriAskPlayerNameView.name
+            print(SriAskPlayerNameView.name)
+            cur_game = Game(
+                Score(0, cur_player),
+                Article()
+                )
+        elif mode == "ask player name":
+            self.window.show_view(SriAskPlayerNameView())
     
+
     def on_draw(self):
         arcade.start_render()
+        arcade.set_background_color(SCREEN_COLOR)
+
         
         # Top Middle of screen
         arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
-        
-        # Middle of Screen
-        arcade.draw_text("PLAY", 0.5 * WIDTH, 0.5 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.05 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
-        
-        # Play Button
-        arcade.draw_rectangle_outline(0.5 * WIDTH, 0.57 * HEIGHT, WIDTH * 0.5, HEIGHT * 0.3, TEXT_COLOR, (WIDTH + HEIGHT) * 0.003, )
-
-        # Click play button (using mouse)
 
         '''
-
         timer comes on top of screen
         words pop up on screen in boxes
 
@@ -111,6 +149,11 @@ class SriGameView(arcade.View):
 
         # Asks for player name
     
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            pass
+            
 
 
     def update(self, delta_time: float):
@@ -157,9 +200,9 @@ class SriInstructionsView(arcade.View):
 
 
     def on_key_press(self, key, modifiers):
-        self.window.show_view(SriMenuView(self))
         global mode
         mode = "menu"
+        self.window.show_view(SriMenuView(self))
 
 
 class SriScoreBoardView(arcade.View):
@@ -203,20 +246,36 @@ class SriScoreBoardView(arcade.View):
         mode = "menu"
 
 
+class Game:
+    def __init__(self, game_score: "Score", article: "Article"):
+        self.game_score = game_score
+        self.article = article
+    
+    
+    
+
+
+
+
 class Score:
     all_scores = []
     
-    def __init__(self, points: int, player: int, article: "Article"):
+    def __init__(self, points: int, player: int):
         self._points = points
         self._player = player
         self._time = float(time())
-        self.article = article
 
         Score.all_scores.append(self)
     
     def change_points(self, points: int):
-        if points is int:
+        if isinstance(points, int):
             self._points = points
+        else:
+            raise Exception("Points should be an integer")
+
+    def add_points(self, points: int):
+        if isinstance(points, int):
+            self._points += points
         else:
             raise Exception("Points should be an integer")
 
@@ -224,7 +283,7 @@ class Score:
         return self._points
 
     def set_player(self, player: str):
-        if player is str:
+        if isinstance(player, str):
             self._player = player
         else:
             self._player = str(player)
@@ -233,7 +292,7 @@ class Score:
         return self._player
 
     def set_time(self, time: float):
-        if time is float and time > 0:
+        if isinstance(time, float) and time > 0:
             self._time = time
         else:
             raise Exception("Time should be a positive float")
@@ -360,6 +419,16 @@ def merge_sort_scores(nums: List["Score"]) -> List["Score"]:
     
     return sorted_list
 
+
+def key_code_to_letter(key_code: int) -> str:
+    letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
+
+    # A -> 97
+    # Z -> 122
+
+    key_code -= 97
+
+    return letters[key_code]
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
