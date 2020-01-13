@@ -135,20 +135,16 @@ class SriGameView(arcade.View):
 
         global cur_game
 
-        disp_clock = format_time_ms_to_min_s(
-                                             delta_time(cur_game.start_time,
-                                                        time()
-                                                        )
-                                             )
-
+        disp_clock = game_display_time()
         arcade.draw_text(f"{disp_clock}", 0.5 * WIDTH, HEIGHT - (0.90 * HEIGHT),
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
         '''
-        timer comes on top of screen
         words pop up on screen in boxes
 
         bottom of screen: score, words joined, word_speed (time it took from your previous word to current word)
+
+        # add stuff like words joined and word speed to the game class
 
         '''
         # Game ends
@@ -352,8 +348,6 @@ class SaveData:
             self.game_mode = "menu"
             self.scores = []
 
-
-
         global mode
         Score.all_scores = self.scores
         mode = self.game_mode
@@ -443,6 +437,16 @@ def format_time_ms_to_min_s(seconds: float) -> str:
 
     return f"{minutes}:{seconds}.{milliseconds}"
 
+
+def game_display_time() -> str:
+    global cur_game
+    disp_clock = format_time_ms_to_min_s(
+                                             delta_time(cur_game.start_time,
+                                                        time()
+                                                        )
+                                             )
+    
+    return disp_clock
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
