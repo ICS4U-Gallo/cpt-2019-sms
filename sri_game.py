@@ -14,9 +14,7 @@ WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
-PICKLE_FILE = "sri_data.p"        # self.director.next_view()
-
-
+PICKLE_FILE = "sri_data.p"
 
 global mode, save_file, cur_game
 mode = "menu"
@@ -79,12 +77,12 @@ class SriAskPlayerNameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         
-        arcade.draw_text("Please type your name | Your name must be 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+        arcade.draw_text("Please type your name | Your name must be 1 to 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         arcade.draw_text("Press (ENTER) when complete | Press (ESC) to go to the Menu", 0.5 * WIDTH, HEIGHT - (0.07 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
-        arcade.draw_text(f'"{SriAskPlayerNameView.name}"', 0.5 * WIDTH, 0.5 * HEIGHT,
+        arcade.draw_text(f'Name: "{SriAskPlayerNameView.name}"', 0.5 * WIDTH, 0.5 * HEIGHT,
                          TEXT_COLOR, font_size=(0.02 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
     
     def update(self, delta_time: float):
@@ -120,7 +118,6 @@ class SriGameView(arcade.View):
             self.window.show_view(SriScoreBoardView(self))
         elif mode == "play":
             cur_player = SriAskPlayerNameView.name
-            print(SriAskPlayerNameView.name)
             cur_game = Game(
                 Score(0, cur_player),
                 Article()
@@ -146,20 +143,15 @@ class SriGameView(arcade.View):
 
         '''
         # Game ends
-
-        # Asks for player name
     
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
             pass
-            
-
 
     def update(self, delta_time: float):
         global save_file
         save_file.save()
-
 
     def on_key_press(self, key, modifiers):
         if key == 65307: # ESCAPE for menu
@@ -197,8 +189,6 @@ class SriInstructionsView(arcade.View):
         global save_file
         save_file.save()
 
-
-
     def on_key_press(self, key, modifiers):
         global mode
         mode = "menu"
@@ -226,13 +216,18 @@ class SriScoreBoardView(arcade.View):
         top_5_names = []
         top_5_scores = []
 
-        top_scores = Score.get_top_5_scores()
+        top_scores = Score.get_top_scores()
 
-        for i in range(len(top_scores)):
+        num_scores_to_show = len(top_scores)
+
+        if num_scores_to_show > 5:
+            num_scores_to_show = 5
+
+        for i in range(num_scores_to_show):
             top_5_scores.append(top_scores[i].get_points())
             top_5_names.append(top_scores[i].get_player())
 
-        for i in range(len(top_scores)):
+        for i in range(num_scores_to_show):
             arcade.draw_text(f"{i + 1}. {top_5_names[i]} ---- {top_5_scores[i]}",
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
@@ -250,11 +245,6 @@ class Game:
     def __init__(self, game_score: "Score", article: "Article"):
         self.game_score = game_score
         self.article = article
-    
-    
-    
-
-
 
 
 class Score:
@@ -301,7 +291,7 @@ class Score:
         return time
 
     @classmethod
-    def get_top_5_scores(cls): 
+    def get_top_scores(cls): 
         return merge_sort_scores(cls.all_scores)
 
 
