@@ -134,10 +134,26 @@ class SriGameView(arcade.View):
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
         global cur_game
+        
+        # MAX 25 CHARACTERS PER LINE
 
         disp_clock = game_display_time()
-        arcade.draw_text(f"{disp_clock}", 0.5 * WIDTH, HEIGHT - (0.90 * HEIGHT),
+        cur_points = cur_game.game_score.get_points()
+
+
+        arcade.draw_text(f"Time: {disp_clock}", 0.5 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+        arcade.draw_text(f"Points: {cur_points}", 0.2 * WIDTH, 0.035 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+
+
+
+        arcade.draw_text(f"1 line" * 5 * 25 , 0.1 * WIDTH, 0.2 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+        arcade.draw_text(f"2 line" * 5 * 25 , 0.1 * WIDTH, 0.8 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+
+
 
         '''
         words pop up on screen in boxes
@@ -243,7 +259,6 @@ class SriScoreBoardView(arcade.View):
         save_file.save()
 
     def on_key_press(self, key, modifiers):
-        
         if key == 110: # N for nuke
             SriScoreBoardView.nuke_counter += 1
             if SriScoreBoardView.nuke_counter >= 10:
