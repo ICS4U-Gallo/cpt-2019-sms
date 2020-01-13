@@ -77,7 +77,7 @@ class SriAskPlayerNameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         
-        arcade.draw_text("Please type your name | Your name must be 1 to 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+        arcade.draw_text("Please type your name | Your name must be 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         arcade.draw_text("Press (ENTER) when complete | Press (ESC) to go to the Menu", 0.5 * WIDTH, HEIGHT - (0.07 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
@@ -129,11 +129,20 @@ class SriGameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         arcade.set_background_color(SCREEN_COLOR)
-
-        
         # Top Middle of screen
         arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+
+        global cur_game
+
+        disp_clock = format_time_ms_to_min_s(
+                                             delta_time(cur_game.start_time,
+                                                        time()
+                                                        )
+                                             )
+
+        arcade.draw_text(f"{disp_clock}", 0.5 * WIDTH, HEIGHT - (0.90 * HEIGHT),
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
         '''
         timer comes on top of screen
@@ -228,7 +237,7 @@ class SriScoreBoardView(arcade.View):
             top_5_names.append(top_scores[i].get_player())
 
         for i in range(num_scores_to_show):
-            arcade.draw_text(f"{i + 1}. {top_5_names[i]} ---- {top_5_scores[i]}",
+            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]}",
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
     def update(self, delta_time: float):
@@ -245,6 +254,7 @@ class Game:
     def __init__(self, game_score: "Score", article: "Article"):
         self.game_score = game_score
         self.article = article
+        self.start_time = time()
 
 
 class Score:
@@ -324,7 +334,7 @@ class Article:
 class SaveData:
     def __init__(self):
         global mode
-        self.game_mode = mode
+        self.game_mode = "menu"
         self.scores = Score.all_scores
         
 
@@ -349,8 +359,6 @@ class SaveData:
         mode = self.game_mode
 
     def save(self, save_file: str = PICKLE_FILE):
-        global mode
-        self.game_mode = mode
         self.scores = Score.all_scores
 
         save_files = {
@@ -359,6 +367,9 @@ class SaveData:
         }
 
         pickle.dump(save_files, open(save_file, "wb"))
+    
+    def nuke(self, save_file: str = PICKLE_FILE):
+        pickle.dump("", open(save_file, "wb"))
 
 global save_file
 save_file = SaveData()
@@ -419,6 +430,19 @@ def key_code_to_letter(key_code: int) -> str:
     key_code -= 97
 
     return letters[key_code]
+
+
+def delta_time(time_1: float, time_2: float) -> float:
+    return time_2 - time_1
+
+
+def format_time_ms_to_min_s(seconds: float) -> str:
+    milliseconds = str(seconds)[2:5]
+    seconds = int(seconds)
+    minutes = int(seconds // 60)
+
+    return f"{minutes}:{seconds}.{milliseconds}"
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
