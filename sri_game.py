@@ -162,6 +162,15 @@ class SriGameView(arcade.View):
                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
 
+        # mabye instead of using the mouse I could use numbers 0 - 9 to choose words
+        # that might make it a lot easier
+        
+        # But then i'd have to make sure that there that there are words that can be used...
+        # mabye while choosing the words I could "play the game" and get the words that way...?
+        # or the words just get replaced after using them...
+
+
+
         '''
         words pop up on screen in boxes
 
@@ -299,7 +308,7 @@ class SriEndGameView(arcade.View):
         
         global cur_game
 
-        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nPoints: {cur_game.game_score.get_points()}\n\n Rank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.5 * HEIGHT,
+        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nPoints: {cur_game.game_score.get_points()}\n\n Rank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
                          TEXT_COLOR, font_size=(0.05 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
     
     def update(self, delta_time: float):
@@ -316,7 +325,7 @@ class Game:
         self.game_score = game_score
         self.article = article
         self.start_time = time()
-        self.max_time = 30
+        self.max_time = 3
 
 
 class Score:
