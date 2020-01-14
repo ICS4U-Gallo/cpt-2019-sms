@@ -5,6 +5,7 @@ from time import time
 import random
 from typing import List
 import pickle
+from datetime import date
 
 TITLE = "Some disasterous Game"
 TEXT_COLOR = arcade.color.ARSENIC
@@ -136,15 +137,19 @@ class SriGameView(arcade.View):
         arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 *  HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")        
 
-        disp_clock = game_display_time()
+        disp_clock = game_display_time(1)
         cur_points = cur_game.game_score.get_points()
-        arcade.draw_text(f"Time: {disp_clock}", 0.5 * WIDTH, 0.035 * HEIGHT,
+        disp_date = convert_date_to_words(cur_game.article.date)
+
+        arcade.draw_text(f"Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
         arcade.draw_text(f"Points: {cur_points}", 0.2 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
         arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}", 0.5 * WIDTH, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
+        arcade.draw_text(f"Date: {disp_date}", 0.5 * WIDTH, 0.85 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
 
 
         unused_words = cur_game.article.unused_words
@@ -155,19 +160,22 @@ class SriGameView(arcade.View):
         if num_lines_to_show > 7:
             num_lines_to_show = 7
 
+        '''
+
         word_writing_range = range(1, num_lines_to_show)
 
         for i in word_writing_range:
             arcade.draw_text(lines_to_show[i], 0.5 * WIDTH, (i + 1) * 0.1 * HEIGHT,
                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
+        '''
+        # IM CHANGING THE WAY THE GAME WORDS!!!
 
-        # mabye instead of using the mouse I could use numbers 0 - 9 to choose words
-        # that might make it a lot easier
-        
-        # But then i'd have to make sure that there that there are words that can be used...
-        # mabye while choosing the words I could "play the game" and get the words that way...?
-        # or the words just get replaced after using them...
+        # 10 words, labelled 0 - 9
+        # computer plays the game (finds a path of words that work)
+        # shuffles the words and displays them 0 - 9
+        # each word = 10 points
+        # more points based on the time left
 
 
 
@@ -325,7 +333,7 @@ class Game:
         self.game_score = game_score
         self.article = article
         self.start_time = time()
-        self.max_time = 3
+        self.max_time = 30
 
 
 class Score:
@@ -426,7 +434,7 @@ class Article:
             else:
                 name = backup
     
-        return name 
+        return name
     
     @staticmethod
     def words_to_lines(words: List[str], line_len: int = 40) -> List[str]:
@@ -437,7 +445,7 @@ class Article:
 
         while i < len(words):
             if len(lines[line_counter]) + len(words[i]) < line_len:
-                lines[line_counter] += (words[i] + "     ")
+                lines[line_counter] += (words[i] + " ")
                 i += 1
             else:
                 line_counter += 1
@@ -445,6 +453,9 @@ class Article:
 
                 if len(words[i]) > line_len:
                     i += 1
+        
+        for i in range(len(lines)):
+            lines[i] = lines[i].split()
 
         return lines
 
@@ -454,10 +465,8 @@ class SaveData:
         global mode
         self.game_mode = "menu"
         self.scores = Score.all_scores
-        
 
     def load_from_file(self, save_file: str = PICKLE_FILE):
-        
         try:
             save_files = pickle.load(open(save_file, "rb"))
         except EOFError:
@@ -467,6 +476,9 @@ class SaveData:
             self.game_mode = save_files["game_mode"]
             self.scores = save_files["scores"]
         except KeyError:
+            self.game_mode = "menu"
+            self.scores = []
+        except UnboundLocalError:
             self.game_mode = "menu"
             self.scores = []
 
@@ -486,6 +498,7 @@ class SaveData:
     
     def nuke(self, save_file: str = PICKLE_FILE):
         pickle.dump({}, open(save_file, "wb"))
+
 
 global save_file
 save_file = SaveData()
@@ -558,8 +571,20 @@ def game_display_time(decimal_places: int = 3) -> str:
 
     disp_clock = round(disp_clock, decimal_places)
     
-    return f"{disp_clock}s"
+    return f"{disp_clock}"
 
+
+def convert_date_to_words(slash_date: str) -> str:
+    slash_date = slash_date.split("/")
+
+    for i in range(len(slash_date)):
+        slash_date[i] = int(slash_date[i])
+
+    words = date(day=slash_date[0],
+                 month=slash_date[1],
+                 year=slash_date[2]).strftime('%A %d %B %Y')
+
+    return words
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
