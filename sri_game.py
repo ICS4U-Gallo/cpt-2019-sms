@@ -91,7 +91,7 @@ class SriAskPlayerNameView(arcade.View):
     def on_key_press(self, key, modifiers):
         global mode
         if key == 65307: # ESCAPE
-            mode = "play"
+            mode = "menu"
             self.window.show_view(SriMenuView(self))
         elif key == 65288: # BACKSPACE
             SriAskPlayerNameView.name = SriAskPlayerNameView.name[:-1]
@@ -129,30 +129,37 @@ class SriGameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         arcade.set_background_color(SCREEN_COLOR)
-        # Top Middle of screen
-        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
-                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
         global cur_game
-        
-        # MAX 25 CHARACTERS PER LINE
+
+        # Titles and Related
+        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 *  HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")        
 
         disp_clock = game_display_time()
         cur_points = cur_game.game_score.get_points()
-
-
         arcade.draw_text(f"Time: {disp_clock}", 0.5 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
         arcade.draw_text(f"Points: {cur_points}", 0.2 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
+        arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}", 0.5 * WIDTH, 0.9 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
 
 
-        arcade.draw_text(f"1 line" * 5 * 25 , 0.1 * WIDTH, 0.2 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
-        arcade.draw_text(f"2 line" * 5 * 25 , 0.1 * WIDTH, 0.8 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+        unused_words = cur_game.article.unused_words
+        lines_to_show = cur_game.article.words_to_lines(unused_words)
 
+        num_lines_to_show = len(lines_to_show)
+
+        if num_lines_to_show > 7:
+            num_lines_to_show = 7
+
+        word_writing_range = range(1, num_lines_to_show)
+
+        for i in word_writing_range:
+            arcade.draw_text(lines_to_show[i], 0.5 * WIDTH, (i + 1) * 0.1 * HEIGHT,
+                            TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
 
         '''
@@ -163,12 +170,17 @@ class SriGameView(arcade.View):
         # add stuff like words joined and word speed to the game class
 
         '''
-        # Game ends
+        
+        # End Game
+        if float(disp_clock[:-1]) > cur_game.max_time:
+            global mode
+            mode = "endgame"
+            self.window.show_view(SriEndGameView())
     
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            pass
+            print("Im here!", x, y)
 
     def update(self, delta_time: float):
         global save_file
@@ -272,11 +284,39 @@ class SriScoreBoardView(arcade.View):
             mode = "menu"
 
 
+class SriEndGameView(arcade.View):
+    def __init__(self):
+        super().__init__()
+    
+    def on_show(self):
+        arcade.set_background_color(SCREEN_COLOR)
+    
+    def on_draw(self):
+        arcade.start_render()
+        
+        arcade.draw_text("Press any key to return to the menu", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        
+        global cur_game
+
+        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nPoints: {cur_game.game_score.get_points()}\n\n Rank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.5 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.05 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+    
+    def update(self, delta_time: float):
+        pass
+
+    def on_key_press(self, key, modifiers):
+        global mode
+        mode = "menu"
+        self.window.show_view(SriMenuView(self))
+
+
 class Game:
     def __init__(self, game_score: "Score", article: "Article"):
         self.game_score = game_score
         self.article = article
         self.start_time = time()
+        self.max_time = 30
 
 
 class Score:
@@ -325,6 +365,18 @@ class Score:
     @classmethod
     def get_top_scores(cls): 
         return merge_sort_scores(cls.all_scores)
+    
+    def find_rank(self) -> int:
+        scores = Score.get_top_scores()
+
+        global cur_game
+
+        for i in range(len(scores)):
+            if scores[i] == cur_game.game_score:
+                rank = i
+                break
+
+        return rank + 1
 
 
 class Article:
@@ -334,12 +386,27 @@ class Article:
         random.shuffle(unused_words)
         self.unused_words = unused_words[0:100]
         self.all_words = unused_words[0:100]
+        self.title = Article.make_title(3)
 
         self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
         self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
 
     @staticmethod
-    def make_name(backup: str):
+    def make_title(num_words: int) -> str:
+        words = get_words()
+        random.shuffle(words)
+        
+        title = ""
+
+        for i in range(3):
+            rand_word = random.choice(words)
+            rand_word = rand_word[0].upper() + rand_word[1:].lower()
+            title += (rand_word + " ")
+        
+        return title[:-1]
+
+    @staticmethod
+    def make_name(backup: str) -> str:
         words = get_words()
 
         random.shuffle(words)
@@ -351,6 +418,26 @@ class Article:
                 name = backup
     
         return name 
+    
+    @staticmethod
+    def words_to_lines(words: List[str], line_len: int = 40) -> List[str]:
+        lines = [""]
+
+        line_counter = 0    
+        i = 0
+
+        while i < len(words):
+            if len(lines[line_counter]) + len(words[i]) < line_len:
+                lines[line_counter] += (words[i] + "     ")
+                i += 1
+            else:
+                line_counter += 1
+                lines.append("")
+
+                if len(words[i]) > line_len:
+                    i += 1
+
+        return lines
 
 
 class SaveData:
@@ -456,23 +543,14 @@ def delta_time(time_1: float, time_2: float) -> float:
     return time_2 - time_1
 
 
-def format_time_ms_to_min_s(seconds: float) -> str:
-    milliseconds = str(seconds)[2:5]
-    seconds = int(seconds)
-    minutes = int(seconds // 60)
-
-    return f"{minutes}:{seconds}.{milliseconds}"
-
-
-def game_display_time() -> str:
+def game_display_time(decimal_places: int = 3) -> str:
     global cur_game
-    disp_clock = format_time_ms_to_min_s(
-                                             delta_time(cur_game.start_time,
-                                                        time()
-                                                        )
-                                             )
+    disp_clock = delta_time(cur_game.start_time, time())
+
+    disp_clock = round(disp_clock, decimal_places)
     
-    return disp_clock
+    return f"{disp_clock}s"
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
