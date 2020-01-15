@@ -422,16 +422,12 @@ class Game:
         return sorted_list
 
 
-class Score:
-    all_scores = []
-    
+class Score:    
     def __init__(self, points: int, player: int):
         self._points = points
         self._player = player
         self._time = float(time())
         self._words_joined = 0
-
-        Score.all_scores.append(self)
     
     def change_points(self, points: int):
         if isinstance(points, int):
@@ -546,7 +542,6 @@ class SaveData:
     def __init__(self):
         global mode
         self.game_mode = "menu"
-        self.scores = Score.all_scores
         self.games = Game.all_games
 
     def load_from_file(self, save_file: str = PICKLE_FILE):
@@ -557,29 +552,23 @@ class SaveData:
 
         try:
             self.game_mode = save_files["game_mode"]
-            self.scores = save_files["scores"]
             self.games = save_files["games"]
         except KeyError:
             self.game_mode = "menu"
-            self.scores = []
             self.games = []
         except UnboundLocalError:
             self.game_mode = "menu"
-            self.scores = []
             self.games = []
 
         global mode
-        Score.all_scores = self.scores
         Game.all_games = self.games
         mode = self.game_mode
 
     def save(self, save_file: str = PICKLE_FILE):
-        self.scores = Score.all_scores
         self.games = Game.all_games
 
         save_files = {
             "game_mode": self.game_mode,
-            "scores": self.scores,
             "games": self.games
         }
 
