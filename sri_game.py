@@ -3,7 +3,7 @@ import settings
 
 from time import time
 import random
-from typing import List
+from typing import List, Dict
 import pickle
 from datetime import date
 
@@ -16,6 +16,8 @@ HEIGHT = settings.HEIGHT
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
 PICKLE_FILE = "sri_data.p"
+
+LETTERS = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
 
 global mode, save_file, cur_game
 mode = "menu"
@@ -110,7 +112,11 @@ class SriGameView(arcade.View):
         super().__init__()
 
     def on_show(self):
-        global mode, cur_game
+        global mode
+        global cur_game
+
+        print(mode)
+
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
         elif mode == "instructions":
@@ -118,11 +124,14 @@ class SriGameView(arcade.View):
         elif mode == "scoreboard":
             self.window.show_view(SriScoreBoardView(self))
         elif mode == "play":
+            print("here 1")
             cur_player = SriAskPlayerNameView.name
+            print("here 2")
             cur_game = Game(
                 Score(0, cur_player),
                 Article()
                 )
+            print("here 3")
         elif mode == "ask player name":
             self.window.show_view(SriAskPlayerNameView())
     
@@ -137,7 +146,7 @@ class SriGameView(arcade.View):
         arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 *  HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")        
 
-        disp_clock = game_display_time(1)
+        disp_clock = cur_game.game_display_time(1)
         cur_points = cur_game.game_score.get_points()
         disp_date = convert_date_to_words(cur_game.article.date)
 
@@ -152,13 +161,14 @@ class SriGameView(arcade.View):
                          TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
 
 
-        unused_words = cur_game.article.unused_words
-        lines_to_show = cur_game.article.words_to_lines(unused_words)
+        # unused_words = cur_game.article.unused_words
+        # lines_to_show = cur_game.article.words_to_lines(unused_words)
+        # num_lines_to_show = len(lines_to_show)
 
-        num_lines_to_show = len(lines_to_show)
-
+        '''
         if num_lines_to_show > 7:
             num_lines_to_show = 7
+        '''
 
         '''
 
@@ -193,11 +203,6 @@ class SriGameView(arcade.View):
             global mode
             mode = "endgame"
             self.window.show_view(SriEndGameView())
-    
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        if button == arcade.MOUSE_BUTTON_LEFT:
-            print("Im here!", x, y)
 
     def update(self, delta_time: float):
         global save_file
@@ -336,6 +341,17 @@ class Game:
         self.max_time = 30
 
 
+    def game_display_time(self, decimal_places: int = 3) -> str:
+        if decimal_places < 0:
+            decimal_places = 0
+
+        disp_clock = delta_time(self.start_time, time())
+
+        disp_clock = round(disp_clock, decimal_places)
+        
+        return f"{disp_clock}"
+
+
 class Score:
     all_scores = []
     
@@ -386,10 +402,8 @@ class Score:
     def find_rank(self) -> int:
         scores = Score.get_top_scores()
 
-        global cur_game
-
         for i in range(len(scores)):
-            if scores[i] == cur_game.game_score:
+            if scores[i] == self.game_score:
                 rank = i
                 break
 
@@ -398,15 +412,28 @@ class Score:
 
 class Article:
     def __init__(self):
-        self.used_words = []
-        unused_words = get_words()
-        random.shuffle(unused_words)
-        self.unused_words = unused_words[0:100]
-        self.all_words = unused_words[0:100]
         self.title = Article.make_title(3)
-
         self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
         self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
+
+        self.used_words = []
+        self.unused_words = self.make_game_words()
+
+    def make_game_words(self) -> List[str]:
+        all_words = get_words_by_letter()
+        starting_letter = random_letter()
+        starting_word = random_word_from_list(all_words[starting_letter][:])
+        final_words = [starting_word]
+
+        for i in range(10):
+            letter = final_words[i][-1].upper()
+            # print(letter)
+            # print(all_words[letter])
+            word = random_word_from_list(((all_words[letter])[:]))
+            final_words.append(word)
+        
+        return final_words
+
 
     @staticmethod
     def make_title(num_words: int) -> str:
@@ -435,29 +462,6 @@ class Article:
                 name = backup
     
         return name
-    
-    @staticmethod
-    def words_to_lines(words: List[str], line_len: int = 40) -> List[str]:
-        lines = [""]
-
-        line_counter = 0    
-        i = 0
-
-        while i < len(words):
-            if len(lines[line_counter]) + len(words[i]) < line_len:
-                lines[line_counter] += (words[i] + " ")
-                i += 1
-            else:
-                line_counter += 1
-                lines.append("")
-
-                if len(words[i]) > line_len:
-                    i += 1
-        
-        for i in range(len(lines)):
-            lines[i] = lines[i].split()
-
-        return lines
 
 
 class SaveData:
@@ -505,7 +509,18 @@ save_file = SaveData()
 save_file.load_from_file()
 
 
-def get_words():
+def random_word_from_list(words: List[str]) -> str:
+    random.shuffle(words)
+    return words[0]
+
+
+def random_letter() -> str:
+    rand_letter = random.randint(0, 25)
+    rand_letter = LETTERS[rand_letter]
+    return rand_letter
+
+
+def get_words() -> List[str]:
     lines = []
     with open("Sri_Words.txt", "r") as f:
         for line in f:
@@ -551,7 +566,7 @@ def merge_sort_scores(nums: List["Score"]) -> List["Score"]:
 
 
 def key_code_to_letter(key_code: int) -> str:
-    letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
+    letters = LETTERS
 
     # A -> 97
     # Z -> 122
@@ -565,15 +580,6 @@ def delta_time(time_1: float, time_2: float) -> float:
     return time_2 - time_1
 
 
-def game_display_time(decimal_places: int = 3) -> str:
-    global cur_game
-    disp_clock = delta_time(cur_game.start_time, time())
-
-    disp_clock = round(disp_clock, decimal_places)
-    
-    return f"{disp_clock}"
-
-
 def convert_date_to_words(slash_date: str) -> str:
     slash_date = slash_date.split("/")
 
@@ -585,6 +591,25 @@ def convert_date_to_words(slash_date: str) -> str:
                  year=slash_date[2]).strftime('%A %d %B %Y')
 
     return words
+
+
+def get_words_by_letter() -> Dict:
+    all_words = get_words()
+
+    letters = LETTERS
+    by_letter = {"ETC": []}
+    for letter in letters:
+        by_letter[letter] = []
+    
+    for word in all_words:
+        first_letter = word[0].upper()
+        try:
+            by_letter[first_letter].append(word)
+        except KeyError:
+            by_letter["ETC"].append(word)
+
+    return by_letter
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
