@@ -165,6 +165,7 @@ class SriGameView(arcade.View):
         # lines_to_show = cur_game.article.words_to_lines(unused_words)
         # num_lines_to_show = len(lines_to_show)
 
+
         '''
         if num_lines_to_show > 7:
             num_lines_to_show = 7
