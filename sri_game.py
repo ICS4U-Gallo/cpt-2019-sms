@@ -7,7 +7,7 @@ from typing import List, Dict
 import pickle
 from datetime import date
 
-TITLE = "Some disasterous Game"
+TITLE = "Word Linker"
 TEXT_COLOR = arcade.color.ARSENIC
 SCREEN_COLOR = arcade.color.BONE
 
@@ -30,13 +30,13 @@ class SriMenuView(arcade.View):
 
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-    
+
     def on_draw(self):
         arcade.start_render()
 
         # Title
         arcade.draw_text(TITLE, WIDTH/2, 0.85 * HEIGHT,
-                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 30), anchor_x="center", align="right")
+                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 30), anchor_x="center", align="center")
 
         # Labels
         arcade.draw_text("PLAY (P)", WIDTH/2, 0.7 * HEIGHT,
@@ -54,16 +54,16 @@ class SriMenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         global mode
-        if key == 112: # P for Play
+        if key == 112:  # P for Play
             mode = "ask player name"
             self.window.show_view(SriGameView())
-        elif key == 105: # I for Instructions
+        elif key == 105:  # I for Instructions
             mode = "instructions"
             self.window.show_view(SriInstructionsView(self))
-        elif key == 115: # S for Scoreboard
+        elif key == 115:  # S for Scoreboard
             mode = "scoreboard"
             self.window.show_view(SriScoreBoardView(self))
-        elif key == 110: # N for Next Game
+        elif key == 110:  # N for Next Game
             self.window.next_view()
 
 
@@ -73,13 +73,13 @@ class SriAskPlayerNameView(arcade.View):
     def __init__(self):
         super().__init__()
         SriAskPlayerNameView.name = ""
-    
+
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-    
+
     def on_draw(self):
         arcade.start_render()
-        
+
         arcade.draw_text("Please type your name | Your name must be 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         arcade.draw_text("Press (ENTER) when complete | Press (ESC) to go to the Menu", 0.5 * WIDTH, HEIGHT - (0.07 * HEIGHT),
@@ -87,18 +87,18 @@ class SriAskPlayerNameView(arcade.View):
 
         arcade.draw_text(f'Name: "{SriAskPlayerNameView.name}"', 0.5 * WIDTH, 0.5 * HEIGHT,
                          TEXT_COLOR, font_size=(0.02 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-    
+
     def update(self, delta_time: float):
         pass
 
     def on_key_press(self, key, modifiers):
         global mode
-        if key == 65307: # ESCAPE
+        if key == 65307:  # ESCAPE
             mode = "menu"
             self.window.show_view(SriMenuView(self))
-        elif key == 65288: # BACKSPACE
+        elif key == 65288:  # BACKSPACE
             SriAskPlayerNameView.name = SriAskPlayerNameView.name[:-1]
-        elif key == 65293: # ENTER
+        elif key == 65293:  # ENTER
             mode = "play"
             self.window.show_view(SriGameView())
         elif len(SriAskPlayerNameView.name) >= 5:
@@ -129,19 +129,17 @@ class SriGameView(arcade.View):
                 )
         elif mode == "ask player name":
             self.window.show_view(SriAskPlayerNameView())
-    
 
     def on_draw(self):
         arcade.start_render()
         arcade.set_background_color(SCREEN_COLOR)
 
         global cur_game
-
         cur_game.update_points()
 
         # Titles and Related
-        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 *  HEIGHT,
-                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")        
+        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
         disp_clock = cur_game.game_display_time(1)
         cur_points = cur_game.game_score.get_points()
@@ -150,20 +148,11 @@ class SriGameView(arcade.View):
 
         arcade.draw_text(f"Actions Performed: {cur_game.actions_performed} | Points: {cur_points} | Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-        
+
         arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}", 0.5 * WIDTH, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
         arcade.draw_text(f"Date: {disp_date}", 0.5 * WIDTH, 0.85 * HEIGHT,
                          TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
-
-
-        # IM CHANGING THE WAY THE GAME WORDS!!!
-
-        # 10 words, labelled 0 - 9
-        # computer plays the game (finds a path of words that work)
-        # shuffles the words and displays them 0 - 9
-        # each word = 10 points
-        # more points based on the time left
 
         arcade.draw_text(f"Current Word: {cur_game.article.used_words[-1]}", 0.5 * WIDTH, 0.095 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
@@ -179,8 +168,6 @@ class SriGameView(arcade.View):
                 continue
             arcade.draw_text(f"{i + 5}. {word}", 0.5 * WIDTH, 0.7 * HEIGHT - (i * 0.1 * HEIGHT),
                              TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
-
-
 
         # End Game
 
@@ -209,11 +196,11 @@ class SriGameView(arcade.View):
         save_file.save()
 
     def on_key_press(self, key, modifiers):
-        if key == 65307: # ESCAPE for menu
+        if key == 65307:  # ESCAPE for menu
             global mode
             mode = "menu"
             self.window.show_view(SriMenuView(self))
-        
+
         number = key_code_to_number(key)
         if number in range(0, 9 + 1):
             cur_game.actions_performed += 1
@@ -221,8 +208,8 @@ class SriGameView(arcade.View):
                 temp = cur_game.article.all_words[number]
                 cur_game.article.used_words.append(temp)
                 cur_game.game_score.add_words_joined(1)
-        
-        if key == 117: # U for undo
+
+        if key == 117:  # U for undo
             if len(cur_game.article.used_words) > 1:
                 cur_game.article.used_words.pop(-1)
                 cur_game.game_score.add_words_joined(-1)
@@ -236,7 +223,7 @@ class SriInstructionsView(arcade.View):
 
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-    
+
     def on_draw(self):
         arcade.start_render()
         instruction_text = """
@@ -250,10 +237,10 @@ class SriInstructionsView(arcade.View):
         """
         arcade.draw_text(instruction_text, 0.6 * WIDTH,  0 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-    
+
         arcade.draw_text(PRESS_ANY_KEY_TEXT, 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
-        
+
     def update(self, delta_time: float):
         global save_file
         save_file.save()
@@ -286,32 +273,31 @@ class SriScoreBoardView(arcade.View):
 
         top_5_games = (Game.get_top_games())[0:5]
 
-
         for i in range(len(top_5_games)):
             arcade.draw_text(f"{i + 1}. '{(top_5_games[i]).game_score.get_player()}' ---- {(top_5_games[i]).game_score.get_points()} points ---- {top_5_games[i].game_score.get_words_joined()} words joined",
-                            WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
-    
+                             WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
+
     def update(self, delta_time: float):
         global save_file
         save_file.save()
 
     def on_key_press(self, key, modifiers):
-        if key == 110: # N for nuke
+        if key == 110:  # N for nuke
             SriScoreBoardView.nuke_counter += 1
             if SriScoreBoardView.nuke_counter >= 10:
                 global save_file
                 SriScoreBoardView.nuke_counter = 0
                 save_file.nuke()
                 save_file.load_from_file()
-        
-        elif key == 100: # D for drop
+
+        elif key == 100:  # D for drop
             SriScoreBoardView.drop_counter += 1
             if SriScoreBoardView.drop_counter >= 10:
                 SriScoreBoardView.drop_counter = 0
                 games = Game.get_top_games()
                 games.pop(SriScoreBoardView.drop_rank - 1)
                 Game.all_games = games
-    
+
         elif key_code_to_number(key) in range(1, 5 + 1):
             SriScoreBoardView.drop_rank = key_code_to_number(key)
 
@@ -324,21 +310,21 @@ class SriScoreBoardView(arcade.View):
 class SriEndGameView(arcade.View):
     def __init__(self):
         super().__init__()
-    
+
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-    
+
     def on_draw(self):
         arcade.start_render()
-        
+
         arcade.draw_text("Press any key (other than the numbers) to return to the menu", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-        
+
         global cur_game
 
         arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Joined: {cur_game.game_score.get_words_joined()}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
                          TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-    
+
     def update(self, delta_time: float):
         pass
 
@@ -367,9 +353,8 @@ class Game:
             decimal_places = 0
 
         disp_clock = delta_time(self.start_time, time())
-
         disp_clock = round(disp_clock, decimal_places)
-        
+
         return f"{disp_clock}"
 
     def calculate_points(self):
@@ -377,10 +362,10 @@ class Game:
         base_score -= self.actions_performed
 
         return base_score
-    
+
     def update_points(self):
         self.game_score.change_points(self.calculate_points())
-    
+
     @classmethod
     def get_top_games(cls):
         return Game.merge_sort_games_by_score(cls.all_games)
@@ -390,7 +375,7 @@ class Game:
 
         if len(nums) <= 1:
             return nums
-        
+
         midpoint = len(nums) // 2
 
         left_side = Game.merge_sort_games_by_score(nums[:midpoint])
@@ -402,33 +387,32 @@ class Game:
         right_marker = 0
 
         while left_marker < len(left_side) and right_marker < len(right_side):
-            
+
             if left_side[left_marker].game_score.get_points() > right_side[right_marker].game_score.get_points():
                 sorted_list.append(left_side[left_marker])
                 left_marker += 1
             else:
                 sorted_list.append(right_side[right_marker])
                 right_marker += 1
-            
-        
+
         while left_marker < len(left_side):
             sorted_list.append(left_side[left_marker])
             left_marker += 1
-        
+
         while right_marker < len(right_side):
             sorted_list.append(right_side[right_marker])
             right_marker += 1
-        
+
         return sorted_list
 
 
-class Score:    
+class Score:
     def __init__(self, points: int, player: int):
         self._points = points
         self._player = player
         self._time = float(time())
         self._words_joined = 0
-    
+
     def change_points(self, points: int):
         if isinstance(points, int):
             self._points = points
@@ -464,9 +448,8 @@ class Score:
 
     def get_words_joined(self):
         return self._words_joined
-    
+
     def add_words_joined(self, num: int):
-        
         if isinstance(num, int):
             self._words_joined += num
         else:
@@ -505,22 +488,21 @@ class Article:
             letter = final_words[i][-1].upper()
             word = random_word_from_list(((all_words[letter])[:]))
             final_words.append(word)
-        
-        return final_words
 
+        return final_words
 
     @staticmethod
     def make_title(num_words: int) -> str:
         words = get_words()
         random.shuffle(words)
-        
+
         title = ""
 
         for i in range(3):
             rand_word = random.choice(words)
             rand_word = rand_word[0].upper() + rand_word[1:].lower()
             title += (rand_word + " ")
-        
+
         return title[:-1]
 
     @staticmethod
@@ -534,7 +516,7 @@ class Article:
                     break
             else:
                 name = backup
-    
+
         return name
 
 
@@ -573,7 +555,7 @@ class SaveData:
         }
 
         pickle.dump(save_files, open(save_file, "wb"))
-    
+
     def nuke(self, save_file: str = PICKLE_FILE):
         pickle.dump({}, open(save_file, "wb"))
 
@@ -599,7 +581,7 @@ def get_words() -> List[str]:
     with open("Sri_Words.txt", "r") as f:
         for line in f:
             lines.append(line.strip())
-    
+
     return lines
 
 
@@ -618,10 +600,10 @@ def key_code_to_number(key_code: int) -> int:
     # Keypad numbers
     # 0 -> 65456
     # 9 -> 65465
-    
+
     if key_code in range(65456, 65465 + 1):
         return key_code - 65456
-    
+
     # Keyboard numbers
     # 0 -> 48
     # 9 -> 57
@@ -656,7 +638,7 @@ def get_words_by_letter() -> Dict:
     by_letter = {"ETC": []}
     for letter in letters:
         by_letter[letter] = []
-    
+
     for word in all_words:
         first_letter = word[0].upper()
         try:

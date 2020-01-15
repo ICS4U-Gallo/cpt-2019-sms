@@ -47,7 +47,7 @@ Sorting:
     Merge Sort
 
 Searching:
-    Binary Search
+    linear Search
 
 
 
