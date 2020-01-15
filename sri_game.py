@@ -341,10 +341,10 @@ class SriEndGameView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key_code_to_number(key) in range(0, 9 + 1):
             pass
-        
-        global mode
-        mode = "menu"
-        self.window.show_view(SriMenuView(self))
+        else:
+            global mode
+            mode = "menu"
+            self.window.show_view(SriMenuView(self))
 
 
 class Game:
