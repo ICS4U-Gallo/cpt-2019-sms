@@ -220,6 +220,7 @@ class SriGameView(arcade.View):
             if (cur_game.article.used_words[-1])[-1].upper() == (cur_game.article.all_words[number])[0].upper():
                 temp = cur_game.article.all_words[number]
                 cur_game.article.used_words.append(temp)
+                cur_game.game_score.add_1_words_joined()
         
         if key == 117: # U for undo
             cur_game.actions_performed += 1
@@ -297,9 +298,10 @@ class SriScoreBoardView(arcade.View):
 
         # show the number of words joined
         # 22d
+        # make this more neat (no top5names junk)
 
         for i in range(num_scores_to_show):
-            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]} ---- {}",
+            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]} ---- {22}",
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
     def update(self, delta_time: float):
@@ -335,7 +337,7 @@ class SriEndGameView(arcade.View):
         
         global cur_game
 
-        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Joined: {len(cur_game.article.used_words) - 1}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
+        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Joined: {cur_game.game_score.get_words_joined()}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
                          TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
     
     def update(self, delta_time: float):
@@ -351,13 +353,15 @@ class SriEndGameView(arcade.View):
 
 
 class Game:
+    all_games = []
+
     def __init__(self, game_score: "Score", article: "Article"):
         self.game_score = game_score
         self.article = article
         self.start_time = time()
-        self.max_time = 30
+        self.max_time = 1
         self.actions_performed = 0
-
+        Game.all_games.append(self)
 
     def game_display_time(self, decimal_places: int = 3) -> str:
         if decimal_places < 0:
@@ -370,7 +374,7 @@ class Game:
         return f"{disp_clock}"
 
     def calculate_points(self):
-        base_score = 10 * (len(self.article.used_words) - 1)
+        base_score = 10 * self.game_score.get_words_joined()
         base_score -= self.actions_performed
 
         return base_score
@@ -387,6 +391,7 @@ class Score:
         self._points = points
         self._player = player
         self._time = float(time())
+        self._words_joined = 0
 
         Score.all_scores.append(self)
     
@@ -422,6 +427,12 @@ class Score:
 
     def get_time(self):
         return time
+
+    def get_words_joined(self):
+        return self._words_joined
+    
+    def add_1_words_joined(self):
+        self._words_joined += 1
 
     @classmethod
     def get_top_scores(cls): 
