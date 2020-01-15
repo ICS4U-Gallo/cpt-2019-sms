@@ -28,44 +28,72 @@ def calculate_points(shapes: int) -> int:
 
     return 10 + calculate_points(shapes - 1)
 
+class Slide:
+    '''creates slides
+    Attributes:
+        slide_name(str) = name of the slide
+    '''
+    def __init__(self, slide_name: str):
+        '''creates a sldie object
+        Args:
+            slide_name: name of slide
+        '''
+        self._slide_name = slide_name
 
-class Leaderboard_entries:
-    def __init__(self, name: str, score: int):
-        self._name = name
-        self._score = score
+    def get_slide_name(self):
+        '''gets the name of the slide
+        Returns:
+            Name of the slide
+        '''
+        return self._slide_name
 
-    # def __str__(self):
-    # return {self.name}, {self.score}
-
-    def get_name(self):
-        return self._name
-
-    def set_name(self, value: str):
-        self._name = value
-
-    def get_score(self):
-        return self._score
-
-    def set_score(self, value: int):
-        self._score = value
+    def set_slide_name(self, value: List[str]):
+        '''sets a new name for the slide
+        '''
+        self._slide_name = value
 
     @classmethod
-    def opponent(cls):
-        opponents = ["Lauren", "Aiden", "Stevo", "Vince", "Charlotte"]
-        return cls(opponents[random.randrange(5)], random.randrange(300, 600, 10))
+    def create_title(cls, title: str):
+        '''creates a title for a slide
+        Args: 
+            title: desired text for the title
 
-class Leaderboard:
+        Returns:
+            Title on a slide
+        '''
+
+        return arcade.draw_text(title, settings.WIDTH / 2, 540, arcade.color.BLACK, 30, font_name='GARA', anchor_x="center")
+    
+
+class Leaderboard(Slide):
+    '''creates a leaderboard
+    Attributes:
+        high_scores(list): list of pre-loaded high scores
+    '''
+
     def __init__(self):
-        self._high_scores = [["Lauren", 550], ["Stevo", 500], ["Charlotte", 450], ["Vince", 400],
+        '''create a leaderboard object
+        Args:
+            high_scores: a list of pre-set high scores
+        '''
+        self._high_scores = [["Lauren", 600], ["Stevo", 550], ["Charlotte", 500], ["Vince", 450],
                              ["You", int(total_points)]]
 
     def get_high_scores(self):
+        '''gets the list of highscores
+        Returns:
+            List of highscores
+        '''
         return self._high_scores
 
-    def set_high_scores(self, value: List[str]):
+    def set_high_scores(self, value: List):
+        '''sets a new list of highscores
+        '''
         self._high_scores = value
 
     def sort_scores(self):
+        '''bubble sorts the list of highscores by score value
+        '''
         is_sorted = False
         times_through = 0
 
@@ -77,20 +105,29 @@ class Leaderboard:
                 c = self._high_scores[i]
                 d = self._high_scores[i + 1]
                 if a < b:
-                    rankings._high_scores[i] = d
-                    rankings._high_scores[i + 1] = c
+                    self._high_scores[i] = d
+                    self._high_scores[i + 1] = c
                     is_sorted = False
             times_through += 1
+
+    @classmethod
+    def create_divider(cls, y_coord: int):
+        '''creates a horizontal divider for the leaderboard
+        Args: 
+            y_coord: y location of the horizontal line
+
+        Returns:
+            Divider on leaderboard
+        '''
+        return arcade.draw_line(0, y_coord, settings.WIDTH, y_coord, arcade.color.BLACK)
+
 
 
 class SarahGameView(arcade.View):
     def __init__(self):
         super().__init__()
         self.current_state = MENU
-        # create the leaderboard (eventually "load" the leaderboard)
-        # self.leaderboard =
 
-        # self.leaderboard.sort()
 
     def draw_menu(self):
         arcade.draw_rectangle_filled(x, 400, 50, 50, arcade.color.BANANA_YELLOW)
@@ -119,8 +156,7 @@ class SarahGameView(arcade.View):
         arcade.draw_text(output, settings.WIDTH / 2, 250, arcade.color.BLACK, 24, font_name='GARA', anchor_x="center")
 
     def draw_instructions(self):
-        output = "MATCH OFF INSTRUCTIONS"
-        arcade.draw_text(output, settings.WIDTH / 2, 540, arcade.color.BLACK, 30, font_name='GARA', anchor_x="center")
+        Slide.create_title("MATCH OFF INSTRUCTIONS")
 
         output = "The objective of the game is to match the colours in sets of 3, each matched shape is worth 10 points."
         arcade.draw_text(output, settings.WIDTH / 2, 500, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
@@ -180,17 +216,18 @@ class SarahGameView(arcade.View):
         arcade.draw_circle_filled(x - 450, 530, 25, arcade.color.BABY_BLUE)
         arcade.draw_circle_filled(x - 150, 550, 25, arcade.color.RED)
         arcade.draw_rectangle_filled(x - 300, 574, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_line(0, settings.HEIGHT / 6, settings.WIDTH, settings.HEIGHT / 6, arcade.color.BLACK)
-        arcade.draw_line(0, (settings.HEIGHT / 6) * 2, settings.WIDTH, (settings.HEIGHT / 6) * 2, arcade.color.BLACK)
-        arcade.draw_line(0, (settings.HEIGHT / 6) * 3, settings.WIDTH, (settings.HEIGHT / 6) * 3, arcade.color.BLACK)
-        arcade.draw_line(0, (settings.HEIGHT / 6) * 4, settings.WIDTH, (settings.HEIGHT / 6) * 4, arcade.color.BLACK)
-        arcade.draw_line(0, (settings.HEIGHT / 6) * 5, settings.WIDTH, (settings.HEIGHT / 6) * 5, arcade.color.BLACK)
+
+        Leaderboard.create_divider(settings.HEIGHT / 6)
+        Leaderboard.create_divider((settings.HEIGHT / 6)*2)
+        Leaderboard.create_divider((settings.HEIGHT / 6)*3)
+        Leaderboard.create_divider((settings.HEIGHT / 6)*4)
+        Leaderboard.create_divider((settings.HEIGHT / 6)*5)
 
 
         rankings = Leaderboard()
         rankings.sort_scores()
 
-        # Convert to for loop, looping over self.leaderboard
+        
         arcade.draw_text(f"1. {rankings._high_scores[0][0]}---------------{rankings._high_scores[0][1]}",
                          settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,
                          font_size=24)
@@ -205,14 +242,15 @@ class SarahGameView(arcade.View):
                          font_size=24)
         arcade.draw_text("Press enter to continue", settings.WIDTH / 2, 30, arcade.color.BLACK, font_size=30,
                          anchor_x="center")
-        arcade.draw_text("LEADERBOARD", settings.WIDTH / 2, 530, arcade.color.BLACK, font_size=30, anchor_x="center")
+
+        Leaderboard.create_title("LEADERBOARD")
 
     def on_show(self):
         arcade.set_background_color(arcade.color.WHITE_SMOKE)
         global x
         x = 0
 
-        self.counter = 24
+        self.counter = 35
         self.prevselection = -1
         self.timer = 60
 
@@ -236,10 +274,10 @@ class SarahGameView(arcade.View):
             ysq_posy = random.randrange(0, SCREEN_HEIGHT)
             rcir_posy = random.randrange(0, SCREEN_HEIGHT)
             bcir_posy = random.randrange(0, SCREEN_HEIGHT)
-            gsq_posx = random.randrange(-1200, SCREEN_WIDTH)
-            ysq_posx = random.randrange(SCREEN_WIDTH, 2050)
-            rcir_posx = random.randrange(SCREEN_WIDTH, 2050)
-            bcir_posx = random.randrange(-1200, SCREEN_WIDTH)
+            gsq_posx = random.randrange(-1750, SCREEN_WIDTH)
+            ysq_posx = random.randrange(SCREEN_WIDTH, 1750)
+            rcir_posx = random.randrange(SCREEN_WIDTH, 1750)
+            bcir_posx = random.randrange(-1750, SCREEN_WIDTH)
 
             # define greensquare
             self.gsq = arcade.Sprite(center_x=gsq_posx, center_y=gsq_posy)
@@ -280,7 +318,7 @@ class SarahGameView(arcade.View):
             self.draw_menu()
         elif self.current_state == INSTRUCTIONS:
             self.draw_instructions()
-            self.timer = 2
+            self.timer = 60
         elif self.current_state == GAME_RUNNING:
             self.draw_game()
         else:
@@ -299,7 +337,7 @@ class SarahGameView(arcade.View):
             self.director.next_view()
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        # global total_points
+        global total_points
 
         self.select = [self.gsqselected, self.ysqselected, self.rcirselected, self.bcirselected]
         self.sprite = [self.gsqsprites, self.ysqsprites, self.rcirsprites, self.bcirsprites]
