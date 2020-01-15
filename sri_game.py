@@ -220,11 +220,13 @@ class SriGameView(arcade.View):
             if (cur_game.article.used_words[-1])[-1].upper() == (cur_game.article.all_words[number])[0].upper():
                 temp = cur_game.article.all_words[number]
                 cur_game.article.used_words.append(temp)
-                cur_game.game_score.add_1_words_joined()
+                cur_game.game_score.add_words_joined(1)
         
         if key == 117: # U for undo
-            cur_game.actions_performed += 1
-            cur_game.article.used_words.pop(-1)
+            if len(cur_game.article.used_words) > 1:
+                cur_game.article.used_words.pop(-1)
+                cur_game.game_score.add_words_joined(-1)
+                cur_game.actions_performed += 1
 
 
 class SriInstructionsView(arcade.View):
@@ -264,15 +266,15 @@ class SriInstructionsView(arcade.View):
 
 class SriScoreBoardView(arcade.View):
     nuke_counter = 0
+    drop_counter = 0
+    drop_rank = 0
 
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
 
-
     def on_show(self):
         arcade.set_background_color(SCREEN_COLOR)
-
 
     def on_draw(self):
         arcade.start_render()
@@ -282,27 +284,12 @@ class SriScoreBoardView(arcade.View):
         arcade.draw_text(PRESS_ANY_KEY_TEXT, 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
-        top_5_names = []
-        top_5_scores = []
+        top_5_games = (Game.get_top_games())[0:5]
 
-        top_scores = Score.get_top_scores()
 
-        num_scores_to_show = len(top_scores)
-
-        if num_scores_to_show > 5:
-            num_scores_to_show = 5
-
-        for i in range(num_scores_to_show):
-            top_5_scores.append(top_scores[i].get_points())
-            top_5_names.append(top_scores[i].get_player())
-
-        # show the number of words joined
-        # 22d
-        # make this more neat (no top5names junk)
-
-        for i in range(num_scores_to_show):
-            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]} ---- {22}",
-                             WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
+        for i in range(len(top_5_games)):
+            arcade.draw_text(f"{i + 1}. '{(top_5_games[i]).game_score.get_player()}' ---- {(top_5_games[i]).game_score.get_points()} points ---- {top_5_games[i].game_score.get_words_joined()} words joined",
+                            WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
     def update(self, delta_time: float):
         global save_file
@@ -316,6 +303,18 @@ class SriScoreBoardView(arcade.View):
                 SriScoreBoardView.nuke_counter = 0
                 save_file.nuke()
                 save_file.load_from_file()
+        
+        elif key == 100: # D for drop
+            SriScoreBoardView.drop_counter += 1
+            if SriScoreBoardView.drop_counter >= 10:
+                SriScoreBoardView.drop_counter = 0
+                games = Game.get_top_games()
+                games.pop(SriScoreBoardView.drop_rank - 1)
+                Game.all_games = games
+    
+        elif key_code_to_number(key) in range(1, 5 + 1):
+            SriScoreBoardView.drop_rank = key_code_to_number(key)
+
         else:
             self.window.show_view(SriMenuView(self))
             global mode
@@ -359,7 +358,7 @@ class Game:
         self.game_score = game_score
         self.article = article
         self.start_time = time()
-        self.max_time = 1
+        self.max_time = 30
         self.actions_performed = 0
         Game.all_games.append(self)
 
@@ -381,7 +380,46 @@ class Game:
     
     def update_points(self):
         self.game_score.change_points(self.calculate_points())
+    
+    @classmethod
+    def get_top_games(cls):
+        return Game.merge_sort_games_by_score(cls.all_games)
 
+    @staticmethod
+    def merge_sort_games_by_score(nums: List["Game"]) -> List["Game"]:
+
+        if len(nums) <= 1:
+            return nums
+        
+        midpoint = len(nums) // 2
+
+        left_side = Game.merge_sort_games_by_score(nums[:midpoint])
+        right_side = Game.merge_sort_games_by_score(nums[midpoint:])
+
+        sorted_list = []
+
+        left_marker = 0
+        right_marker = 0
+
+        while left_marker < len(left_side) and right_marker < len(right_side):
+            
+            if left_side[left_marker].game_score.get_points() > right_side[right_marker].game_score.get_points():
+                sorted_list.append(left_side[left_marker])
+                left_marker += 1
+            else:
+                sorted_list.append(right_side[right_marker])
+                right_marker += 1
+            
+        
+        while left_marker < len(left_side):
+            sorted_list.append(left_side[left_marker])
+            left_marker += 1
+        
+        while right_marker < len(right_side):
+            sorted_list.append(right_side[right_marker])
+            right_marker += 1
+        
+        return sorted_list
 
 
 class Score:
@@ -431,18 +469,18 @@ class Score:
     def get_words_joined(self):
         return self._words_joined
     
-    def add_1_words_joined(self):
-        self._words_joined += 1
+    def add_words_joined(self, num: int):
+        
+        if isinstance(num, int):
+            self._words_joined += num
+        else:
+            raise Exception("Points should be an integer")
 
-    @classmethod
-    def get_top_scores(cls): 
-        return merge_sort_scores(cls.all_scores)
-    
     def find_rank(self) -> int:
-        scores = Score.get_top_scores()
+        games = Game.get_top_games()
 
-        for i in range(len(scores)):
-            if scores[i] == self:
+        for i in range(len(games)):
+            if games[i].game_score == self:
                 rank = i
                 break
 
@@ -509,6 +547,7 @@ class SaveData:
         global mode
         self.game_mode = "menu"
         self.scores = Score.all_scores
+        self.games = Game.all_games
 
     def load_from_file(self, save_file: str = PICKLE_FILE):
         try:
@@ -519,23 +558,29 @@ class SaveData:
         try:
             self.game_mode = save_files["game_mode"]
             self.scores = save_files["scores"]
+            self.games = save_files["games"]
         except KeyError:
             self.game_mode = "menu"
             self.scores = []
+            self.games = []
         except UnboundLocalError:
             self.game_mode = "menu"
             self.scores = []
+            self.games = []
 
         global mode
         Score.all_scores = self.scores
+        Game.all_games = self.games
         mode = self.game_mode
 
     def save(self, save_file: str = PICKLE_FILE):
         self.scores = Score.all_scores
+        self.games = Game.all_games
 
         save_files = {
             "game_mode": self.game_mode,
-            "scores": self.scores
+            "scores": self.scores,
+            "games": self.games
         }
 
         pickle.dump(save_files, open(save_file, "wb"))
@@ -567,42 +612,6 @@ def get_words() -> List[str]:
             lines.append(line.strip())
     
     return lines
-
-
-def merge_sort_scores(nums: List["Score"]) -> List["Score"]:
-    
-    if len(nums) <= 1:
-        return nums
-    
-    midpoint = len(nums) // 2
-
-    left_side = merge_sort_scores(nums[:midpoint])
-    right_side = merge_sort_scores(nums[midpoint:])
-
-    sorted_list = []
-
-    left_marker = 0
-    right_marker = 0
-
-    while left_marker < len(left_side) and right_marker < len(right_side):
-        
-        if left_side[left_marker].get_points() > right_side[right_marker].get_points():
-            sorted_list.append(left_side[left_marker])
-            left_marker += 1
-        else:
-            sorted_list.append(right_side[right_marker])
-            right_marker += 1
-        
-    
-    while left_marker < len(left_side):
-        sorted_list.append(left_side[left_marker])
-        left_marker += 1
-    
-    while right_marker < len(right_side):
-        sorted_list.append(right_side[right_marker])
-        right_marker += 1
-    
-    return sorted_list
 
 
 def key_code_to_letter(key_code: int) -> str:
