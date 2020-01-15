@@ -295,8 +295,11 @@ class SriScoreBoardView(arcade.View):
             top_5_scores.append(top_scores[i].get_points())
             top_5_names.append(top_scores[i].get_player())
 
+        # show the number of words joined
+        # 22d
+
         for i in range(num_scores_to_show):
-            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]}",
+            arcade.draw_text(f"{i + 1}. '{top_5_names[i]}' ---- {top_5_scores[i]} ---- {}",
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
     
     def update(self, delta_time: float):
@@ -332,8 +335,8 @@ class SriEndGameView(arcade.View):
         
         global cur_game
 
-        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nPoints: {cur_game.game_score.get_points()}\n\n Rank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.05 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Joined: {len(cur_game.article.used_words) - 1}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
     
     def update(self, delta_time: float):
         pass
