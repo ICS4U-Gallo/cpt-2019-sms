@@ -115,8 +115,6 @@ class SriGameView(arcade.View):
         global mode
         global cur_game
 
-        print(mode)
-
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
         elif mode == "instructions":
@@ -124,14 +122,11 @@ class SriGameView(arcade.View):
         elif mode == "scoreboard":
             self.window.show_view(SriScoreBoardView(self))
         elif mode == "play":
-            print("here 1")
             cur_player = SriAskPlayerNameView.name
-            print("here 2")
             cur_game = Game(
                 Score(0, cur_player),
                 Article()
                 )
-            print("here 3")
         elif mode == "ask player name":
             self.window.show_view(SriAskPlayerNameView())
     
@@ -142,44 +137,26 @@ class SriGameView(arcade.View):
 
         global cur_game
 
+        cur_game.update_points()
+
         # Titles and Related
         arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 *  HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")        
 
         disp_clock = cur_game.game_display_time(1)
         cur_points = cur_game.game_score.get_points()
+
         disp_date = convert_date_to_words(cur_game.article.date)
 
-        arcade.draw_text(f"Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
-        arcade.draw_text(f"Points: {cur_points}", 0.2 * WIDTH, 0.035 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
-
+        arcade.draw_text(f"Actions Performed: {cur_game.actions_performed} | Points: {cur_points} | Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        
         arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}", 0.5 * WIDTH, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
         arcade.draw_text(f"Date: {disp_date}", 0.5 * WIDTH, 0.85 * HEIGHT,
                          TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
 
 
-        # unused_words = cur_game.article.unused_words
-        # lines_to_show = cur_game.article.words_to_lines(unused_words)
-        # num_lines_to_show = len(lines_to_show)
-
-
-        '''
-        if num_lines_to_show > 7:
-            num_lines_to_show = 7
-        '''
-
-        '''
-
-        word_writing_range = range(1, num_lines_to_show)
-
-        for i in word_writing_range:
-            arcade.draw_text(lines_to_show[i], 0.5 * WIDTH, (i + 1) * 0.1 * HEIGHT,
-                            TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-
-        '''
         # IM CHANGING THE WAY THE GAME WORDS!!!
 
         # 10 words, labelled 0 - 9
@@ -188,22 +165,44 @@ class SriGameView(arcade.View):
         # each word = 10 points
         # more points based on the time left
 
+        arcade.draw_text(f"Current Word: {cur_game.article.used_words[-1]}", 0.5 * WIDTH, 0.095 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+
+        for i, word in enumerate(cur_game.article.all_words[:5]):
+            if word in cur_game.article.used_words:
+                continue
+            arcade.draw_text(f"{i}. {word}", 0.1 * WIDTH, 0.7 * HEIGHT - (i * 0.1 * HEIGHT),
+                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+
+        for i, word in enumerate(cur_game.article.all_words[5:]):
+            if word in cur_game.article.used_words:
+                continue
+            arcade.draw_text(f"{i + 5}. {word}", 0.5 * WIDTH, 0.7 * HEIGHT - (i * 0.1 * HEIGHT),
+                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
 
-        '''
-        words pop up on screen in boxes
 
-        bottom of screen: score, words joined, word_speed (time it took from your previous word to current word)
-
-        # add stuff like words joined and word speed to the game class
-
-        '''
-        
         # End Game
-        if float(disp_clock[:-1]) > cur_game.max_time:
+
+        end_game_condition_1 = float(disp_clock[:-1]) >= cur_game.max_time
+        end_game_condition_2 = len(cur_game.article.used_words) == len(cur_game.article.all_words)
+
+        if end_game_condition_1 or end_game_condition_2:
             global mode
             mode = "endgame"
+
+            # Clearing the board bonus
+            if end_game_condition_2:
+                cur_game.game_score.add_points(100)
+
             self.window.show_view(SriEndGameView())
+
+            # Time Bonus Multiplier
+            time_multiplier = cur_game.max_time - float(disp_clock[:-1])
+            if time_multiplier > 1:
+                cur_game.game_score.add_points(
+                    int(cur_game.game_score.get_points() * time_multiplier)
+                )
 
     def update(self, delta_time: float):
         global save_file
@@ -214,6 +213,17 @@ class SriGameView(arcade.View):
             global mode
             mode = "menu"
             self.window.show_view(SriMenuView(self))
+        
+        number = key_code_to_number(key)
+        if number in range(0, 9 + 1):
+            cur_game.actions_performed += 1
+            if (cur_game.article.used_words[-1])[-1].upper() == (cur_game.article.all_words[number])[0].upper():
+                temp = cur_game.article.all_words[number]
+                cur_game.article.used_words.append(temp)
+        
+        if key == 117: # U for undo
+            cur_game.actions_performed += 1
+            cur_game.article.used_words.pop(-1)
 
 
 class SriInstructionsView(arcade.View):
@@ -317,7 +327,7 @@ class SriEndGameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         
-        arcade.draw_text("Press any key to return to the menu", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+        arcade.draw_text("Press any key (other than the numbers) to return to the menu", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
         
         global cur_game
@@ -329,6 +339,9 @@ class SriEndGameView(arcade.View):
         pass
 
     def on_key_press(self, key, modifiers):
+        if key_code_to_number(key) in range(0, 9 + 1):
+            pass
+        
         global mode
         mode = "menu"
         self.window.show_view(SriMenuView(self))
@@ -340,6 +353,7 @@ class Game:
         self.article = article
         self.start_time = time()
         self.max_time = 30
+        self.actions_performed = 0
 
 
     def game_display_time(self, decimal_places: int = 3) -> str:
@@ -351,6 +365,16 @@ class Game:
         disp_clock = round(disp_clock, decimal_places)
         
         return f"{disp_clock}"
+
+    def calculate_points(self):
+        base_score = 10 * (len(self.article.used_words) - 1)
+        base_score -= self.actions_performed
+
+        return base_score
+    
+    def update_points(self):
+        self.game_score.change_points(self.calculate_points())
+
 
 
 class Score:
@@ -404,7 +428,7 @@ class Score:
         scores = Score.get_top_scores()
 
         for i in range(len(scores)):
-            if scores[i] == self.game_score:
+            if scores[i] == self:
                 rank = i
                 break
 
@@ -417,8 +441,11 @@ class Article:
         self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
         self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
 
-        self.used_words = []
-        self.unused_words = self.make_game_words()
+        self.all_words = self.make_game_words()
+        self.starting_word = self.all_words[0]
+        self.all_words = self.all_words[1:]
+        self.used_words = [self.starting_word]
+        random.shuffle(self.all_words)
 
     def make_game_words(self) -> List[str]:
         all_words = get_words_by_letter()
@@ -428,8 +455,6 @@ class Article:
 
         for i in range(10):
             letter = final_words[i][-1].upper()
-            # print(letter)
-            # print(all_words[letter])
             word = random_word_from_list(((all_words[letter])[:]))
             final_words.append(word)
         
@@ -575,6 +600,24 @@ def key_code_to_letter(key_code: int) -> str:
     key_code -= 97
 
     return letters[key_code]
+
+
+def key_code_to_number(key_code: int) -> int:
+    # Keypad numbers
+    # 0 -> 65456
+    # 9 -> 65465
+    
+    if key_code in range(65456, 65465 + 1):
+        return key_code - 65456
+    
+    # Keyboard numbers
+    # 0 -> 48
+    # 9 -> 57
+
+    elif key_code in range(48, 57 + 1):
+        return key_code - 48
+    else:
+        return -1
 
 
 def delta_time(time_1: float, time_2: float) -> float:
