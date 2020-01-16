@@ -81,11 +81,13 @@ class SriAskPlayerNameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
-        arcade.draw_text("Please type your name | Your name must be 5 characters or shorter", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
+        # Labels
+        arcade.draw_text("Please type your name | Your name must be 5 characters or shorter, using only letters", 0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
         arcade.draw_text("Press (ENTER) when complete | Press (ESC) to go to the Menu", 0.5 * WIDTH, HEIGHT - (0.07 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
+        # Name
         arcade.draw_text(f'Name: "{SriAskPlayerNameView.name}"', 0.5 * WIDTH, 0.5 * HEIGHT,
                          TEXT_COLOR, font_size=(0.02 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
@@ -102,7 +104,7 @@ class SriAskPlayerNameView(arcade.View):
         elif key == 65293:  # ENTER
             mode = "play"
             self.window.show_view(SriGameView())
-        elif len(SriAskPlayerNameView.name) >= 5:
+        elif len(SriAskPlayerNameView.name) >= 5:  # Limiting name to 5 characters
             pass
         elif key in range(97, 122 + 1):
             SriAskPlayerNameView.name += key_code_to_letter(key)
@@ -116,6 +118,10 @@ class SriGameView(arcade.View):
         global mode
         global cur_game
 
+        # In essence, this is a redirecting site.
+
+        # This is because many times, the game view is SriGameView
+        # but it needs to be something else.
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
         elif mode == "instructions":
@@ -139,7 +145,7 @@ class SriGameView(arcade.View):
         cur_game.update_points()
 
         # Titles and Related
-        arcade.draw_text("Press (ESC) to go to the Menu | Use the mouse to click on the words", 0.5 * WIDTH, 0.97 * HEIGHT,
+        arcade.draw_text("Press (ESC) to go to the Menu | Use the number keys and (U) to play", 0.5 * WIDTH, 0.97 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
         disp_clock = cur_game.game_display_time(1)
@@ -147,8 +153,8 @@ class SriGameView(arcade.View):
 
         disp_date = convert_date_to_words(cur_game.article.date)
 
-        arcade.draw_text(f"Actions Performed: {cur_game.actions_performed} | Points: {cur_points} | Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        arcade.draw_text(f"Actions Performed: {cur_game.actions_performed} | Words Linked: {cur_game.game_score.get_words_linked()} | Points: {cur_points} | Time: {disp_clock}s / {cur_game.max_time}s", 0.5 * WIDTH, 0.035 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
         arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}", 0.5 * WIDTH, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)), anchor_x="center", align="center", bold=True, italic=True)
@@ -158,6 +164,7 @@ class SriGameView(arcade.View):
         arcade.draw_text(f"Current Word: {cur_game.article.used_words[-1]}", 0.5 * WIDTH, 0.095 * HEIGHT,
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
+        # Words to choose from
         for i, word in enumerate(cur_game.article.all_words[:5]):
             if word in cur_game.article.used_words:
                 continue
@@ -171,7 +178,6 @@ class SriGameView(arcade.View):
                              TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
         # End Game
-
         end_game_condition_1 = float(disp_clock[:-1]) >= cur_game.max_time
         end_game_condition_2 = len(cur_game.article.used_words) == (len(cur_game.article.all_words) + 1)  # + 1 as starting_word is not included in all_words
 
@@ -179,13 +185,13 @@ class SriGameView(arcade.View):
             global mode
             mode = "endgame"
 
-            # Clearing the board bonus
+            # Getting all 10 words BONUS
             if end_game_condition_2:
                 cur_game.game_score.add_points(100)
 
             self.window.show_view(SriEndGameView())
 
-            # Time Bonus Multiplier
+            # Time multiplier BONUS
             time_multiplier = cur_game.max_time - float(disp_clock[:-1])
             if time_multiplier > 1:
                 cur_game.game_score.add_points(
@@ -202,22 +208,72 @@ class SriGameView(arcade.View):
             mode = "menu"
             self.window.show_view(SriMenuView(self))
 
+        # Selecting a word
         number = key_code_to_number(key)
         if number in range(0, 9 + 1):
             cur_game.actions_performed += 1
             if (cur_game.article.used_words[-1])[-1].upper() == (cur_game.article.all_words[number])[0].upper():
                 temp = cur_game.article.all_words[number]
                 cur_game.article.used_words.append(temp)
-                cur_game.game_score.add_words_joined(1)
+                cur_game.game_score.add_words_linked(1)
 
         if key == 117:  # U for undo
             if len(cur_game.article.used_words) > 1:
                 cur_game.article.used_words.pop(-1)
-                cur_game.game_score.add_words_joined(-1)
+                cur_game.game_score.add_words_linked(-1)
                 cur_game.actions_performed += 1
 
 
 class SriInstructionsView(arcade.View):
+    instruction_mode = "instructions"
+    
+    instruction_text = """
+    The Goal:
+    --------------------
+    To link as many words as possible within the time limit!
+
+
+    How To Link Words:
+    --------------------
+    Press the number key for the 
+    corresponding word you would like to link.
+    
+    The last letter of the current word and
+    the first letter of the word you would like to link
+    must be the same to be able to link words.
+
+
+    More
+    --------------------
+    Press (U) to undo your action.
+
+    
+    """
+
+    story_text = """
+
+    One day, you're reading the newspaper.
+    You read SO MANY newspaper articles today.
+    You're reading some article about something ...
+    You just don't know what.
+
+    You're head is spinning with all that news.
+    Then SUDDENLY ...
+
+    *POOF*
+
+    The words are organized in a list of 10 words.
+    You inspect the words a bit ... and then ...
+
+    You realize that you can link the words!
+    
+    You then decide to play a game with the words to relax
+    your spinning head from all those articles.
+
+
+
+    """
+
     def __init__(self, game_view):
         super().__init__()
         self.game_view = game_view
@@ -227,29 +283,36 @@ class SriInstructionsView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        instruction_text = """
 
-        CONTROLS:
+        if SriInstructionsView.instruction_mode == "instructions":
+            arcade.draw_text("Press (SPACE) to read the story", 0.99 * WIDTH, 0.003 * HEIGHT,
+                                    TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
+            arcade.draw_text(SriInstructionsView.instruction_text, 0.5 * WIDTH,  0 * HEIGHT,
+                            TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        
+        elif SriInstructionsView.instruction_mode == "story":
+            arcade.draw_text("Press (SPACE) to read the instructions", 0.99 * WIDTH, 0.003 * HEIGHT,
+                                    TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
+            arcade.draw_text(SriInstructionsView.story_text, 0.5 * WIDTH, 0 * HEIGHT,
+                                    TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
-        Move the mouse and
-        click on the
-        words and buttons
-
-        """
-        arcade.draw_text(instruction_text, 0.6 * WIDTH,  0 * HEIGHT,
-                         TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-
-        arcade.draw_text(PRESS_ANY_KEY_TEXT, 0.175 * WIDTH, 0.003 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+        arcade.draw_text(PRESS_ANY_KEY_TEXT[:13] + " other than (SPACE) " + PRESS_ANY_KEY_TEXT[14:], 0.01 * WIDTH, 0.003 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
 
     def update(self, delta_time: float):
         global save_file
         save_file.save()
 
     def on_key_press(self, key, modifiers):
-        global mode
-        mode = "menu"
-        self.window.show_view(SriMenuView(self))
+        if key == 32:  # SPACE for switch mode
+            if SriInstructionsView.instruction_mode == "instructions":
+                SriInstructionsView.instruction_mode = "story"
+            elif SriInstructionsView.instruction_mode == "story":
+                SriInstructionsView.instruction_mode = "instructions"
+        else:  # Press any key (except space) to go to menu
+            global mode
+            mode = "menu"
+            self.window.show_view(SriMenuView(self))
 
 
 class SriScoreBoardView(arcade.View):
@@ -266,16 +329,19 @@ class SriScoreBoardView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
+
+        # Score Board Title and Related
         arcade.draw_text("Score Board", WIDTH/2, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
 
         arcade.draw_text(PRESS_ANY_KEY_TEXT, 0.175 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
 
+        # Scores
         top_5_games = (Game.get_top_games())[0:5]
 
         for i in range(len(top_5_games)):
-            arcade.draw_text(f"{i + 1}. '{(top_5_games[i]).game_score.get_player()}' ---- {(top_5_games[i]).game_score.get_points()} points ---- {top_5_games[i].game_score.get_words_joined()} words joined",
+            arcade.draw_text(f'{i + 1}. "{(top_5_games[i]).game_score.get_player()}" ---- {(top_5_games[i]).game_score.get_points()} points ---- {top_5_games[i].game_score.get_words_linked()} words linked',
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2, arcade.color.BLUE, 18, align="left")
 
     def update(self, delta_time: float):
@@ -295,13 +361,16 @@ class SriScoreBoardView(arcade.View):
             SriScoreBoardView.drop_counter += 1
             if SriScoreBoardView.drop_counter >= 10:
                 SriScoreBoardView.drop_counter = 0
-                games = Game.get_top_games()
-                games.pop(SriScoreBoardView.drop_rank - 1)
-                Game.all_games = games
+                if SriScoreBoardView.drop_rank <= len(Game.get_top_games()):
+                    games = Game.get_top_games()
+                    games.pop(SriScoreBoardView.drop_rank - 1)
+                    Game.all_games = games
 
+        # Dropping a specific score in the top 5
         elif key_code_to_number(key) in range(1, 5 + 1):
             SriScoreBoardView.drop_rank = key_code_to_number(key)
 
+        # Returning to the menu
         else:
             self.window.show_view(SriMenuView(self))
             global mode
@@ -323,7 +392,7 @@ class SriEndGameView(arcade.View):
 
         global cur_game
 
-        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Joined: {cur_game.game_score.get_words_joined()}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
+        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Linked: {cur_game.game_score.get_words_linked()}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
                          TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
     def update(self, delta_time: float):
@@ -389,7 +458,7 @@ class Game(Converting):
         Returns:
             int: the current points for the game.
         """
-        base_score = 10 * self.game_score.get_words_joined()
+        base_score = 10 * self.game_score.get_words_linked()
         base_score -= self.actions_performed
 
         return base_score
@@ -473,12 +542,12 @@ class Score:
             _points (int): The number of points.
             _player (str): The name of the player.
             _time (float): The Epoch time at the creation of the Score object.
-            _words_joined (int): The number of words the player joined in the game.
+            _words_linked (int): The number of words the player linked in the game.
         """
         self._points = points
         self._player = player
         self._time = time()
-        self._words_joined = 0
+        self._words_linked = 0
 
     def change_points(self, points: int) -> None:
         """Setter for _points.
@@ -569,8 +638,8 @@ class Score:
         """
         return time
 
-    def get_words_joined(self) -> None:
-        """Getter for _words_joined.
+    def get_words_linked(self) -> None:
+        """Getter for _words_linked.
 
         Args:
             None
@@ -578,18 +647,18 @@ class Score:
         Returns:
             None
         """
-        return self._words_joined
+        return self._words_linked
 
-    def add_words_joined(self, num: int) -> None:
-        """Allows the number of words joined to be added to.
+    def add_words_linked(self, num: int) -> None:
+        """Allows the number of words linked to be added to.
 
         Args:
-            num (int): The number that should be added to _words_joined.
+            num (int): The number that should be added to _words_linked.
         Returns:
             None
         """
         if isinstance(num, int):
-            self._words_joined += num
+            self._words_linked += num
         else:
             raise Exception("Points should be an integer")
 
@@ -657,7 +726,10 @@ class Article:
             final_words.append(word)
 
         self.all_words = final_words
-        self.all_words = "qw we er rt ty yu ui io op pa am".split()
+        
+        # Debugging words
+        # Uncomment if needed
+        # self.all_words = "qw we er rt ty yu ui io op pa am".split()
 
     @staticmethod
     def make_title(num_words: int) -> str:
