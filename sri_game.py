@@ -47,8 +47,12 @@ class SriMenuView(arcade.View):
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
         arcade.draw_text("SCOREBOARD (S)", WIDTH/2, 0.3 * HEIGHT,
                          TEXT_COLOR, font_size=((HEIGHT + WIDTH) // 50), anchor_x="center", align="right")
-        arcade.draw_text("Press (N) to go to the next game", 0.175 * WIDTH, 0.003 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="center", align="right")
+
+        arcade.draw_text("Press (N) to go to the next game", 0.01 * WIDTH, 0.003 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
+
+        arcade.draw_text("Created by Sridhar Sairam - Jan 2020", 0.99 * WIDTH, 0.003 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
 
     def update(self, delta_time: float):
         global save_file
@@ -188,16 +192,13 @@ class SriGameView(arcade.View):
 
             # Getting all 10 words BONUS
             if end_game_condition_2:
-                cur_game.game_score.add_points(100)
+                time_bonus = cur_game.max_time - float(disp_clock[:-1])
+                time_bonus *= 15
+                time_bonus = int(time_bonus)
+
+                cur_game.game_score.add_points(100 + time_bonus)
 
             self.window.show_view(SriEndGameView())
-
-            # Time multiplier BONUS
-            time_multiplier = cur_game.max_time - float(disp_clock[:-1])
-            if time_multiplier > 1:
-                cur_game.game_score.add_points(
-                    int(cur_game.game_score.get_points() * time_multiplier)
-                )
 
     def update(self, delta_time: float):
         global save_file
@@ -248,6 +249,7 @@ class SriInstructionsView(arcade.View):
     --------------------
     Press (U) to undo your action.
 
+    BEWARE: A word might be able to link with multiple other words
 
     """
 
