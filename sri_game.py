@@ -13,6 +13,7 @@ SCREEN_COLOR = arcade.color.BONE
 
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
+
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
 PICKLE_FILE = "sri_data.p"
@@ -226,7 +227,7 @@ class SriGameView(arcade.View):
 
 class SriInstructionsView(arcade.View):
     instruction_mode = "instructions"
-    
+
     instruction_text = """
     The Goal:
     --------------------
@@ -235,9 +236,9 @@ class SriInstructionsView(arcade.View):
 
     How To Link Words:
     --------------------
-    Press the number key for the 
+    Press the number key for the
     corresponding word you would like to link.
-    
+
     The last letter of the current word and
     the first letter of the word you would like to link
     must be the same to be able to link words.
@@ -247,7 +248,7 @@ class SriInstructionsView(arcade.View):
     --------------------
     Press (U) to undo your action.
 
-    
+
     """
 
     story_text = """
@@ -266,7 +267,7 @@ class SriInstructionsView(arcade.View):
     You inspect the words a bit ... and then ...
 
     You realize that you can link the words!
-    
+
     You then decide to play a game with the words to relax
     your spinning head from all those articles.
 
@@ -286,15 +287,15 @@ class SriInstructionsView(arcade.View):
 
         if SriInstructionsView.instruction_mode == "instructions":
             arcade.draw_text("Press (SPACE) to read the story", 0.99 * WIDTH, 0.003 * HEIGHT,
-                                    TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
+                             TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
             arcade.draw_text(SriInstructionsView.instruction_text, 0.5 * WIDTH,  0 * HEIGHT,
-                            TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
-        
+                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+
         elif SriInstructionsView.instruction_mode == "story":
             arcade.draw_text("Press (SPACE) to read the instructions", 0.99 * WIDTH, 0.003 * HEIGHT,
-                                    TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
+                             TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="right", align="left")
             arcade.draw_text(SriInstructionsView.story_text, 0.5 * WIDTH, 0 * HEIGHT,
-                                    TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+                             TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
 
         arcade.draw_text(PRESS_ANY_KEY_TEXT[:13] + " other than (SPACE) " + PRESS_ANY_KEY_TEXT[14:], 0.01 * WIDTH, 0.003 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)), anchor_x="left", align="left")
@@ -726,7 +727,7 @@ class Article:
             final_words.append(word)
 
         self.all_words = final_words
-        
+
         # Debugging words
         # Uncomment if needed
         # self.all_words = "qw we er rt ty yu ui io op pa am".split()
