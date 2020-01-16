@@ -16,6 +16,7 @@ HEIGHT = settings.HEIGHT
 PRESS_ANY_KEY_TEXT = "Press any key to return to the Menu"
 
 PICKLE_FILE = "sri_data.p"
+WORD_FILE = "Sri_Words.txt"
 
 LETTERS = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z".split()
 
@@ -172,7 +173,7 @@ class SriGameView(arcade.View):
         # End Game
 
         end_game_condition_1 = float(disp_clock[:-1]) >= cur_game.max_time
-        end_game_condition_2 = len(cur_game.article.used_words) == len(cur_game.article.all_words)
+        end_game_condition_2 = len(cur_game.article.used_words) == (len(cur_game.article.all_words) + 1)  # + 1 as starting_word is not included in all_words
 
         if end_game_condition_1 or end_game_condition_2:
             global mode
@@ -337,17 +338,7 @@ class SriEndGameView(arcade.View):
             self.window.show_view(SriMenuView(self))
 
 
-class Game:
-    all_games = []
-
-    def __init__(self, game_score: "Score", article: "Article"):
-        self.game_score = game_score
-        self.article = article
-        self.start_time = time()
-        self.max_time = 30
-        self.actions_performed = 0
-        Game.all_games.append(self)
-
+class Converting:
     def game_display_time(self, decimal_places: int = 3) -> str:
         if decimal_places < 0:
             decimal_places = 0
@@ -357,22 +348,85 @@ class Game:
 
         return f"{disp_clock}"
 
-    def calculate_points(self):
+
+class Game(Converting):
+    """A class used to store the information about a game.
+
+    Attributes:
+        all_games (List[game]): A list of all of the Game objects created.
+    """
+    all_games = []
+
+    def __init__(self, game_score: "Score", article: "Article"):
+        """Create a Game object and assign attributes to it.
+
+        The Game object stores itself in the class field all_games.
+
+        Args:
+            game_score (Score): A Score object.
+            article (Article): An Article object.
+
+        Attributes:
+            game_score (Score): A Score object.
+            article (Article): An Article object.
+            start_time (float): The Epoch time at the start of the game.
+            max_time (int): The maximum time (in seconds) the game should be running.
+            actions_performed (int): The number of actions performed during the game.
+        """
+        self.game_score = game_score
+        self.article = article
+        self.start_time = time()
+        self.max_time = 30
+        self.actions_performed = 0
+        Game.all_games.append(self)
+
+    def calculate_points(self) -> None:
+        """Calculates the current points of the game.
+
+        Args:
+            None
+
+        Returns:
+            int: the current points for the game.
+        """
         base_score = 10 * self.game_score.get_words_joined()
         base_score -= self.actions_performed
 
         return base_score
 
-    def update_points(self):
+    def update_points(self) -> None:
+        """Updates the current amount of points.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.game_score.change_points(self.calculate_points())
 
     @classmethod
-    def get_top_games(cls):
+    def get_top_games(cls) -> None:
+        """Gets the top games, sorted by score points (highest to least).
+
+        Args:
+            None
+
+        Returns:
+            List[Game]: A list of all of the games, organized by score points.
+        """
         return Game.merge_sort_games_by_score(cls.all_games)
 
     @staticmethod
     def merge_sort_games_by_score(nums: List["Game"]) -> List["Game"]:
+        """A recursive method that sorts the games based on score points
 
+        Args:
+            nums (List[Game]): A list of Game objects.
+
+        Returns:
+            List[Game]: A list of Game objects (sorted by score points).
+        """
         if len(nums) <= 1:
             return nums
 
@@ -407,55 +461,146 @@ class Game:
 
 
 class Score:
-    def __init__(self, points: int, player: int):
+    """A class used to store the information about a score."""
+    def __init__(self, points: int, player: str):
+        """Create a Score object and assign attributes to it.
+
+        Args:
+            points (int): The number of points.
+            player (str): The name of the player.
+
+        Attributes:
+            _points (int): The number of points.
+            _player (str): The name of the player.
+            _time (float): The Epoch time at the creation of the Score object.
+            _words_joined (int): The number of words the player joined in the game.
+        """
         self._points = points
         self._player = player
-        self._time = float(time())
+        self._time = time()
         self._words_joined = 0
 
-    def change_points(self, points: int):
+    def change_points(self, points: int) -> None:
+        """Setter for _points.
+
+        Args:
+            points (int): The value that _points should be set to.
+
+        Returns:
+            None
+        """
         if isinstance(points, int):
             self._points = points
         else:
             raise Exception("Points should be an integer")
 
-    def add_points(self, points: int):
+    def add_points(self, points: int) -> None:
+        """Allows points to be added to _points.
+
+        Args:
+            points (int): The value that should be added to _points.
+
+        Returns:
+            None
+        """
         if isinstance(points, int):
             self._points += points
         else:
             raise Exception("Points should be an integer")
 
-    def get_points(self):
+    def get_points(self) -> None:
+        """Getter for _points.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         return self._points
 
-    def set_player(self, player: str):
+    def set_player(self, player: str) -> None:
+        """Setter for _player.
+
+        Args:
+            player (str): The value that _player should be set to.
+
+        Returns:
+            None
+        """
         if isinstance(player, str):
             self._player = player
         else:
             self._player = str(player)
 
-    def get_player(self):
+    def get_player(self) -> None:
+        """Getter for _player.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         return self._player
 
-    def set_time(self, time: float):
+    def set_time(self, time: float) -> None:
+        """Setter for _time.
+
+        Args:
+            time (float): the value that _time should be set to.
+
+        Returns:
+            None
+        """
         if isinstance(time, float) and time > 0:
             self._time = time
         else:
             raise Exception("Time should be a positive float")
 
-    def get_time(self):
+    def get_time(self) -> None:
+        """Getter for _time.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         return time
 
-    def get_words_joined(self):
+    def get_words_joined(self) -> None:
+        """Getter for _words_joined.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         return self._words_joined
 
-    def add_words_joined(self, num: int):
+    def add_words_joined(self, num: int) -> None:
+        """Allows the number of words joined to be added to.
+
+        Args:
+            num (int): The number that should be added to _words_joined.
+        Returns:
+            None
+        """
         if isinstance(num, int):
             self._words_joined += num
         else:
             raise Exception("Points should be an integer")
 
     def find_rank(self) -> int:
+        """Finds the rank of the current Score object.
+
+        Args:
+            None
+        Returns:
+            int: The rank of the current Score object.
+        """
         games = Game.get_top_games()
 
         for i in range(len(games)):
@@ -467,18 +612,40 @@ class Score:
 
 
 class Article:
+    """A class used to store the information about an article."""
     def __init__(self):
+        """Create an Article object and assigns attributes to it.
+
+        Args:
+            None
+
+        Attributes:
+            title (str): The title of the article.
+            author (str): The name of the author of the article.
+            date (str): The date the article was published. Format: DD/MM/YYYY.
+                DD could be D AND/OR MM could be M.
+            all_words(List[str]): A list of all of the words in the article.
+            used_words(List[str]): A list of all of the used words in the article.
+            starting_word(str): The starting word of the article.
+        """
         self.title = Article.make_title(3)
         self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
         self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
 
-        self.all_words = self.make_game_words()
+        self.make_game_words()
         self.starting_word = self.all_words[0]
         self.all_words = self.all_words[1:]
         self.used_words = [self.starting_word]
         random.shuffle(self.all_words)
 
-    def make_game_words(self) -> List[str]:
+    def make_game_words(self) -> None:
+        """Curates a list of the words in the article
+
+        Args:
+            None
+        Returns:
+            None
+        """
         all_words = get_words_by_letter()
         starting_letter = random_letter()
         starting_word = random_word_from_list(all_words[starting_letter][:])
@@ -489,10 +656,18 @@ class Article:
             word = random_word_from_list(((all_words[letter])[:]))
             final_words.append(word)
 
-        return final_words
+        self.all_words = final_words
+        self.all_words = "qw we er rt ty yu ui io op pa am".split()
 
     @staticmethod
     def make_title(num_words: int) -> str:
+        """Makes a title for the article
+
+        Args:
+            num_words (int): How long the article should be.
+        Returns:
+            str: The title of the article.
+        """
         words = get_words()
         random.shuffle(words)
 
@@ -507,6 +682,13 @@ class Article:
 
     @staticmethod
     def make_name(backup: str) -> str:
+        """Makes a name
+
+        Args:
+            backup (str): A backup name incase a name was not able to be made
+        Returns:
+            str: A name
+        """
         words = get_words()
 
         random.shuffle(words)
@@ -521,12 +703,28 @@ class Article:
 
 
 class SaveData:
+    """A class used to store save date information"""
     def __init__(self):
+        """Create a SaveDate object and assigns attributes to it.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         global mode
         self.game_mode = "menu"
         self.games = Game.all_games
 
     def load_from_file(self, save_file: str = PICKLE_FILE):
+        """Loads save data from file. Saves into object.
+
+        Args:
+            save_file (str, optional): The link to the save file.
+        Returns:
+            None
+        """
         try:
             save_files = pickle.load(open(save_file, "rb"))
         except EOFError:
@@ -547,6 +745,13 @@ class SaveData:
         mode = self.game_mode
 
     def save(self, save_file: str = PICKLE_FILE):
+        """Saves object to save file.
+
+        Args:
+            save_file (str, optional): The link to the save file.
+        Returns:
+            None
+        """
         self.games = Game.all_games
 
         save_files = {
@@ -557,6 +762,13 @@ class SaveData:
         pickle.dump(save_files, open(save_file, "wb"))
 
     def nuke(self, save_file: str = PICKLE_FILE):
+        """Nukes save file. (Erases save file contents).
+
+        Args:
+            save_file (str, optional): The link to the save file.
+        Returns:
+            None
+        """
         pickle.dump({}, open(save_file, "wb"))
 
 
@@ -566,19 +778,43 @@ save_file.load_from_file()
 
 
 def random_word_from_list(words: List[str]) -> str:
+    """Chooses and returns a random word from a list of words
+
+    Args:
+        words (List[str]): The list of words.
+
+    Returns:
+        str: the random word from the list.
+    """
     random.shuffle(words)
     return words[0]
 
 
 def random_letter() -> str:
+    """Chooses and returns a random capital letter from the alphabet
+
+    Args:
+        None
+
+    Returns:
+        str: a random capital letter from the alphabet
+    """
     rand_letter = random.randint(0, 25)
     rand_letter = LETTERS[rand_letter]
     return rand_letter
 
 
 def get_words() -> List[str]:
+    """Parses and creates a list of words from WORD_FILE.
+
+    Args:
+        None
+
+    Returns:
+        List[str]: A list of words from WORD_FILE.
+    """
     lines = []
-    with open("Sri_Words.txt", "r") as f:
+    with open(WORD_FILE, "r") as f:
         for line in f:
             lines.append(line.strip())
 
@@ -586,17 +822,32 @@ def get_words() -> List[str]:
 
 
 def key_code_to_letter(key_code: int) -> str:
-    letters = LETTERS
+    """Converts key codes that correspond to letters into their corresponding letter
+
+    Args:
+        key_code (int): The key code.
+
+    Returns:
+        str: The capital letter the key code corresponds to.
+    """
 
     # A -> 97
     # Z -> 122
 
     key_code -= 97
 
-    return letters[key_code]
+    return LETTERS[key_code]
 
 
 def key_code_to_number(key_code: int) -> int:
+    """Converts key codes that correspond to numbers into their corresponding number
+
+    Args:
+        key_code (int): The key code.
+
+    Returns:
+        int: The number the key code corresponds to.
+    """
     # Keypad numbers
     # 0 -> 65456
     # 9 -> 65465
@@ -615,10 +866,33 @@ def key_code_to_number(key_code: int) -> int:
 
 
 def delta_time(time_1: float, time_2: float) -> float:
+    """Returns the how much time passed from time_1 to time_2
+
+    Args:
+        time_1 (float): The first time in milliseconds.
+        time_2 (float): The second time in milliseconds.
+
+    Returns:
+        float: The difference between time_2 and time_1.
+    """
     return time_2 - time_1
 
 
 def convert_date_to_words(slash_date: str) -> str:
+    """Converts the date in slash format to the date in words
+
+    Args:
+        slash_date (str): The date in slash format. Format: DD/MM/YYYY
+            DD could be D
+            MM could be M
+            Example: 02/10/1920
+            Example: 2/7/2003
+
+    Returns:
+        str: A string of the date in words. Format: {day_of_week} {day_of_month} {month} {year}
+            Example: Wednesday 15 January 2020
+            Example: Friday 03 November 1876
+    """
     slash_date = slash_date.split("/")
 
     for i in range(len(slash_date)):
@@ -632,6 +906,16 @@ def convert_date_to_words(slash_date: str) -> str:
 
 
 def get_words_by_letter() -> Dict:
+    """Call get_words(). Organizes words into a dictionary based on the first letter of the word
+
+    Args:
+        None
+
+    Returns:
+        Dict: A dictionary with 27 keys being the letters of the alphabet and ETC.
+            Each value will be list of words where each word starts with the respective key.
+            Any word that doesn't start with a letter in the alphabet will be placed in ETC.
+    """
     all_words = get_words()
 
     letters = LETTERS
