@@ -28,11 +28,13 @@ def calculate_points(shapes: int) -> int:
 
     return 10 + calculate_points(shapes - 1)
 
+
 class Slide:
     '''creates slides
     Attributes:
         slide_name(str) = name of the slide
     '''
+
     def __init__(self, slide_name: str):
         '''creates a sldie object
         Args:
@@ -55,15 +57,15 @@ class Slide:
     @classmethod
     def create_title(cls, title: str):
         '''creates a title for a slide
-        Args: 
+        Args:
             title: desired text for the title
-
         Returns:
             Title on a slide
         '''
 
-        return arcade.draw_text(title, settings.WIDTH / 2, 540, arcade.color.BLACK, 30, font_name='GARA', anchor_x="center")
-    
+        return arcade.draw_text(title, settings.WIDTH / 2, 540, arcade.color.BLACK, 30, font_name='GARA',
+                                anchor_x="center")
+
 
 class Leaderboard(Slide):
     '''creates a leaderboard
@@ -113,21 +115,18 @@ class Leaderboard(Slide):
     @classmethod
     def create_divider(cls, y_coord: int):
         '''creates a horizontal divider for the leaderboard
-        Args: 
+        Args:
             y_coord: y location of the horizontal line
-
         Returns:
             Divider on leaderboard
         '''
         return arcade.draw_line(0, y_coord, settings.WIDTH, y_coord, arcade.color.BLACK)
 
 
-
 class SarahGameView(arcade.View):
     def __init__(self):
         super().__init__()
         self.current_state = MENU
-
 
     def draw_menu(self):
         arcade.draw_rectangle_filled(x, 400, 50, 50, arcade.color.BANANA_YELLOW)
@@ -189,13 +188,6 @@ class SarahGameView(arcade.View):
     def draw_game(self):
         global x
 
-        time = f"Time: {str(int((round(self.timer))))}"
-        arcade.draw_text(time, settings.WIDTH / 2, settings.HEIGHT / 8,
-                         arcade.color.BLACK, font_size=18, font_name='GARA', anchor_x="center")
-
-        arcade.draw_text(total_points, settings.WIDTH / 2, settings.HEIGHT / 16,
-                         arcade.color.BLACK, font_size=30, font_name='GARA', anchor_x="center")
-
         for i in self.gsqsprites:
             i.draw()
 
@@ -208,6 +200,13 @@ class SarahGameView(arcade.View):
         for i in self.bcirsprites:
             i.draw()
 
+        time = f"Time: {str(int((round(self.timer))))}"
+        arcade.draw_text(time, settings.WIDTH / 2, settings.HEIGHT / 8,
+                         arcade.color.BLACK, font_size=18, font_name='GARA', anchor_x="center")
+
+        arcade.draw_text(total_points, settings.WIDTH / 2, settings.HEIGHT / 16,
+                         arcade.color.BLACK, font_size=30, font_name='GARA', anchor_x="center")
+
     def draw_leaderboard(self):
         # leaderboard slide
         arcade.draw_rectangle_filled(x, 570, 50, 50, arcade.color.BANANA_YELLOW)
@@ -218,30 +217,28 @@ class SarahGameView(arcade.View):
         arcade.draw_rectangle_filled(x - 300, 574, 50, 50, arcade.color.FOREST_GREEN)
 
         Leaderboard.create_divider(settings.HEIGHT / 6)
-        Leaderboard.create_divider((settings.HEIGHT / 6)*2)
-        Leaderboard.create_divider((settings.HEIGHT / 6)*3)
-        Leaderboard.create_divider((settings.HEIGHT / 6)*4)
-        Leaderboard.create_divider((settings.HEIGHT / 6)*5)
-
+        Leaderboard.create_divider((settings.HEIGHT / 6) * 2)
+        Leaderboard.create_divider((settings.HEIGHT / 6) * 3)
+        Leaderboard.create_divider((settings.HEIGHT / 6) * 4)
+        Leaderboard.create_divider((settings.HEIGHT / 6) * 5)
 
         rankings = Leaderboard()
         rankings.sort_scores()
 
-        
         arcade.draw_text(f"1. {rankings._high_scores[0][0]}---------------{rankings._high_scores[0][1]}",
                          settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,
-                         font_size=24)
+                         font_size=24, font_name='GARA')
         arcade.draw_text(f"2. {rankings._high_scores[1][0]}---------------{rankings._high_scores[1][1]}",
                          settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK,
-                         font_size=24)
+                         font_size=24, font_name='GARA')
         arcade.draw_text(f"3. {rankings._high_scores[2][0]}---------------{rankings._high_scores[2][1]}",
                          settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK,
-                         font_size=24)
+                         font_size=24, font_name='GARA')
         arcade.draw_text(f"4. {rankings._high_scores[3][0]}---------------{rankings._high_scores[3][1]}",
                          settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK,
-                         font_size=24)
-        arcade.draw_text("Press enter to continue", settings.WIDTH / 2, 30, arcade.color.BLACK, font_size=30,
-                         anchor_x="center")
+                         font_size=24, font_name='GARA')
+        arcade.draw_text("Press Enter to continue", settings.WIDTH / 2, 30, arcade.color.BLACK, font_size=30,
+                         anchor_x="center", font_name='GARA')
 
         Leaderboard.create_title("LEADERBOARD")
 
