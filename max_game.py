@@ -10,7 +10,11 @@ user = None
 winner = None
 game = None
 game_view = None
-data = []
+
+try:
+    data = data
+except:
+    data = []
 
 ALL_START_BOARDS = [
             [[7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -898,7 +902,6 @@ if __name__ == "__main__":
     from utils import FakeDirector
     with open("sudoku_data.p", "rb") as f:
         data = pickle.load(f)
-        Winner.match_data()
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
     introduction_view = IntroductionView()
     menu_view = MenuView()
