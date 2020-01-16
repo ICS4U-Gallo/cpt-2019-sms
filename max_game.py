@@ -46,7 +46,7 @@ ALL_START_BOARDS = [
 
 
 class Sudoku:
-    def __init__(self, start_board):
+    def __init__(self, start_board, user):
         self.columns = 9
         self.rows = 9
         self.start_board = start_board
@@ -57,6 +57,7 @@ class Sudoku:
         self.y_gap = settings.HEIGHT / self.rows
         self.pencil_mode = False
         self.incorrect_coordinates = []
+        self.user = user
         self.validate_button = arcade.Sprite(center_x=133.33, center_y=50)
         self.validate_button.texture = arcade.make_soft_circle_texture(65,
                                                                arcade.color.LIGHT_SLATE_GRAY,
@@ -311,17 +312,55 @@ class User:
         self.name = name
         self.preferred_color = preferred_color
 
-class Winner():
-    def __init__(self, name, time):
+    def display_name(self):
+        arcade.draw_text(f"User: {self.name}", settings.WIDTH / 2, 550, user.preferred_color, 
+                        font_size = 13, font_name = 'arial', anchor_x='center')
+
+class Winner(User):
+    all_winners = data
+
+    def __init__(self, name, preferred_color, time):
+        super().__init__(name, preferred_color)
         self.name = name
         self.time = time
+        self.preferred_color = preferred_color
     
     @classmethod
-    def create_anon_winner(cls, time):
-        return Winner('Anonymous', time)
+    def create_anon_winner(cls, color, time):
+        return cls('Anonymous', color, time)
+    
+    @classmethod
+    def sort_all_winner_times(cls):
+        sorted = False
+        times_through = 0
+
+        while not sorted:
+            sorted = True
+            for i in range(len(cls.all_winners) - 1 - times_through):
+                if cls.all_winners[i].time > cls.all_winners[i + 1].time:
+                    cls.all_winners[i], cls.all_winners[i + 1] = cls.all_winners[i + 1], cls.all_winners[i]
+                    sorted = False
+            times_through += 1
+
+    @classmethod
+    def display_all_winner_info(cls):
+        y_pos = 500
+        i = 0
+        for i in range(len(cls.all_winners)):
+            if i > 9:
+                break
+            
+            text = f"{i + 1}. {cls.all_winners[i].name} ------- {cls.all_winners[i].time}s"
+            arcade.draw_text(text, settings.WIDTH / 2, y_pos,
+                         cls.all_winners[i].preferred_color, font_size=15, font_name='arial', anchor_x="center")
+            y_pos -= 50
+    
+    @classmethod
+    def match_data(cls):
+        cls.all_winners = data
 
 
-class SudokuMenu(arcade.View):
+class MenuView(arcade.View):
     def __init__(self):
         super().__init__()
         self.play_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=500)
@@ -374,13 +413,13 @@ class SudokuMenu(arcade.View):
         if self.play_button.collides_with_point([x, y]):
             game_view = MaxGameView()
             board_index = random.randrange(len(ALL_START_BOARDS))
-            game = Sudoku(ALL_START_BOARDS[board_index])
+            game = Sudoku(ALL_START_BOARDS[board_index], user)
             self.window.show_view(game_view)
         if self.instruction_button.collides_with_point([x, y]):
             instruction_view = Instructions()
             self.window.show_view(instruction_view)
         if self.leaderboard_button.collides_with_point([x, y]):
-            leaderboard_view = LeaderboardView(data)
+            leaderboard_view = LeaderboardView()
             self.window.show_view(leaderboard_view)
         if self.quit_button.collides_with_point([x, y]):
             self.window.next_view()
@@ -400,7 +439,7 @@ class Instructions(arcade.View):
             try:
                 self.window.show_view(menu_view)
             except:
-                menu_view = SudokuMenu()
+                menu_view = MenuView()
                 self.window.show_view(menu_view)
     
     def on_draw(self):
@@ -421,12 +460,13 @@ class MaxGameView(arcade.View):
         arcade.start_render()
         arcade.draw_text(self.timer, settings.WIDTH / 2, 565,
                          arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+        
+        game.display_selected()
+        user.display_name()
         if game.incorrect_coordinates:
             for coordinate in game.incorrect_coordinates:
                 game.display_incorrect_background(coordinate)
-        
         game.display_grid()
-        game.display_selected()
         game.display_numbers()
         game.display_temp_values()
 
@@ -611,6 +651,7 @@ class MaxGameView(arcade.View):
         self.seconds_elapsed += delta_time
     
     def on_mouse_press(self, x, y, button, modifiers):
+        global winner
         x_coordinate = math.ceil(x / (settings.WIDTH / 9))
         y_coordinate = 11 - math.ceil((y - (settings.HEIGHT / 12)) / (settings.HEIGHT / 12))
         if x_coordinate <= 9 and y_coordinate <= 9 and x_coordinate > 0 and y_coordinate > 0:
@@ -620,9 +661,9 @@ class MaxGameView(arcade.View):
             game.incorrect_coordinates = game.find_invalid()
             if not game.incorrect_coordinates and not game.find_empty():
                 if not user.name:
-                    winner = Winner.create_anon_winner(round(self.seconds_elapsed, 1))
+                    winner = Winner.create_anon_winner(user.preferred_color, round(self.seconds_elapsed, 1))
                 else:
-                    winner = Winner(user.name, round(self.seconds_elapsed, 1))
+                    winner = Winner(user.name, user.preferred_color, round(self.seconds_elapsed, 1))
                 
                 data.append(winner)
                 
@@ -679,7 +720,7 @@ class PauseScreen(arcade.View):
             try:
                 self.window.show_view(menu_view)
             except:
-                menu_view = SudokuMenu()
+                menu_view = MenuView()
                 self.window.show_view(menu_view)
         else:
             pass
@@ -777,7 +818,7 @@ class IntroductionView(arcade.View):
             if symbol == 65293:
                 name = self.text[10:]
                 user = User(name, self.preferred_color)
-                menu_view = SudokuMenu()
+                menu_view = MenuView()
                 self.window.show_view(menu_view)
     
     def on_mouse_press(self, x, y, button, modifiers):
@@ -789,48 +830,27 @@ class IntroductionView(arcade.View):
             self.preferred_color = arcade.color.WHITE
 
 class LeaderboardView(arcade.View):
-    def __init__(self, data):
+    def __init__(self):
         super().__init__()
-
-    @staticmethod
-    def order_winner_times():
-        sorted = False
-        times_through = 0
-
-        while not sorted:
-            sorted = True
-            for i in range(len(data) - 1 - times_through):
-                if data[i].time > data[i + 1].time:
-                    data[i], data[i + 1] = data[i + 1], data[i]
-                    sorted = False
-            times_through += 1
-
 
     def on_show(self):
         arcade.set_background_color(arcade.color.EERIE_BLACK)
-        self.order_winner_times()
+        Winner.match_data()
+        Winner.sort_all_winner_times()
+        
 
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text('>PRESS <M> TO RETURN TO MENU', settings.WIDTH / 2, settings.HEIGHT - 50,
                          arcade.color.LIGHT_GRAY,font_size=25, font_name='arial', anchor_x="center")
-        y_pos = 500
-        i = 0
-        for i in range(len(data)):
-            if i > 9:
-                break
-            
-            text = f"{i + 1}. {data[i].name} ------- {data[i].time}s"
-            arcade.draw_text(text, settings.WIDTH / 2, y_pos,
-                         arcade.color.LIGHT_GRAY, font_size=15, font_name='arial', anchor_x="center")
-            y_pos -= 50
+        Winner.display_all_winner_info()
     
     def on_key_press(self, symbol, modifiers):
         if symbol == 109: # M
             try:
                 self.window.show_view(menu_view)
             except:
-                menu_view = SudokuMenu()
+                menu_view = MenuView()
                 self.window.show_view(menu_view)
 
 class WinView(arcade.View):
@@ -862,7 +882,7 @@ class WinView(arcade.View):
             self.window.show_view(menu_view)
         if symbol == 108:
             board_index = random.randrange(len(ALL_START_BOARDS))
-            leaderboard = LeaderboardView(data)
+            leaderboard = LeaderboardView()
             self.window.show_view(leaderboard)
 
 if __name__ == "__main__":
@@ -878,8 +898,9 @@ if __name__ == "__main__":
     from utils import FakeDirector
     with open("sudoku_data.p", "rb") as f:
         data = pickle.load(f)
+        Winner.match_data()
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
     introduction_view = IntroductionView()
-    menu_view = SudokuMenu()
+    menu_view = MenuView()
     window.show_view(introduction_view)
     arcade.run()
