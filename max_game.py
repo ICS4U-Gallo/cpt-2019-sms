@@ -5,7 +5,7 @@ import random
 import pickle
 from time import strftime, gmtime
 import copy
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 
 user = None
 winner = None
@@ -100,7 +100,7 @@ class Sudoku:
         if not present:
             self.temp_values[coordinate].append(target)
     
-    def find_empty(self) -> Tuple[int, int]:
+    def find_empty(self) -> Union[Tuple[int, int], None]:
         for row in range(self.rows):
             for column in range(self.columns):
                 if not self.board[row][column]:
