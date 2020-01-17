@@ -13,11 +13,11 @@ game = None
 game_view = None
 data = []
 
-#what do i encapsulate?
 
 class Sudoku:
-    ALL_START_BOARDS: List[List[int]] = [
-            [[7, 8, 0, 4, 0, 0, 1, 2, 0],
+    _ALL_START_BOARDS: List[List[List[int]]] = [
+        [
+            [7, 8, 0, 4, 0, 0, 1, 2, 0],
             [6, 0, 0, 0, 7, 5, 0, 0, 9],
             [0, 0, 0, 6, 0, 1, 0, 7, 8],
             [0, 0, 7, 0, 4, 0, 2, 6, 0],
@@ -25,9 +25,10 @@ class Sudoku:
             [9, 0, 4, 0, 6, 0, 0, 0, 5],
             [0, 7, 0, 3, 0, 0, 0, 1, 2],
             [1, 2, 0, 0, 0, 7, 4, 0, 0],
-            [0, 4, 9, 2, 0, 6, 0, 0, 7]],
-            
-            [[0, 4, 0, 8, 0, 5, 2, 0, 0],
+            [0, 4, 9, 2, 0, 6, 0, 0, 7]
+        ],
+        [
+            [0, 4, 0, 8, 0, 5, 2, 0, 0],
             [0, 2, 0, 0, 4, 0, 0, 5, 0],
             [5, 0, 0, 0, 0, 0, 0, 0, 4],
             [0, 9, 0, 0, 0, 3, 1, 2, 0],
@@ -35,9 +36,11 @@ class Sudoku:
             [3, 7, 0, 9, 0, 4, 0, 8, 0],
             [0, 0, 0, 0, 0, 6, 7, 0, 0],
             [0, 0, 8, 3, 5, 9, 0, 1, 0],
-            [0, 1, 9, 0, 0, 7, 6, 0, 0]],
+            [0, 1, 9, 0, 0, 7, 6, 0, 0]
+        ],
 
-            [[0, 6, 0, 3, 0, 0, 8, 0, 4],
+        [
+            [0, 6, 0, 3, 0, 0, 8, 0, 4],
             [5, 3, 7, 0, 9, 0, 0, 0, 0],
             [0, 4, 0, 0, 0, 6, 3, 0, 7],
             [0, 9, 0, 0, 5, 1, 2, 3, 8],
@@ -45,7 +48,8 @@ class Sudoku:
             [7, 1, 3, 6, 2, 0, 0, 4, 0],
             [3, 0, 6, 4, 0, 6, 0, 1, 0],
             [0, 0, 0, 0, 6, 0, 5, 2, 3],
-            [1, 0, 2, 0, 0, 9, 0, 8, 0]]
+            [1, 0, 2, 0, 0, 9, 0, 8, 0]
+        ]
     ]
 
     def __init__(self, start_board: List[List[int]], user: "User") -> None:
@@ -55,31 +59,36 @@ class Sudoku:
         self.rows: int = 9
         self.board: List[List[int]] = copy.deepcopy(start_board)
         self.selected: Tuple[int, int] = (math.ceil(self.columns / 2), math.ceil(self.rows / 2))
-        self.temp_values: Dict[Tuple[int, int]] = {(i, j):[] for i in range(self.columns) for j in range(self.rows)}
+        self.temp_values: Dict[Tuple[int, int]] = {(i, j): [] for i in range(self.columns) for j in range(self.rows)}
         self.x_gap: int = settings.WIDTH / self.columns
         self.y_gap: int = settings.HEIGHT / self.rows
         self.pencil_mode: bool = False
         self.incorrect_coordinates: List[Tuple[int, int]] = []
-        self.validate_button: Sprite = arcade.Sprite(center_x=133.33, center_y=50)
-        self.validate_button.texture: Sprite.texture = arcade.make_soft_circle_texture(65,
-                                                               arcade.color.LIGHT_SLATE_GRAY,
-                                                               outer_alpha=255)
-        self.solve_button: Sprite = arcade.Sprite(center_x=666.66, center_y=50)
-        self.solve_button.texture: Sprite.texture = arcade.make_soft_circle_texture(65,
-                                                               arcade.color.LIGHT_SLATE_GRAY,
-                                                               outer_alpha=255)
-        self.reset_button: Sprite = arcade.Sprite(center_x=751.5, center_y=575)
-        self.reset_button.texture: Sprite.texture = arcade.make_soft_circle_texture(37,
-                                                               arcade.color.LIGHT_SLATE_GRAY,
-                                                               outer_alpha=255)
-        self.pencil_button: Sprite = arcade.Sprite(center_x=400, center_y=50)
-        self.pencil_button.texture: Sprite.texture = arcade.make_soft_circle_texture(65,
-                                                               arcade.color.LIGHT_SLATE_GRAY,
-                                                               outer_alpha=255)
+        self.validate_button: arcade.Sprite = arcade.Sprite(center_x=133.33, center_y=50)
+        self.validate_button.texture: arcade.Sprite.texture = arcade.make_soft_circle_texture(65,
+                                                                                              arcade.color.LIGHT_SLATE_GRAY,
+                                                                                              outer_alpha=255)
+        self.solve_button: arcade.Sprite = arcade.Sprite(center_x=666.66, center_y=50)
+        self.solve_button.texture: arcade.Sprite.texture = arcade.make_soft_circle_texture(65,                                  
+                                                                                           arcade.color.LIGHT_SLATE_GRAY,
+                                                                                           outer_alpha=255)
+        self.reset_button: arcade.Sprite = arcade.Sprite(center_x=751.5, center_y=575)
+        self.reset_button.texture: arcade.Sprite.texture = arcade.make_soft_circle_texture(37,
+                                                                                           arcade.color.LIGHT_SLATE_GRAY,
+                                                                                           outer_alpha=255)
+        self.pencil_button: arcade.Sprite = arcade.Sprite(center_x=400, center_y=50)
+        self.pencil_button.texture: arcade.Sprite.texture = arcade.make_soft_circle_texture(65,
+                                                                                            arcade.color.LIGHT_SLATE_GRAY,
+                                                                                            outer_alpha=255)
+
+    @classmethod
+    def get_all_start_boards(cls) -> List[List[List[int]]]:
+        return cls._ALL_START_BOARDS
+
 
     def reset_board(self) -> None:
         self.board = copy.deepcopy(self.start_board)
-        self.temp_values = {(i, j):[] for i in range(9) for j in range(9)}
+        self.temp_values = {(i, j): [] for i in range(9) for j in range(9)}
         self.incorrect_coordinates = []
 
     def find_temp_value(self, target, coordinate) -> None:
@@ -185,7 +194,6 @@ class Sudoku:
             y = coordinate[0]
             x = coordinate[1]
             if self.start_board[y][x] == 0:
-                #can implement search here
                 invalid_coordinates.append(coordinate)
 
         if not invalid_coordinates:
@@ -231,10 +239,9 @@ class Sudoku:
                 translated_x = self.x_gap * (3/2) + ((self.x_gap) * (x - 1))
                 translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
                 arcade.draw_text(text, translated_x, translated_y - 70,
-                         arcade.color.RED,font_size=10, font_name='arial', anchor_x="center")
+                         arcade.color.RED,font_size = 10, font_name = 'arial', anchor_x ="center")
 
     def display_grid(self) -> None:
-        # REMOVE -- y_bottom is 100 and y_top is 550
         x_start = settings.WIDTH / 9
         y_pos = settings.HEIGHT / 6
 
@@ -262,7 +269,8 @@ class Sudoku:
                 thickness *= 3
                 color = user.get_preferred_color()
 
-            arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness, settings.WIDTH, color, tilt_angle=90)
+            arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness,
+                                         settings.WIDTH, color, tilt_angle=90)
 
     def display_numbers(self) -> None:
         for row in range(self.rows):
@@ -275,7 +283,7 @@ class Sudoku:
                     arcade.draw_circle_filled(translated_x, translated_y - 51, 17, arcade.color.PAYNE_GREY)
                     # STARTING NUMBERS
                     arcade.draw_text(str(self.start_board[row][column]), translated_x, translated_y - 60,
-                         arcade.color.LIGHT_GRAY,font_size=18, font_name='arial', anchor_x="center")
+                         arcade.color.LIGHT_GRAY, font_size=18, font_name='arial', anchor_x="center")
                 elif self.board[row][column]:
                     x = column
                     y = row
@@ -289,7 +297,7 @@ class Sudoku:
                     else:
                         # INPUTTED NUMBERS
                         arcade.draw_text(str(self.board[row][column]), translated_x, translated_y - 60,
-                            user.get_preferred_color(),font_size=18, font_name='arial', anchor_x="center")
+                            user.get_preferred_color(), font_size=18, font_name='arial', anchor_x="center")
 
     def display_selected(self) -> None:
         x = self.selected[0]
@@ -307,12 +315,13 @@ class Sudoku:
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)      
         arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17, arcade.color.CADMIUM_RED)
         arcade.draw_text(str(self.board[y][x]), translated_x + 88.88, translated_y - 60,
-                            arcade.color.GHOST_WHITE,font_size=18, font_name='arial', anchor_x="center")
+                         arcade.color.GHOST_WHITE,font_size=18, font_name='arial', anchor_x="center")
 
 class User:
     def __init__(self, name: str, preferred_color: "texture"):
         self._name = name
         self._preferred_color = preferred_color
+
 
     def get_name(self) -> str:
         return self._name
@@ -346,7 +355,8 @@ class User:
 class Winner(User):
     _all_winners = data
 
-    def __init__(self, name: str, preferred_color: "color", time: float) -> None:
+
+    def __init__(self, name: str, preferred_color: arcade.Color, time: float) -> None:
         super().__init__(name, preferred_color)
         self._time = time
     
@@ -369,11 +379,11 @@ class Winner(User):
         self._time = value
 
     @classmethod
-    def create_anon_winner(cls, color, time):
+    def create_anon_winner(cls, color, time) -> None:
         return cls('Anonymous', color, time)
     
     @classmethod
-    def sort_all_winner_times(cls):
+    def sort_all_winner_times(cls) -> "Winner":
         sorted = False
         times_through = 0
 
@@ -454,8 +464,8 @@ class MenuView(arcade.View):
         global game_view, game
         if self.play_button.collides_with_point([x, y]):
             game_view = MaxGameView()
-            board_index = random.randrange(len(Sudoku.ALL_START_BOARDS))
-            game = Sudoku(Sudoku.ALL_START_BOARDS[board_index], user)
+            board_index = random.randrange(len(Sudoku.get_all_start_boards()))
+            game = Sudoku(Sudoku.get_all_start_boards()[board_index], user)
             self.window.show_view(game_view)
         if self.instruction_button.collides_with_point([x, y]):
             instruction_view = Instructions()
@@ -720,6 +730,7 @@ class MaxGameView(arcade.View):
         
         if game.solve_button.collides_with_point([x, y]):
             game.board = copy.deepcopy(game.start_board)
+            game.incorrect_coordinates = []
             game.solve()
             game.temp_values = {(i, j):[] for i in range(9) for j in range(9)}
 
@@ -931,7 +942,7 @@ class WinView(arcade.View):
                 menu_view = MenuView()
                 self.window.show_view(menu_view)
         if symbol == 108:
-            board_index = random.randrange(len(Sudoku.ALL_START_BOARDS))
+            board_index = random.randrange(len(Sudoku.get_all_start_boards()))
             leaderboard = LeaderboardView()
             self.window.show_view(leaderboard)
 
