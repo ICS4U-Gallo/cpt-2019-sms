@@ -83,7 +83,9 @@ class SriMenuView(arcade.View):
 
 class SriAskPlayerNameView(arcade.View):
     name = ""
-    name_specification_text = ("Please type your name | Your name must be 5 characters or shorter, using only letters")
+    name_specification_text = ("Please type your name |" +
+                               "Your name must be 5 characters or shorter,"
+                               "using only letters")
     button_text = "Press (ENTER) when complete | Press (ESC) to go to the Menu"
 
     def __init__(self):
@@ -164,7 +166,8 @@ class SriGameView(arcade.View):
         cur_game.update_points()
 
         # Titles and Related
-        arcade.draw_text("Press (ESC) to go to the Menu | Use the number keys and (U) to play",
+        arcade.draw_text(("Press (ESC) to go to the Menu | " +
+                         "Use the number keys and (U) to play"),
                          0.5 * WIDTH, 0.97 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="right")
@@ -174,12 +177,17 @@ class SriGameView(arcade.View):
 
         disp_date = convert_date_to_words(cur_game.article.date)
 
-        arcade.draw_text(f"Actions Performed: {cur_game.actions_performed} | Words Linked: {cur_game.game_score.get_words_linked()} | Points: {cur_points} | Time: {disp_clock}s / {cur_game.max_time}s",
+        arcade.draw_text((f"Actions Performed: {cur_game.actions_performed} " +
+                          "| Words Linked: " +
+                          f"{cur_game.game_score.get_words_linked()} | " +
+                          f"Points: {cur_points} | " +
+                          f"Time: {disp_clock}s / {cur_game.max_time}s"),
                          0.5 * WIDTH, 0.035 * HEIGHT,
                          TEXT_COLOR, font_size=(0.012 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="center")
 
-        arcade.draw_text(f"{cur_game.article.title}    By: {cur_game.article.author}",
+        arcade.draw_text((f"{cur_game.article.title}    " +
+                          f"By: {cur_game.article.author}"),
                          0.5 * WIDTH, 0.9 * HEIGHT,
                          TEXT_COLOR, font_size=(0.016 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="center",
@@ -397,9 +405,12 @@ class SriScoreBoardView(arcade.View):
 
         for i in range(len(top_5_games)):
             score_text = (f'{i + 1}.' +
-                          f'"{(top_5_games[i]).game_score.get_player()}" ---- ' +
-                          f'{(top_5_games[i]).game_score.get_points()} points ---- ' +
-                          f'{top_5_games[i].game_score.get_words_linked()} words linked')
+                          f'"{(top_5_games[i]).game_score.get_player()}"' +
+                          ' ---- ' +
+                          f'{(top_5_games[i]).game_score.get_points()} ' +
+                          'points ---- ' +
+                          f'{top_5_games[i].game_score.get_words_linked()}' +
+                          ' words linked')
             arcade.draw_text(score_text,
                              WIDTH * 0.3, 0.8 * HEIGHT - HEIGHT * 0.07 * i * 2,
                              arcade.color.BLUE, 18, align="left")
@@ -454,15 +465,22 @@ class SriEndGameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
-        arcade.draw_text("Press any key (other than the numbers) to return to the menu",
+        arcade.draw_text(("Press any key (other than the numbers) " +
+                         "to return to the menu"),
                          0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="center")
 
         global cur_game
 
-        arcade.draw_text(f"Player: {cur_game.game_score.get_player()}\n\nWords Linked: {cur_game.game_score.get_words_linked()}\n\nPoints: {cur_game.game_score.get_points()}\n\nRank: {cur_game.game_score.find_rank()}", 0.5 * WIDTH, 0.2 * HEIGHT,
-                         TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)), anchor_x="center", align="center")
+        arcade.draw_text((f"Player: {cur_game.game_score.get_player()}\n\n" +
+                          f"Words Linked: " +
+                          f"{cur_game.game_score.get_words_linked()}\n\n" +
+                          f"Points: {cur_game.game_score.get_points()}\n\n" +
+                          f"Rank: {cur_game.game_score.find_rank()}"),
+                         0.5 * WIDTH, 0.2 * HEIGHT,
+                         TEXT_COLOR, font_size=(0.03 * (HEIGHT + WIDTH)),
+                         anchor_x="center", align="center")
 
     def update(self, delta_time: float):
         pass
@@ -511,7 +529,8 @@ class Game(Converting):
             start_time (float): The Epoch time at the start of the game.
             max_time (int): The maximum time (in seconds)
                 the game should be running.
-            actions_performed (int): The number of actions performed during the game.
+            actions_performed (int): The number of actions
+                performed during the game.
         """
         self.game_score = Score(current_player)
         self.article = Article()
@@ -773,8 +792,10 @@ class Article:
             starting_word(str): The starting word of the article.
         """
         self.title = Article.make_title(3)
-        self.author = f'{Article.make_name("Berock")} {Article.make_name("Obamer")}'
-        self.date = f"{random.randint(1, 28)}/{random.randint(1, 12)}/{random.randint(1600, 2300)}"
+        self.author = (f'{Article.make_name("Berock")} +
+                       {Article.make_name("Obamer")}')
+        self.date = (f"{random.randint(1, 28)}/{random.randint(1, 12)}/" +
+                     f"{random.randint(1600, 2300)}")
 
         self.make_game_words()
         self.starting_word = self.all_words[0]
@@ -980,7 +1001,7 @@ def get_words() -> List[str]:
 
 
 def key_code_to_letter(key_code: int) -> str:
-    """Converts key codes that correspond to letters into their corresponding letter
+    """Converts applicable key codes to their corresponding letter.
 
     Args:
         key_code (int): The key code.
@@ -998,7 +1019,7 @@ def key_code_to_letter(key_code: int) -> str:
 
 
 def key_code_to_number(key_code: int) -> int:
-    """Converts key codes that correspond to numbers into their corresponding number
+    """Converts applicable key codes to their corresponding number.
 
     Args:
         key_code (int): The key code.
@@ -1047,7 +1068,8 @@ def convert_date_to_words(slash_date: str) -> str:
             Example: 2/7/2003
 
     Returns:
-        str: A string of the date in words. Format: {day_of_week} {day_of_month} {month} {year}
+        str: A string of the date in words.
+            Format: {day_of_week} {day_of_month} {month} {year}
             Example: Wednesday 15 January 2020
             Example: Friday 03 November 1876
     """
@@ -1064,15 +1086,21 @@ def convert_date_to_words(slash_date: str) -> str:
 
 
 def get_words_by_letter() -> Dict[str, List[str]]:
-    """Call get_words() and organizes words into a dictionary based on the first letter of the word
+    """Organizes a list of words into a dictionary.
+
+    The dictionary is organized based on the first letter of the word.
+    The function get_words() is called to get the list of words.
 
     Args:
         None
 
     Returns:
-        Dict: A dictionary with 27 keys being the letters of the alphabet and ETC.
-            Each value will be list of words where each word starts with the respective key.
-            Any word that doesn't start with a letter in the alphabet will be placed in ETC.
+        Dict: A dictionary with 27 keys:
+            being the letters of the alphabet and ETC.
+            Each value will be list of words where each word
+            starts with the respective key.
+            Any word that doesn't start with a letter in the alphabet
+            will be placed in ETC.
     """
     all_words = get_words()
 
