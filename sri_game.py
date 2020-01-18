@@ -83,7 +83,7 @@ class SriMenuView(arcade.View):
 
 class SriAskPlayerNameView(arcade.View):
     name = ""
-    name_specification_text = ("Please type your name |" +
+    name_specification_text = ("Please type your name | " +
                                "Your name must be 5 characters or shorter,"
                                "using only letters")
     button_text = "Press (ENTER) when complete | Press (ESC) to go to the Menu"
@@ -505,14 +505,11 @@ class Score:
         Attributes:
             _points (int): The number of points.
             _player (str): The name of the player.
-            _time (float): The Epoch time at the creation
-                of the Score object.
             _words_linked (int): The number of words
                 the player linked in the game.
         """
         self._points = 0
         self._player = player
-        self._time = time()
         self._words_linked = 0
 
     def change_points(self, points: int) -> None:
@@ -579,31 +576,6 @@ class Score:
         """
         return self._player
 
-    def set_time(self, time: float) -> None:
-        """Setter for _time.
-
-        Args:
-            time (float): the value that _time should be set to.
-
-        Returns:
-            None
-        """
-        if isinstance(time, float) and time > 0:
-            self._time = time
-        else:
-            raise Exception("Time should be a positive float")
-
-    def get_time(self) -> None:
-        """Getter for _time.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        return time
-
     def get_words_linked(self) -> None:
         """Getter for _words_linked.
 
@@ -620,6 +592,7 @@ class Score:
 
         Args:
             num (int): The number that should be added to _words_linked.
+
         Returns:
             None
         """
@@ -633,6 +606,7 @@ class Score:
 
         Args:
             None
+
         Returns:
             int: The rank of the current Score object.
         """
@@ -643,7 +617,7 @@ class Score:
                 rank = i
                 break
 
-        return rank + 1
+        return rank
 
 
 class Article:
@@ -666,7 +640,7 @@ class Article:
             starting_word(str): The starting word of the article.
         """
         self.title = Article.make_title(3)
-        self.author = (f'{Article.make_name("Berock")}' +
+        self.author = (f'{Article.make_name("Berock")} ' +
                        f'{Article.make_name("Obamer")}')
         self.date = (f"{random.randint(1, 28)}/{random.randint(1, 12)}/" +
                      f"{random.randint(1600, 2300)}")
@@ -784,7 +758,6 @@ class Game(Score):
                 performed during the game.
         """
         super().__init__(current_player)
-        # self = Score(current_player)
         self.article = Article()
         self.start_time = time()
         self.max_time = 30
@@ -817,6 +790,16 @@ class Game(Score):
         self.change_points(self.calculate_points())
 
     def game_display_time(self, decimal_places: int = 3) -> str:
+        """Formats the time to be displayed.
+        Converts the time in ms into seconds.
+
+        Args:
+            decimal_places (int, optional): The number of decimal places
+                the time should display.
+
+        Returns:
+            str: The time in seconds
+        """
         if decimal_places < 0:
             decimal_places = 0
 
@@ -824,6 +807,10 @@ class Game(Score):
         disp_clock = round(disp_clock, decimal_places)
 
         return f"{disp_clock}"
+
+    def find_rank(self):
+        """Calls super().find_rank() and corrects the rank"""
+        return super().find_rank() + 1
 
     @classmethod
     def get_top_games(cls) -> None:
