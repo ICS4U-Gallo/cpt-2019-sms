@@ -775,7 +775,7 @@ class Game(Score):
 
         Attributes:
             Attributes from Score are inherited
-
+            
             article (Article): An Article object.
             start_time (float): The Epoch time at the start of the game.
             max_time (int): The maximum time (in seconds)
