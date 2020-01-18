@@ -167,7 +167,7 @@ class SriGameView(arcade.View):
 
         # Titles and Related
         arcade.draw_text(("Press (ESC) to go to the Menu | " +
-                         "Use the number keys and (U) to play"),
+                          "Use the number keys and (U) to play"),
                          0.5 * WIDTH, 0.97 * HEIGHT,
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="right")
@@ -254,7 +254,7 @@ class SriGameView(arcade.View):
         if number in range(0, 9 + 1):
             cur_game.actions_performed += 1
             if ((cur_game.article.used_words[-1])[-1].upper() ==
-               (cur_game.article.all_words[number])[0].upper()):
+                    (cur_game.article.all_words[number])[0].upper()):
 
                 temp = cur_game.article.all_words[number]
                 cur_game.article.used_words.append(temp)
@@ -466,7 +466,7 @@ class SriEndGameView(arcade.View):
         arcade.start_render()
 
         arcade.draw_text(("Press any key (other than the numbers) " +
-                         "to return to the menu"),
+                          "to return to the menu"),
                          0.5 * WIDTH, HEIGHT - (0.03 * HEIGHT),
                          TEXT_COLOR, font_size=(0.01 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="center")
@@ -496,6 +496,7 @@ class SriEndGameView(arcade.View):
 
 class Score:
     """A class used to store the information about a score."""
+
     def __init__(self, player: str):
         """Create a Score object and assign attributes to it.
 
@@ -622,6 +623,7 @@ class Score:
 
 class Article:
     """A class used to store the information about an article."""
+
     def __init__(self):
         """Create an Article object and assigns attributes to it.
 
@@ -692,7 +694,7 @@ class Article:
 
         title = ""
 
-        for i in range(num_words):
+        for _ in range(num_words):
             rand_word = random.choice(words)
             rand_word = rand_word[0].upper() + rand_word[1:].lower()
 
@@ -853,7 +855,7 @@ class Game(Score):
         while left_marker < len(left_side) and right_marker < len(right_side):
 
             if (left_side[left_marker].get_points() >
-               right_side[right_marker].get_points()):
+                    right_side[right_marker].get_points()):
                 sorted_list.append(left_side[left_marker])
                 left_marker += 1
             else:
@@ -873,6 +875,7 @@ class Game(Score):
 
 class SaveData:
     """A class used to store save date information"""
+
     def __init__(self):
         """Create a SaveDate object and assigns attributes to it.
 
