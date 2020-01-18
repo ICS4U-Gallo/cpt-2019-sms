@@ -656,6 +656,7 @@ class Article:
 
         Args:
             None
+
         Returns:
             None
         """
@@ -682,6 +683,7 @@ class Article:
         Args:
             num_words (int): How long (number of words) the title should be.
             max_length (int, optional): How long (length) the tite should be.
+
         Returns:
             str: The title of the article.
         """
@@ -713,6 +715,7 @@ class Article:
 
         Args:
             backup (str): A backup name incase a name was not able to be made
+
         Returns:
             str: A name
         """
@@ -888,6 +891,7 @@ class SaveData:
 
         Args:
             save_file (str, optional): The link to the save file.
+
         Returns:
             None
         """
@@ -915,6 +919,7 @@ class SaveData:
 
         Args:
             save_file (str, optional): The link to the save file.
+
         Returns:
             None
         """
@@ -932,6 +937,7 @@ class SaveData:
 
         Args:
             save_file (str, optional): The link to the save file.
+
         Returns:
             None
         """
