@@ -84,7 +84,7 @@ class SriMenuView(arcade.View):
 class SriAskPlayerNameView(arcade.View):
     name = ""
     name_specification_text = ("Please type your name | " +
-                               "Your name must be 5 characters or shorter,"
+                               "Your name must be 5 characters or shorter, "
                                "using only letters")
     button_text = "Press (ENTER) when complete | Press (ESC) to go to the Menu"
 
@@ -144,7 +144,7 @@ class SriGameView(arcade.View):
 
         # In essence, this is a redirecting site.
 
-        # This is because many times, the game view is SriGameView
+        # This is because, many times, the game view is SriGameView
         # but it needs to be something else.
         if mode == "menu":
             self.window.show_view(SriMenuView(self))
@@ -202,7 +202,7 @@ class SriGameView(arcade.View):
                          TEXT_COLOR, font_size=(0.015 * (HEIGHT + WIDTH)),
                          anchor_x="center", align="center")
 
-        # Words to choose from
+        # Drawing the words
         for i, word in enumerate(cur_game.article.all_words[:5]):
             if word in cur_game.article.used_words:
                 continue
@@ -335,6 +335,7 @@ class SriInstructionsView(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
+        # Botton label text
         if SriInstructionsView.instruction_mode == "instructions":
             arcade.draw_text("Press (SPACE) to read the story",
                              0.99 * WIDTH, 0.003 * HEIGHT,
@@ -449,7 +450,6 @@ class SriScoreBoardView(arcade.View):
 
 
 class SriEndGameView(arcade.View):
-
     global PRESS_ANY_KEY_TEXT
 
     button_text = (PRESS_ANY_KEY_TEXT[:13] +
@@ -541,14 +541,14 @@ class Score:
         else:
             raise Exception("Points should be an integer")
 
-    def get_points(self) -> None:
+    def get_points(self) -> int:
         """Getter for _points.
 
         Args:
             None
 
         Returns:
-            None
+            int: the number of points for the score.
         """
         return self._points
 
@@ -566,25 +566,25 @@ class Score:
         else:
             self._player = str(player)
 
-    def get_player(self) -> None:
+    def get_player(self) -> str:
         """Getter for _player.
 
         Args:
             None
 
         Returns:
-            None
+            str: The name of the player.
         """
         return self._player
 
-    def get_words_linked(self) -> None:
+    def get_words_linked(self) -> int:
         """Getter for _words_linked.
 
         Args:
             None
 
         Returns:
-            None
+            int: The number of words linked.
         """
         return self._words_linked
 
@@ -602,14 +602,14 @@ class Score:
         else:
             raise Exception("Points should be an integer")
 
-    def find_rank(self) -> int:
-        """Finds the rank of the current Score object.
+    def find_rank_index(self) -> int:
+        """Finds the rank index of the current Score object.
 
         Args:
             None
 
         Returns:
-            int: The rank of the current Score object.
+            int: The rank index of the current Score object.
         """
         games = Game.get_top_games()
 
@@ -813,12 +813,19 @@ class Game(Score):
 
         return f"{disp_clock}"
 
-    def find_rank(self):
-        """Calls super().find_rank() and corrects the rank"""
-        return super().find_rank() + 1
+    def find_rank(self) -> int:
+        """Finds the rank of the current Score object.
+
+        Args:
+            None
+
+        Returns:
+            int: The rank of the current Score object.
+        """
+        return super().find_rank_index() + 1
 
     @classmethod
-    def get_top_games(cls) -> None:
+    def get_top_games(cls) -> List["Game"]:
         """Gets the top games, sorted by score points (highest to least).
 
         Args:
