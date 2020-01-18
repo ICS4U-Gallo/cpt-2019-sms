@@ -494,20 +494,7 @@ class SriEndGameView(arcade.View):
             self.window.show_view(SriMenuView(self))
 
 
-class Converting:
-    def game_display_time(self, decimal_places: int = 3) -> str:
-        if decimal_places < 0:
-            decimal_places = 0
-
-        disp_clock = delta_time(self.start_time, time())
-        disp_clock = round(disp_clock, decimal_places)
-
-        return f"{disp_clock}"
-
-    # @staticmethod
-
-
-class Game(Converting):
+class Game:
     """A class used to store the information about a game.
 
     Attributes:
@@ -563,6 +550,15 @@ class Game(Converting):
             None
         """
         self.game_score.change_points(self.calculate_points())
+
+    def game_display_time(self, decimal_places: int = 3) -> str:
+        if decimal_places < 0:
+            decimal_places = 0
+
+        disp_clock = delta_time(self.start_time, time())
+        disp_clock = round(disp_clock, decimal_places)
+
+        return f"{disp_clock}"
 
     @classmethod
     def get_top_games(cls) -> None:
@@ -792,8 +788,8 @@ class Article:
             starting_word(str): The starting word of the article.
         """
         self.title = Article.make_title(3)
-        self.author = (f'{Article.make_name("Berock")} +
-                       {Article.make_name("Obamer")}')
+        self.author = (f'{Article.make_name("Berock")}' +
+                       f'{Article.make_name("Obamer")}')
         self.date = (f"{random.randint(1, 28)}/{random.randint(1, 12)}/" +
                      f"{random.randint(1600, 2300)}")
 
