@@ -7,6 +7,7 @@ from time import strftime, gmtime
 import copy
 from typing import List, Dict, Tuple, Union, Set
 
+
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 
@@ -15,7 +16,6 @@ user = None
 winner = None
 game = None
 game_view = None
-
 
 def translate_symbol(symbol: int) -> Union[str, None]:
     """ translates symbols of keyboard inputs to corresponding values
@@ -70,10 +70,11 @@ def translate_symbol(symbol: int) -> Union[str, None]:
         return None
 
 
-def save_data(data: List["Winner"]) -> None:
+def save_data() -> None:
+    global data
     """ Saves data of all winners into sudoku_data.p
     Args:
-        data: a list of winner instances
+        None
     Returns:
         None
     """
@@ -81,10 +82,11 @@ def save_data(data: List["Winner"]) -> None:
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
 
-def load_data(data) -> None:
+def load_data() -> None:
+    global data
     """ Loads data of all winners into sudoku_data.p
     Args:
-        data: a list of winner instances
+        None
     Returns:
         None
     """
@@ -489,7 +491,7 @@ class Sudoku:
         Args:
             None
         Returns:
-            a list of coordinates that do not follow Sudoku's rules
+            a set of coordinates that do not follow Sudoku's rules
         """
         all_invalid_coordinates = []
         for column in range(self._columns):
@@ -793,8 +795,8 @@ class User:
         except:
             raise Exception("Value must be an arcade color")
 
-    def draw_name(self, x: float, y: float, center: bool=False) -> None:
-        """ Draws the name of the user
+    def draw_info(self, x: float, y: float, center: bool=False) -> None:
+        """ Draws the name of the user in their favorite color
 
         Args:
             x: the x position the name will be drawn at
@@ -871,7 +873,7 @@ class Winner(User):
 
         Args:
             the time it took for the winner to complete the board
-        Returns;
+        Returns:
             None
         """
         try:
@@ -911,7 +913,7 @@ class Winner(User):
             times_through += 1
 
     @classmethod
-    def draw_top_winner_info(cls) -> None:
+    def draw_info(cls) -> None:
         """ draws the names and times of the top 10 quickest winners
 
         Args:
@@ -1314,7 +1316,7 @@ class MaxGameView(arcade.View):
                                     round(self.seconds_elapsed, 1))
 
                 data.append(winner)
-                save_data(data)
+                save_data()
                 win_view = WinView(self.seconds_elapsed)
                 self.window.show_view(win_view)
 
@@ -1465,7 +1467,7 @@ class LeaderboardView(arcade.View):
                          HEIGHT - 50,
                          arcade.color.LIGHT_GRAY, font_size=25,
                          font_name='arial', anchor_x="center")
-        Winner.draw_top_winner_info()
+        Winner.draw_info()
 
     def on_key_press(self, symbol, modifiers):
         if symbol == 109:
@@ -1532,7 +1534,7 @@ if __name__ == "__main__":
     what you are doing.
     """
     from utils import FakeDirector
-    load_data(data)
+    load_data()
     window = arcade.Window(WIDTH, HEIGHT)
     introduction_view = IntroductionView()
     menu_view = MenuView()
