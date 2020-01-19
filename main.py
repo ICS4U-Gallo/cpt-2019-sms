@@ -3,6 +3,7 @@ import arcade
 import settings
 
 from menu import MenuView
+from sri_game import SriGameView
 from max_game import IntroductionView
 from sarah_game import SarahGameView
 
@@ -12,6 +13,7 @@ class Director(arcade.Window):
         self.view_index = 0
         self.views = [
             MenuView,
+            SriGameView,
             IntroductionView,
             SarahGameView
         ]
