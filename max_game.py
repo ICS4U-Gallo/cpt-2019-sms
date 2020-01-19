@@ -7,6 +7,8 @@ from time import strftime, gmtime
 import copy
 from typing import List, Dict, Tuple, Union, Set
 
+WIDTH = settings.WIDTH
+HEIGHT = settings.HEIGHT
 
 data: List["Winner"] = []
 user = None
@@ -165,13 +167,17 @@ class Sudoku:
         self._columns: int = 9
         self._rows: int = 9
         self._board: List[List[int]] = copy.deepcopy(start_board)
-        self._selected: Tuple[int, int] = (math.ceil(self._columns / 2), math.ceil(self._rows / 2))
-        self._temp_board: Dict[Tuple, List] = {(i, j): [] for i in range(self._columns) for j in range(self._rows)}
-        self._x_gap: float = settings.WIDTH / self._columns
-        self._y_gap: float = settings.HEIGHT / self._rows
+        self._selected: Tuple[int, int] = (math.ceil(self._columns / 2),
+                                           math.ceil(self._rows / 2))
+        self._temp_board: Dict[Tuple, List] = {(i, j): []
+                                               for i in range(self._columns)
+                                               for j in range(self._rows)}
+        self._x_gap: float = WIDTH / self._columns
+        self._y_gap: float = HEIGHT / self._rows
         self._pencil_mode: bool = False
         self._incorrect_coordinates: List[Tuple[int, int]] = []
-        self._validate_button: "Sprite" = arcade.Sprite(center_x=133.33, center_y=50)
+        self._validate_button: "Sprite" = arcade.Sprite(center_x=133.33,
+                                                        center_y=50)
         self._validate_button.texture: "texture" = arcade.make_soft_circle_texture(65,
                                                                                    arcade.color.LIGHT_SLATE_GRAY,
                                                                                    outer_alpha=255)
@@ -598,7 +604,7 @@ class Sudoku:
                 coordinate = (y, x)
                 text = ' ' + ''.join(str(num) for num in self._temp_board[coordinate])
                 translated_x = self._x_gap * (3/2) + ((self._x_gap) * (x - 1))
-                translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+                translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
                 arcade.draw_text(text, translated_x, translated_y - 70,
                                  arcade.color.RED, font_size=10,
                                  font_name='arial', anchor_x="center")
@@ -611,8 +617,8 @@ class Sudoku:
         Returns:
             None
         """
-        x_start = settings.WIDTH / 9
-        y_pos = settings.HEIGHT / 6
+        x_start = WIDTH / 9
+        y_pos = HEIGHT / 6
 
         # HORIZONTAL LINES
         for i in range(1, 9):
@@ -625,13 +631,13 @@ class Sudoku:
                 thickness *= 3
                 color = user.get_preferred_color()
 
-            arcade.draw_rectangle_filled(x_pos, settings.HEIGHT / 1.865,
-                                         thickness, settings.HEIGHT / (4/3),
+            arcade.draw_rectangle_filled(x_pos, HEIGHT / 1.865,
+                                         thickness, HEIGHT / (4/3),
                                          color)
 
         # VERTICAL LINES
         for i in range(1, 9):
-            y_pos += (settings.HEIGHT / (4/3)) / 9
+            y_pos += (HEIGHT / (4/3)) / 9
 
             if i % 3 != 0:
                 thickness = 1
@@ -640,8 +646,8 @@ class Sudoku:
                 thickness *= 3
                 color = user.get_preferred_color()
 
-            arcade.draw_rectangle_filled(settings.WIDTH / 2, y_pos, thickness,
-                                         settings.WIDTH, color, tilt_angle=90)
+            arcade.draw_rectangle_filled(WIDTH / 2, y_pos, thickness,
+                                         WIDTH, color, tilt_angle=90)
 
     def draw_numbers(self) -> None:
         """ draws all inputted numbers
@@ -656,7 +662,7 @@ class Sudoku:
                     x = column
                     y = row
                     translated_x = self._x_gap * (3/2) + ((self._x_gap) * (x - 1))
-                    translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+                    translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
                     arcade.draw_circle_filled(translated_x, translated_y - 51,
                                               17, arcade.color.PAYNE_GREY)
                     arcade.draw_text(str(self._start_board[row][column]),
@@ -667,7 +673,7 @@ class Sudoku:
                     x = column
                     y = row
                     translated_x = self._x_gap * (3/2) + ((self._x_gap) * (x - 1))
-                    translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+                    translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
 
                     if self._selected == (column + 1, row + 1):
                         arcade.draw_text(str(self._board[row][column]),
@@ -692,7 +698,7 @@ class Sudoku:
         x = self._selected[0]
         y = self._selected[1]
         translated_x = self._x_gap / 2 + ((self._x_gap) * (x - 1))
-        translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+        translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
         arcade.draw_circle_filled(translated_x, translated_y - 1, 17,
                                   user.get_preferred_color())
 
@@ -709,7 +715,7 @@ class Sudoku:
         if self._board[y][x] == 0:
             return None
         translated_x = self._x_gap / 2 + ((self._x_gap) * (x - 1))
-        translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
+        translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
         arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17,
                                   arcade.color.CADMIUM_RED)
         arcade.draw_text(str(self._board[y][x]), translated_x + 88.88,
@@ -913,8 +919,8 @@ class Winner(User):
         for i in range(len(cls._all_winners)):
             if i > 9:
                 break
-            text = f"{i + 1}. {cls._all_winners[i]._name} ------- {cls._all_winners[i]._time}s"
-            arcade.draw_text(text, settings.WIDTH / 2, y_pos,
+            text = f"{i + 1}. {cls._all_winners[i]._name} - {cls._all_winners[i]._time}s"
+            arcade.draw_text(text, WIDTH / 2, y_pos,
                              cls._all_winners[i]._preferred_color,
                              font_size=15, font_name='arial',
                              anchor_x="center")
@@ -924,17 +930,17 @@ class Winner(User):
 class MenuView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.play_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.play_button = arcade.Sprite(center_x=WIDTH / 2,
                                          center_y=500)
         self.play_button.texture = arcade.make_soft_square_texture(50,
                                                                    arcade.color.LIGHT_SLATE_GRAY,
                                                                    outer_alpha=255)
-        self.instruction_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.instruction_button = arcade.Sprite(center_x=WIDTH / 2,
                                                 center_y=350)
         self.instruction_button.texture = arcade.make_soft_square_texture(50,
                                                                           arcade.color.LIGHT_SLATE_GRAY,
                                                                           outer_alpha=255)
-        self.leaderboard_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.leaderboard_button = arcade.Sprite(center_x=WIDTH / 2,
                                                 center_y=200)
         self.leaderboard_button.texture = arcade.make_soft_square_texture(50,
                                                                           arcade.color.LIGHT_SLATE_GRAY,
@@ -950,35 +956,35 @@ class MenuView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         if not user.get_name():
-            user.draw_unpersonalized_name(settings.WIDTH - 150, 575)
+            user.draw_unpersonalized_name(WIDTH - 150, 575)
         else:
-            user.draw_name(settings.WIDTH - 150, 575)
-        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550,
+            user.draw_name(WIDTH - 150, 575)
+        arcade.draw_text('SUDOKU', WIDTH / 2, 550,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial',
                          anchor_x='center')
         self.play_button.draw()
-        arcade.draw_text('P', settings.WIDTH / 2, 485,
+        arcade.draw_text('P', WIDTH / 2, 485,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial',
                          anchor_x='center')
-        arcade.draw_text('LAY', settings.WIDTH / 2 + 25, 485,
+        arcade.draw_text('LAY', WIDTH / 2 + 25, 485,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.instruction_button.draw()
-        arcade.draw_text('I', settings.WIDTH / 2, 335,
+        arcade.draw_text('I', WIDTH / 2, 335,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial',
                          anchor_x='center')
-        arcade.draw_text('NSTRUCTIONS', settings.WIDTH / 2 + 25, 335,
+        arcade.draw_text('NSTRUCTIONS', WIDTH / 2 + 25, 335,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.leaderboard_button.draw()
-        arcade.draw_text('L', settings.WIDTH / 2, 185,
+        arcade.draw_text('L', WIDTH / 2, 185,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial',
                          anchor_x='center')
-        arcade.draw_text('EADERBOARD', settings.WIDTH / 2 + 25,
+        arcade.draw_text('EADERBOARD', WIDTH / 2 + 25,
                          185, user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.quit_button.draw()
@@ -1025,7 +1031,7 @@ class InstructionView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text(self.contents, settings.WIDTH - 450,
+        arcade.draw_text(self.contents, WIDTH - 450,
                          200, user.get_preferred_color(),
                          font_size=13, font_name='arial', anchor_x='center')
 
@@ -1041,16 +1047,16 @@ class MaxGameView(arcade.View):
     def on_draw(self):
         self.timer = strftime("%H:%M:%S", gmtime(self.seconds_elapsed))
         arcade.start_render()
-        arcade.draw_text(self.timer, settings.WIDTH / 2, 565,
+        arcade.draw_text(self.timer, WIDTH / 2, 565,
                          arcade.color.LIGHT_GRAY, font_size=18,
                          font_name='arial', anchor_x="center")
 
         game.draw_selected()
         if not user.get_name():
-            user.draw_unpersonalized_name(settings.WIDTH / 2,
+            user.draw_unpersonalized_name(WIDTH / 2,
                                           550, True)
         else:
-            user.draw_name(settings.WIDTH / 2, 550, True)
+            user.draw_name(WIDTH / 2, 550, True)
         if game.get_incorrect_coordinates():
             for coordinate in game.get_incorrect_coordinates():
                 game.draw_incorrect_background(coordinate)
@@ -1284,8 +1290,8 @@ class MaxGameView(arcade.View):
 
     def on_mouse_press(self, x, y, button, modifiers):
         global winner
-        x_coordinate = math.ceil(x / (settings.WIDTH / 9))
-        y_coordinate = 11 - math.ceil((y - (settings.HEIGHT / 12)) / (settings.HEIGHT / 12))
+        x_coordinate = math.ceil(x / (WIDTH / 9))
+        y_coordinate = 11 - math.ceil((y - (HEIGHT / 12)) / (HEIGHT / 12))
         if x_coordinate <= 9 and y_coordinate <= 9 and x_coordinate > 0 and y_coordinate > 0:
             coordinate = (x_coordinate, y_coordinate)
             game.set_selected(coordinate)
@@ -1343,15 +1349,15 @@ class PauseScreen(arcade.View):
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text('>PRESS <ESCAPE> TO GIVE UP',
-                         settings.WIDTH / 2, settings.HEIGHT / 2,
+                         WIDTH / 2, HEIGHT / 2,
                          arcade.color.LIGHT_GRAY, font_size=25,
                          font_name='arial', anchor_x="center")
         arcade.draw_text('>PRESS <ENTER> TO RESUME GAME',
-                         settings.WIDTH / 2, settings.HEIGHT / 1.5,
+                         WIDTH / 2, HEIGHT / 1.5,
                          arcade.color.LIGHT_GRAY, font_size=25,
                          font_name='arial', anchor_x="center")
         arcade.draw_text('>PRESS <M> TO RETURN TO THE MENU',
-                         settings.WIDTH / 2, settings.HEIGHT / 3,
+                         WIDTH / 2, HEIGHT / 3,
                          arcade.color.LIGHT_GRAY, font_size=25,
                          font_name='arial', anchor_x="center")
 
@@ -1375,17 +1381,17 @@ class IntroductionView(arcade.View):
         super().__init__()
         self.text = 'USERNAME: '
         self.preferred_color = None
-        self.green_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.green_button = arcade.Sprite(center_x=WIDTH / 2,
                                           center_y=500)
         self.green_button.texture = arcade.make_soft_square_texture(50,
                                                                     arcade.color.GREEN_YELLOW,
                                                                     outer_alpha=255)
-        self.blue_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.blue_button = arcade.Sprite(center_x=WIDTH / 2,
                                          center_y=350)
         self.blue_button.texture = arcade.make_soft_square_texture(50,
                                                                    arcade.color.BLIZZARD_BLUE,
                                                                    outer_alpha=255)
-        self.white_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+        self.white_button = arcade.Sprite(center_x=WIDTH / 2,
                                           center_y=200)
         self.white_button.texture = arcade.make_soft_square_texture(50,
                                                                     arcade.color.WHITE,
@@ -1397,20 +1403,20 @@ class IntroductionView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         if not self.preferred_color:
-            arcade.draw_text('CLICK YOUR PREFERRED COLOR', settings.WIDTH / 2,
-                             settings.HEIGHT - 50,
+            arcade.draw_text('CLICK YOUR PREFERRED COLOR', WIDTH / 2,
+                             HEIGHT - 50,
                              arcade.color.LIGHT_GRAY, font_size=15,
                              font_name='arial', anchor_x="center")
             self.green_button.draw()
             self.blue_button.draw()
             self.white_button.draw()
         else:
-            arcade.draw_text(self.text, settings.WIDTH / 2,
-                             settings.HEIGHT / 2, arcade.color.BLIZZARD_BLUE,
+            arcade.draw_text(self.text, WIDTH / 2,
+                             HEIGHT / 2, arcade.color.BLIZZARD_BLUE,
                              font_size=25, anchor_x='center')
             arcade.draw_text("""TYPE IN YOUR USERNAME AND
                              PRESS <ENTER> TO CONTINUE""",
-                             settings.WIDTH / 2, settings.HEIGHT - 50,
+                             WIDTH / 2, HEIGHT - 50,
                              arcade.color.LIGHT_GRAY, font_size=15,
                              font_name='arial', anchor_x="center")
 
@@ -1450,8 +1456,8 @@ class LeaderboardView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text('>PRESS <M> TO RETURN TO MENU', settings.WIDTH / 2,
-                         settings.HEIGHT - 50,
+        arcade.draw_text('>PRESS <M> TO RETURN TO MENU', WIDTH / 2,
+                         HEIGHT - 50,
                          arcade.color.LIGHT_GRAY, font_size=25,
                          font_name='arial', anchor_x="center")
         Winner.draw_top_winner_info()
@@ -1481,16 +1487,16 @@ class WinView(arcade.View):
         else:
             text = f"""Congratulation on winning, {user.get_name()}!
             You completed this board with a time of: {self.time}"""
-        arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2,
+        arcade.draw_text(text, WIDTH / 2, HEIGHT / 2,
                          user.get_preferred_color(), font_size=15,
                          font_name='arial', anchor_x="center")
         arcade.draw_text('To return to the menu, press <M>',
-                         settings.WIDTH / 2, settings.HEIGHT / 1.5,
+                         WIDTH / 2, HEIGHT / 1.5,
                          user.get_preferred_color(),
                          font_size=15, font_name='arial',
                          anchor_x="center")
         arcade.draw_text('To see the leaderboard, press <L>',
-                         settings.WIDTH / 2, settings.HEIGHT / 3,
+                         WIDTH / 2, HEIGHT / 3,
                          user.get_preferred_color(),
                          font_size=15, font_name='arial', anchor_x="center")
 
@@ -1522,7 +1528,7 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     load_data(data)
-    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    window = arcade.Window(WIDTH, HEIGHT)
     introduction_view = IntroductionView()
     menu_view = MenuView()
     window.show_view(introduction_view)
