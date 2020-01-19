@@ -181,15 +181,18 @@ class Sudoku:
         self._validate_button.texture: "texture" = arcade.make_soft_circle_texture(65,
                                                                                    arcade.color.LIGHT_SLATE_GRAY,
                                                                                    outer_alpha=255)
-        self._solve_button: "Sprite" = arcade.Sprite(center_x=666.66, center_y=50)
+        self._solve_button: "Sprite" = arcade.Sprite(center_x=666.66,
+                                                     center_y=50)
         self._solve_button.texture: "texture" = arcade.make_soft_circle_texture(65,
                                                                                 arcade.color.LIGHT_SLATE_GRAY,
                                                                                 outer_alpha=255)
-        self._reset_button: "Sprite" = arcade.Sprite(center_x=751.5, center_y=575)
+        self._reset_button: "Sprite" = arcade.Sprite(center_x=751.5,
+                                                     center_y=575)
         self._reset_button.texture: "texture" = arcade.make_soft_circle_texture(37,
                                                                                 arcade.color.LIGHT_SLATE_GRAY,
                                                                                 outer_alpha=255)
-        self._pencil_button: "Sprite" = arcade.Sprite(center_x=400, center_y=50)
+        self._pencil_button: "Sprite" = arcade.Sprite(center_x=400,
+                                                      center_y=50)
         self._pencil_button.texture: "texture" = arcade.make_soft_circle_texture(65,
                                                                                  arcade.color.LIGHT_SLATE_GRAY,
                                                                                  outer_alpha=255)
@@ -567,28 +570,28 @@ class Sudoku:
             return numbers
 
         mid = len(numbers) // 2
-        left_side = self.sort_numbers(numbers[:mid])
-        right_side = self.sort_numbers(numbers[mid:])
+        l_side = self.sort_numbers(numbers[:mid])
+        r_side = self.sort_numbers(numbers[mid:])
         sorted_list = []
 
-        left_pointer = 0
-        right_pointer = 0
+        l_pointer = 0
+        r_pointer = 0
 
-        while left_pointer < len(left_side) and right_pointer < len(right_side):
-            if left_side[left_pointer] < right_side[right_pointer]:
-                sorted_list.append(left_side[left_pointer])
-                left_pointer += 1
+        while l_pointer < len(l_side) and r_pointer < len(r_side):
+            if l_side[l_pointer] < r_side[r_pointer]:
+                sorted_list.append(l_side[l_pointer])
+                l_pointer += 1
             else:
-                sorted_list.append(right_side[right_pointer])
-                right_pointer += 1
+                sorted_list.append(r_side[r_pointer])
+                r_pointer += 1
 
-        while left_pointer < len(left_side):
-            sorted_list.append(left_side[left_pointer])
-            left_pointer += 1
+        while l_pointer < len(l_side):
+            sorted_list.append(l_side[l_pointer])
+            l_pointer += 1
 
-        while right_pointer < len(right_side):
-            sorted_list.append(right_side[right_pointer])
-            right_pointer += 1
+        while r_pointer < len(r_side):
+            sorted_list.append(r_side[r_pointer])
+            r_pointer += 1
 
         return sorted_list
 
@@ -602,7 +605,8 @@ class Sudoku:
         for y in range(self._rows):
             for x in range(self._columns):
                 coordinate = (y, x)
-                text = ' ' + ''.join(str(num) for num in self._temp_board[coordinate])
+                text = ' ' + ''.join(str(num)
+                                     for num in self._temp_board[coordinate])
                 translated_x = self._x_gap * (3/2) + ((self._x_gap) * (x - 1))
                 translated_y = HEIGHT / (HEIGHT / 575) - ((HEIGHT / 12) * y)
                 arcade.draw_text(text, translated_x, translated_y - 70,
