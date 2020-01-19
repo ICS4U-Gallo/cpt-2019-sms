@@ -7,6 +7,7 @@ from sri_game import SriGameView
 from max_game import IntroductionView
 from sarah_game import SarahGameView
 
+
 class Director(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
@@ -24,6 +25,7 @@ class Director(arcade.Window):
         next_view.director = self
         self.show_view(next_view)
         self.view_index = (self.view_index + 1) % len(self.views)
+
 
 def main():
     window = Director(settings.WIDTH, settings.HEIGHT, "CPT Structure")
