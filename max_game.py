@@ -104,14 +104,15 @@ class Sudoku:
         _x_gap(int): the gap between vertical grid lines
         _y_gap(int): the gap between horizontal grid lines
         _pencil_mode(bool): the status of pencil tool's activation
-        _incorrect_coordinates(List[Tuple[int, int]]): coordinates with invalid numbers
-        _validate_button("Sprite"): a sprite that calls the validate function when pressed
+        _incorrect_coordinates(List[Tuple[int, int]]): list of coordinates
+                                                       with invalid numbers
+        _validate_button("Sprite"): calls the validate function when pressed
         _validate_button.texture("texture"): the validate button's texture
-        _solve_button("Sprite"): a sprite that calls the solve function when pressed
+        _solve_button("Sprite"): calls the solve function when pressed
         _solve_button.texture("texture"): the solve button's texture
-        _reset_button("Sprite"): a sprite that calls the reset function when pressed
+        _reset_button("Sprite"): calls the reset function when pressed
         _reset_button.texture("texture"): the reset button's texture
-        _pencil_button("Sprite"): a sprite that toggles pencil mode on/off when pressed
+        _pencil_button("Sprite"): toggles pencil mode on/off when pressed
         _pencil_button.texture("texture"): the pencil button's texture
 
     """
@@ -244,7 +245,8 @@ class Sudoku:
             if cord[0] >= 1 and cord[0] <= 9 and cord[1] >= 1 and cord[1] <= 9:
                 self._selected = cord
             else:
-                raise Exception("The coordinate must have an x-val greater than -1 and less than 9")
+                raise Exception("""The coordinate must have an x-val
+                                greater than -1 and less than 9""")
         else:
             raise Exception("The coordinate must be a tuple")
 
@@ -272,7 +274,8 @@ class Sudoku:
         if type(value) == int and type(coordinate) == tuple:
             self._board[coordinate[0]][coordinate[1]] = value
         else:
-            raise Exception("Value and coordinate must be integers and tuples respectively")
+            raise Exception("""Value and coordinate must be
+                            integers and tuples respectively""")
 
     def get_temp_board(self) -> Dict[Tuple, List]:
         """ getter for _temp_board
@@ -312,7 +315,8 @@ class Sudoku:
             if not present:
                 self._temp_board[coordinate].append(target)
         else:
-            raise Exception("Value and coordinate must be integers and tuples respectively")
+            raise Exception("""Value and coordinate must be
+                            integers and tuples respectively""")
 
     def set_temp_list(self, coordinate: Tuple[int, int], numbers: List[int]) -> None:
         """ setter for _temp_board
@@ -325,7 +329,8 @@ class Sudoku:
         if type(coordinate) == tuple and type(numbers) == list:
             self._temp_board[coordinate] = numbers
         else:
-            raise Exception("Coordinate and numbers must be a tuple and list respectively")
+            raise Exception("""Coordinate and numbers must be a
+                            tuple and list respectively""")
 
     def get_pencil_mode(self) -> bool:
         """ getter for _pencil_mode
@@ -360,7 +365,7 @@ class Sudoku:
     def set_incorrect_coordinates(self, value: List[Tuple[int, int]]) -> None:
         """ setter for _incorrect_coordinates
         Args:
-            value: a list of coordinates containing the invalid inputted numbers
+            value: a list of coordinates containing invalid inputted numbers
         Returns:
             None
         """
@@ -620,7 +625,9 @@ class Sudoku:
                 thickness *= 3
                 color = user.get_preferred_color()
 
-            arcade.draw_rectangle_filled(x_pos, settings.HEIGHT / 1.865, thickness, settings.HEIGHT / (4/3), color)
+            arcade.draw_rectangle_filled(x_pos, settings.HEIGHT / 1.865,
+                                         thickness, settings.HEIGHT / (4/3),
+                                         color)
 
         # VERTICAL LINES
         for i in range(1, 9):
@@ -650,9 +657,12 @@ class Sudoku:
                     y = row
                     translated_x = self._x_gap * (3/2) + ((self._x_gap) * (x - 1))
                     translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
-                    arcade.draw_circle_filled(translated_x, translated_y - 51, 17, arcade.color.PAYNE_GREY)
-                    arcade.draw_text(str(self._start_board[row][column]), translated_x, translated_y - 60,
-                                     arcade.color.LIGHT_GRAY, font_size=18, font_name='arial', anchor_x="center")
+                    arcade.draw_circle_filled(translated_x, translated_y - 51,
+                                              17, arcade.color.PAYNE_GREY)
+                    arcade.draw_text(str(self._start_board[row][column]),
+                                     translated_x, translated_y - 60,
+                                     arcade.color.LIGHT_GRAY, font_size=18,
+                                     font_name='arial', anchor_x="center")
                 elif self._board[row][column]:
                     x = column
                     y = row
@@ -660,12 +670,17 @@ class Sudoku:
                     translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
 
                     if self._selected == (column + 1, row + 1):
-                        arcade.draw_text(str(self._board[row][column]), translated_x, translated_y - 60,
+                        arcade.draw_text(str(self._board[row][column]),
+                                         translated_x, translated_y - 60,
                                          arcade.color.BLACK, font_size=18,
                                          font_name='arial', anchor_x="center")
                     else:
-                        arcade.draw_text(str(self._board[row][column]), translated_x, translated_y - 60,
-                                         user.get_preferred_color(), font_size=18, font_name='arial', anchor_x="center")
+                        arcade.draw_text(str(self._board[row][column]),
+                                         translated_x,
+                                         translated_y - 60,
+                                         user.get_preferred_color(),
+                                         font_size=18, font_name='arial',
+                                         anchor_x="center")
 
     def draw_selected(self) -> None:
         """ draws the circle at the selected coordinate
@@ -678,7 +693,8 @@ class Sudoku:
         y = self._selected[1]
         translated_x = self._x_gap / 2 + ((self._x_gap) * (x - 1))
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
-        arcade.draw_circle_filled(translated_x, translated_y - 1, 17, user.get_preferred_color())
+        arcade.draw_circle_filled(translated_x, translated_y - 1, 17,
+                                  user.get_preferred_color())
 
     def draw_incorrect_background(self, coordinate: Tuple[int, int]) -> None:
         """ draws a red circle if the coordinate has an incorrect number
@@ -694,9 +710,12 @@ class Sudoku:
             return None
         translated_x = self._x_gap / 2 + ((self._x_gap) * (x - 1))
         translated_y = settings.HEIGHT / (settings.HEIGHT / 575) - ((settings.HEIGHT / 12) * y)
-        arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17, arcade.color.CADMIUM_RED)
-        arcade.draw_text(str(self._board[y][x]), translated_x + 88.88, translated_y - 60,
-                         arcade.color.GHOST_WHITE, font_size=18, font_name='arial', anchor_x="center")
+        arcade.draw_circle_filled(translated_x + 88.88, translated_y - 51, 17,
+                                  arcade.color.CADMIUM_RED)
+        arcade.draw_text(str(self._board[y][x]), translated_x + 88.88,
+                         translated_y - 60,
+                         arcade.color.GHOST_WHITE, font_size=18,
+                         font_name='arial', anchor_x="center")
 
 
 class User:
@@ -774,10 +793,13 @@ class User:
             None
         """
         if center:
-            arcade.draw_text(f"User: {self._name}", x, y, self._preferred_color,
-                             font_size=13, font_name='arial', anchor_x='center')
+            arcade.draw_text(f"User: {self._name}", x, y,
+                             self._preferred_color,
+                             font_size=13, font_name='arial',
+                             anchor_x='center')
         else:
-            arcade.draw_text(f"User: {self._name}", x, y, self._preferred_color,
+            arcade.draw_text(f"User: {self._name}", x, y,
+                             self._preferred_color,
                              font_size=13, font_name='arial')
 
     @staticmethod
@@ -793,7 +815,8 @@ class User:
         """
         if center:
             arcade.draw_text(f"User: Anon", x, y, arcade.color.WHITE,
-                             font_size=13, font_name='arial', anchor_x='center')
+                             font_size=13, font_name='arial',
+                             anchor_x='center')
         else:
             arcade.draw_text("User: Anon", x, y, arcade.color.WHITE,
                              font_size=13, font_name='arial')
@@ -891,23 +914,28 @@ class Winner(User):
             if i > 9:
                 break
             text = f"{i + 1}. {cls._all_winners[i]._name} ------- {cls._all_winners[i]._time}s"
-            arcade.draw_text(text, settings.WIDTH / 2, y_pos, cls._all_winners[i]._preferred_color,
-                             font_size=15, font_name='arial', anchor_x="center")
+            arcade.draw_text(text, settings.WIDTH / 2, y_pos,
+                             cls._all_winners[i]._preferred_color,
+                             font_size=15, font_name='arial',
+                             anchor_x="center")
             y_pos -= 50
 
 
 class MenuView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.play_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=500)
+        self.play_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                         center_y=500)
         self.play_button.texture = arcade.make_soft_square_texture(50,
                                                                    arcade.color.LIGHT_SLATE_GRAY,
                                                                    outer_alpha=255)
-        self.instruction_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=350)
+        self.instruction_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                                center_y=350)
         self.instruction_button.texture = arcade.make_soft_square_texture(50,
                                                                           arcade.color.LIGHT_SLATE_GRAY,
                                                                           outer_alpha=255)
-        self.leaderboard_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=200)
+        self.leaderboard_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                                center_y=200)
         self.leaderboard_button.texture = arcade.make_soft_square_texture(50,
                                                                           arcade.color.LIGHT_SLATE_GRAY,
                                                                           outer_alpha=255)
@@ -925,28 +953,41 @@ class MenuView(arcade.View):
             user.draw_unpersonalized_name(settings.WIDTH - 150, 575)
         else:
             user.draw_name(settings.WIDTH - 150, 575)
-        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
+        arcade.draw_text('SUDOKU', settings.WIDTH / 2, 550,
+                         user.get_preferred_color(),
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
         self.play_button.draw()
-        arcade.draw_text('P', settings.WIDTH / 2, 485, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
-        arcade.draw_text('LAY', settings.WIDTH / 2 + 25, 485, user.get_preferred_color(),
+        arcade.draw_text('P', settings.WIDTH / 2, 485,
+                         user.get_preferred_color(),
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
+        arcade.draw_text('LAY', settings.WIDTH / 2 + 25, 485,
+                         user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.instruction_button.draw()
-        arcade.draw_text('I', settings.WIDTH / 2, 335, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
-        arcade.draw_text('NSTRUCTIONS', settings.WIDTH / 2 + 25, 335, user.get_preferred_color(),
+        arcade.draw_text('I', settings.WIDTH / 2, 335,
+                         user.get_preferred_color(),
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
+        arcade.draw_text('NSTRUCTIONS', settings.WIDTH / 2 + 25, 335,
+                         user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.leaderboard_button.draw()
-        arcade.draw_text('L', settings.WIDTH / 2, 185, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
-        arcade.draw_text('EADERBOARD', settings.WIDTH / 2 + 25, 185, user.get_preferred_color(),
+        arcade.draw_text('L', settings.WIDTH / 2, 185,
+                         user.get_preferred_color(),
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
+        arcade.draw_text('EADERBOARD', settings.WIDTH / 2 + 25,
+                         185, user.get_preferred_color(),
                          font_size=30, font_name='arial')
         self.quit_button.draw()
         arcade.draw_text('Q', 50, 535, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
         arcade.draw_text('UIT', 50 + 55, 535, user.get_preferred_color(),
-                         font_size=30, font_name='arial', anchor_x='center')
+                         font_size=30, font_name='arial',
+                         anchor_x='center')
 
     def on_mouse_press(self, x, y, button, modifiers):
         global game_view, game
@@ -984,7 +1025,8 @@ class InstructionView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text(self.contents, settings.WIDTH - 450, 200, user.get_preferred_color(),
+        arcade.draw_text(self.contents, settings.WIDTH - 450,
+                         200, user.get_preferred_color(),
                          font_size=13, font_name='arial', anchor_x='center')
 
 
@@ -1000,11 +1042,13 @@ class MaxGameView(arcade.View):
         self.timer = strftime("%H:%M:%S", gmtime(self.seconds_elapsed))
         arcade.start_render()
         arcade.draw_text(self.timer, settings.WIDTH / 2, 565,
-                         arcade.color.LIGHT_GRAY, font_size=18, font_name='arial', anchor_x="center")
+                         arcade.color.LIGHT_GRAY, font_size=18,
+                         font_name='arial', anchor_x="center")
 
         game.draw_selected()
         if not user.get_name():
-            user.draw_unpersonalized_name(settings.WIDTH / 2, 550, True)
+            user.draw_unpersonalized_name(settings.WIDTH / 2,
+                                          550, True)
         else:
             user.draw_name(settings.WIDTH / 2, 550, True)
         if game.get_incorrect_coordinates():
@@ -1020,13 +1064,17 @@ class MaxGameView(arcade.View):
         game.get_pencil_button().draw()
 
         arcade.draw_text('V', 133.33, 30,
-                         user.get_preferred_color(), font_size=40, font_name='arial', anchor_x="center")
+                         user.get_preferred_color(), font_size=40,
+                         font_name='arial', anchor_x="center")
         arcade.draw_text('P', 400, 30,
-                         user.get_preferred_color(), font_size=40, font_name='arial', anchor_x="center")
+                         user.get_preferred_color(), font_size=40,
+                         font_name='arial', anchor_x="center")
         arcade.draw_text('S', 666.66, 30,
-                         user.get_preferred_color(), font_size=40, font_name='arial', anchor_x="center")
+                         user.get_preferred_color(), font_size=40,
+                         font_name='arial', anchor_x="center")
         arcade.draw_text('R', 750, 565,
-                         user.get_preferred_color(), font_size=20, font_name='arial', anchor_x="center")
+                         user.get_preferred_color(), font_size=20,
+                         font_name='arial', anchor_x="center")
 
     def on_key_press(self, symbol, modifiers):
         x = game.get_selected()[0] - 1
@@ -1247,9 +1295,12 @@ class MaxGameView(arcade.View):
             game.set_incorrect_coordinates(incorrect_coordinates)
             if not game.get_incorrect_coordinates() and not game.find_empty():
                 if not user.get_name():
-                    winner = Winner.create_anon_winner(user.get_preferred_color(), round(self.seconds_elapsed, 1))
+                    winner = Winner.create_anon_winner(user.get_preferred_color(),
+                                                       round(self.seconds_elapsed, 1))
                 else:
-                    winner = Winner(user.get_name(), user.get_preferred_color(), round(self.seconds_elapsed, 1))
+                    winner = Winner(user.get_name(),
+                                    user.get_preferred_color(),
+                                    round(self.seconds_elapsed, 1))
 
                 data.append(winner)
                 save_data(data)
@@ -1291,12 +1342,18 @@ class PauseScreen(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text('>PRESS <ESCAPE> TO GIVE UP', settings.WIDTH / 2, settings.HEIGHT / 2,
-                         arcade.color.LIGHT_GRAY, font_size=25, font_name='arial', anchor_x="center")
-        arcade.draw_text('>PRESS <ENTER> TO RESUME GAME', settings.WIDTH / 2, settings.HEIGHT / 1.5,
-                         arcade.color.LIGHT_GRAY, font_size=25, font_name='arial', anchor_x="center")
-        arcade.draw_text('>PRESS <M> TO RETURN TO THE MENU', settings.WIDTH / 2, settings.HEIGHT / 3,
-                         arcade.color.LIGHT_GRAY, font_size=25, font_name='arial', anchor_x="center")
+        arcade.draw_text('>PRESS <ESCAPE> TO GIVE UP',
+                         settings.WIDTH / 2, settings.HEIGHT / 2,
+                         arcade.color.LIGHT_GRAY, font_size=25,
+                         font_name='arial', anchor_x="center")
+        arcade.draw_text('>PRESS <ENTER> TO RESUME GAME',
+                         settings.WIDTH / 2, settings.HEIGHT / 1.5,
+                         arcade.color.LIGHT_GRAY, font_size=25,
+                         font_name='arial', anchor_x="center")
+        arcade.draw_text('>PRESS <M> TO RETURN TO THE MENU',
+                         settings.WIDTH / 2, settings.HEIGHT / 3,
+                         arcade.color.LIGHT_GRAY, font_size=25,
+                         font_name='arial', anchor_x="center")
 
     def on_key_press(self, symbol, modifiers):
         if symbol == 65307:
@@ -1318,15 +1375,18 @@ class IntroductionView(arcade.View):
         super().__init__()
         self.text = 'USERNAME: '
         self.preferred_color = None
-        self.green_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=500)
+        self.green_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                          center_y=500)
         self.green_button.texture = arcade.make_soft_square_texture(50,
                                                                     arcade.color.GREEN_YELLOW,
                                                                     outer_alpha=255)
-        self.blue_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=350)
+        self.blue_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                         center_y=350)
         self.blue_button.texture = arcade.make_soft_square_texture(50,
                                                                    arcade.color.BLIZZARD_BLUE,
                                                                    outer_alpha=255)
-        self.white_button = arcade.Sprite(center_x=settings.WIDTH / 2, center_y=200)
+        self.white_button = arcade.Sprite(center_x=settings.WIDTH / 2,
+                                          center_y=200)
         self.white_button.texture = arcade.make_soft_square_texture(50,
                                                                     arcade.color.WHITE,
                                                                     outer_alpha=255)
@@ -1337,15 +1397,22 @@ class IntroductionView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         if not self.preferred_color:
-            arcade.draw_text('CLICK YOUR PREFERRED COLOR', settings.WIDTH / 2, settings.HEIGHT - 50,
-                             arcade.color.LIGHT_GRAY, font_size=15, font_name='arial', anchor_x="center")
+            arcade.draw_text('CLICK YOUR PREFERRED COLOR', settings.WIDTH / 2,
+                             settings.HEIGHT - 50,
+                             arcade.color.LIGHT_GRAY, font_size=15,
+                             font_name='arial', anchor_x="center")
             self.green_button.draw()
             self.blue_button.draw()
             self.white_button.draw()
         else:
-            arcade.draw_text(self.text, settings.WIDTH / 2, settings.HEIGHT / 2, arcade.color.BLIZZARD_BLUE, font_size=25, anchor_x='center')
-            arcade.draw_text('TYPE I N YOUR USERNAME AND PRESS <ENTER> TO CONTINUE', settings.WIDTH / 2, settings.HEIGHT - 50,
-                             arcade.color.LIGHT_GRAY, font_size=15, font_name='arial', anchor_x="center")
+            arcade.draw_text(self.text, settings.WIDTH / 2,
+                             settings.HEIGHT / 2, arcade.color.BLIZZARD_BLUE,
+                             font_size=25, anchor_x='center')
+            arcade.draw_text("""TYPE IN YOUR USERNAME AND
+                             PRESS <ENTER> TO CONTINUE""",
+                             settings.WIDTH / 2, settings.HEIGHT - 50,
+                             arcade.color.LIGHT_GRAY, font_size=15,
+                             font_name='arial', anchor_x="center")
 
     def on_key_press(self, symbol, modifiers):
         global user
@@ -1383,8 +1450,10 @@ class LeaderboardView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text('>PRESS <M> TO RETURN TO MENU', settings.WIDTH / 2, settings.HEIGHT - 50,
-                         arcade.color.LIGHT_GRAY, font_size=25, font_name='arial', anchor_x="center")
+        arcade.draw_text('>PRESS <M> TO RETURN TO MENU', settings.WIDTH / 2,
+                         settings.HEIGHT - 50,
+                         arcade.color.LIGHT_GRAY, font_size=25,
+                         font_name='arial', anchor_x="center")
         Winner.draw_top_winner_info()
 
     def on_key_press(self, symbol, modifiers):
@@ -1407,15 +1476,23 @@ class WinView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         if not user.get_name():
-            text = f'Congratulation on winning, Anonymous! You completed this board with a time of: {self.time}'
+            text = f"""Congratulation on winning, Anonymous!
+            You completed this board with a time of: {self.time}"""
         else:
-            text = f'Congratulation on winning, {user.get_name()}! You completed this board with a time of: {self.time}'
+            text = f"""Congratulation on winning, {user.get_name()}!
+            You completed this board with a time of: {self.time}"""
         arcade.draw_text(text, settings.WIDTH / 2, settings.HEIGHT / 2,
-                         user.get_preferred_color(), font_size=15, font_name='arial', anchor_x="center")
-        arcade.draw_text('To return to the menu, press <M>', settings.WIDTH / 2, settings.HEIGHT / 1.5,
-                         user.get_preferred_color(), font_size=15, font_name='arial', anchor_x="center")
-        arcade.draw_text('To see the leaderboard, press <L>', settings.WIDTH / 2, settings.HEIGHT / 3,
-                         user.get_preferred_color(), font_size=15, font_name='arial', anchor_x="center")
+                         user.get_preferred_color(), font_size=15,
+                         font_name='arial', anchor_x="center")
+        arcade.draw_text('To return to the menu, press <M>',
+                         settings.WIDTH / 2, settings.HEIGHT / 1.5,
+                         user.get_preferred_color(),
+                         font_size=15, font_name='arial',
+                         anchor_x="center")
+        arcade.draw_text('To see the leaderboard, press <L>',
+                         settings.WIDTH / 2, settings.HEIGHT / 3,
+                         user.get_preferred_color(),
+                         font_size=15, font_name='arial', anchor_x="center")
 
     def on_key_press(self, symbol, modifiers):
         if symbol == 109:
