@@ -10,13 +10,14 @@ SCREEN_HEIGHT = 600
 SCREEN_TITLE = "MATCH OFF"
 
 # game states
-MENU = 0
-INSTRUCTIONS = 1
-GAME_RUNNING = 2
-LEADERBOARD = 3
+CUT_SCREEN = 0
+MENU = 1
+INSTRUCTIONS = 2
+GAME_RUNNING = 3
+LEADERBOARD = 4
 
 
-def calculate_points(shapes: int) -> int:
+def calc_points(shapes: int) -> int:
     '''takes cleared shapes and calculates the point value
     Args:
         shapes = amount of shapes cleared
@@ -26,7 +27,7 @@ def calculate_points(shapes: int) -> int:
     if shapes == 1:
         return 10
 
-    return 10 + calculate_points(shapes - 1)
+    return 10 + calc_points(shapes - 1)
 
 
 class Slide:
@@ -62,53 +63,54 @@ class Slide:
         Returns:
             Title on a slide
         '''
-
-        return arcade.draw_text(title, settings.WIDTH / 2, 540, arcade.color.BLACK, 30, font_name='GARA',
+        return arcade.draw_text(title, settings.WIDTH / 2, 540,
+                                arcade.color.BLACK, 30, font_name='GARA',
                                 anchor_x="center")
 
 
 class Leaderboard(Slide):
     '''creates a leaderboard
     Attributes:
-        high_scores(list): list of pre-loaded high scores
+        scores(list): list of pre-loaded scores
     '''
 
     def __init__(self):
         '''create a leaderboard object
         Args:
-            high_scores: a list of pre-set high scores
+            scores: a list of pre-set  scores
         '''
-        self._high_scores = [["Lauren", 600], ["Stevo", 550], ["Charlotte", 500], ["Vince", 450],
-                             ["You", int(total_points)]]
+        self._scores = [["Lauren", 600], ["Stevo", 550],
+                        ["Charlotte", 500], ["Vince", 450],
+                        ["You!", int(total_points)]]
 
-    def get_high_scores(self):
-        '''gets the list of highscores
+    def get_scores(self):
+        '''gets the list of scores
         Returns:
-            List of highscores
+            List of scores
         '''
-        return self._high_scores
+        return self._scores
 
-    def set_high_scores(self, value: List):
-        '''sets a new list of highscores
+    def set_scores(self, value: List):
+        '''sets a new list of scores
         '''
-        self._high_scores = value
+        self._scores = value
 
     def sort_scores(self):
-        '''bubble sorts the list of highscores by score value
+        '''bubble sorts the list of scores by score value
         '''
         is_sorted = False
         times_through = 0
 
         while not is_sorted:
             is_sorted = True
-            for i in range(len(self._high_scores) - 1 - times_through):
-                a = self._high_scores[i][1]
-                b = self._high_scores[i + 1][1]
-                c = self._high_scores[i]
-                d = self._high_scores[i + 1]
+            for i in range(len(self._scores) - 1 - times_through):
+                a = self._scores[i][1]
+                b = self._scores[i + 1][1]
+                c = self._scores[i]
+                d = self._scores[i + 1]
                 if a < b:
-                    self._high_scores[i] = d
-                    self._high_scores[i + 1] = c
+                    self._scores[i] = d
+                    self._scores[i + 1] = c
                     is_sorted = False
             times_through += 1
 
@@ -120,74 +122,139 @@ class Leaderboard(Slide):
         Returns:
             Divider on leaderboard
         '''
-        return arcade.draw_line(0, y_coord, settings.WIDTH, y_coord, arcade.color.BLACK)
+        return arcade.draw_line(0, y_coord, settings.WIDTH,
+                                y_coord, arcade.color.BLACK)
 
 
 class SarahGameView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.current_state = MENU
+        self.current_state = CUT_SCREEN
+
+    def draw_cut_scene(self):
+        # story
+        output = "After finishing that tedious sudoku, you get up"
+        arcade.draw_text(output, settings.WIDTH / 2, 500, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
+
+        output = "to grab a cup of coffee. As you rise, you accidentally"
+        arcade.draw_text(output, settings.WIDTH / 2, 450, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
+
+        output = "knock over your marbles :0 Quick! You have to pick them"
+        arcade.draw_text(output, settings.WIDTH / 2, 400, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
+
+        output = "up before they all roll away!"
+        arcade.draw_text(output, settings.WIDTH / 2, 350, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
+
+        output = "Press Space to Continue"
+        arcade.draw_text(output, settings.WIDTH / 2, 150, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
 
     def draw_menu(self):
-        arcade.draw_rectangle_filled(x, 400, 50, 50, arcade.color.BANANA_YELLOW)
-        arcade.draw_circle_filled(x + 134, 100, 25, arcade.color.BABY_BLUE)
-        arcade.draw_rectangle_filled(x + 297, 125, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_circle_filled(x - 469, 200, 25, arcade.color.BABY_BLUE)
-        arcade.draw_circle_filled(x - 165, 135, 25, arcade.color.RED)
-        arcade.draw_rectangle_filled(x - 333, 150, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_rectangle_filled(x, 570, 50, 50, arcade.color.BANANA_YELLOW)
-        arcade.draw_circle_filled(x + 150, 526, 25, arcade.color.BABY_BLUE)
-        arcade.draw_rectangle_filled(x + 300, 560, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_circle_filled(x - 450, 530, 25, arcade.color.BABY_BLUE)
-        arcade.draw_circle_filled(x - 150, 550, 25, arcade.color.RED)
-        arcade.draw_rectangle_filled(x - 300, 574, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_rectangle_filled(x, 250, 50, 50, arcade.color.BANANA_YELLOW)
-        arcade.draw_circle_filled(x + 210, 206, 25, arcade.color.BABY_BLUE)
-        arcade.draw_rectangle_filled(x + 450, 310, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_circle_filled(x - 360, 400, 25, arcade.color.BABY_BLUE)
-        arcade.draw_circle_filled(x - 180, 270, 25, arcade.color.RED)
-        arcade.draw_rectangle_filled(x - 340, 304, 50, 50, arcade.color.FOREST_GREEN)
+        # draw shapes
+        arcade.draw_rectangle_filled(x, 400, 50, 50,
+                                     arcade.color.GOLD)
+        arcade.draw_circle_filled(x + 134, 100, 25,
+                                  arcade.color.COAL)
+        arcade.draw_rectangle_filled(x + 297, 125, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_circle_filled(x - 469, 200, 25,
+                                  arcade.color.COAL)
+        arcade.draw_circle_filled(x - 165, 135, 25,
+                                  arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 333, 150, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_rectangle_filled(x, 570, 50, 50,
+                                     arcade.color.GOLD)
+        arcade.draw_circle_filled(x + 150, 526, 25,
+                                  arcade.color.COAL)
+        arcade.draw_rectangle_filled(x + 300, 560, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_circle_filled(x - 450, 530, 25,
+                                  arcade.color.COAL)
+        arcade.draw_circle_filled(x - 150, 550, 25,
+                                  arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 300, 574, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_rectangle_filled(x, 250, 50, 50,
+                                     arcade.color.GOLD)
+        arcade.draw_circle_filled(x + 210, 206, 25,
+                                  arcade.color.COAL)
+        arcade.draw_rectangle_filled(x + 450, 310, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_circle_filled(x - 360, 400, 25,
+                                  arcade.color.COAL)
+        arcade.draw_circle_filled(x - 180, 270, 25,
+                                  arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 340, 304, 50, 50,
+                                     arcade.color.AO)
 
-        arcade.draw_text(SCREEN_TITLE, settings.WIDTH / 2, 400, arcade.color.BLACK, 60, font_name='GARA',
+        arcade.draw_text(SCREEN_TITLE, settings.WIDTH / 2, 400,
+                         arcade.color.BLACK, 60, font_name='GARA',
                          anchor_x="center")
 
         output = "Press Space to Continue"
-        arcade.draw_text(output, settings.WIDTH / 2, 250, arcade.color.BLACK, 24, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 250, arcade.color.BLACK,
+                         24, font_name='GARA', anchor_x="center")
 
     def draw_instructions(self):
         Slide.create_title("MATCH OFF INSTRUCTIONS")
 
-        output = "The objective of the game is to match the colours in sets of 3, each matched shape is worth 10 points."
-        arcade.draw_text(output, settings.WIDTH / 2, 500, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        # text for game instructions
+        output = "The objective of the game is to match the colours in"
+        arcade.draw_text(output, settings.WIDTH / 2, 500, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
+
+        output = "sets of 3, each matched shape is worth 10 points."
+        arcade.draw_text(output, settings.WIDTH / 2, 475, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
         output = "There are 60 seconds to attempt to attain the highest score."
-        arcade.draw_text(output, settings.WIDTH / 2, 450, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 440, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
         output = "Use the mouse to click on the desired colour."
-        arcade.draw_text(output, settings.WIDTH / 2, 400, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 390, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
-        output = " Clicking on a colour that does not match the previous colour will cancel the selection."
-        arcade.draw_text(output, settings.WIDTH / 2, 350, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        output = " Clicking on a colour that does not match the previous"
+        arcade.draw_text(output, settings.WIDTH / 2, 340, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
+
+        output = "colour will cancel the selection."
+        arcade.draw_text(output, settings.WIDTH / 2, 315, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
         output = "A high score could snag a spot on the leaderboard!"
-        arcade.draw_text(output, settings.WIDTH / 2, 300, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 280, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
         output = "If you would like to leave the game at any time, press enter."
-        arcade.draw_text(output, settings.WIDTH / 2, 250, arcade.color.BLACK, 14, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 230, arcade.color.BLACK,
+                         14, font_name='GARA', anchor_x="center")
 
         output = "Press Space to Start the Game!"
-        arcade.draw_text(output, settings.WIDTH / 2, 50, arcade.color.BLACK, 18, font_name='GARA', anchor_x="center")
+        arcade.draw_text(output, settings.WIDTH / 2, 50, arcade.color.BLACK,
+                         18, font_name='GARA', anchor_x="center")
 
-        arcade.draw_rectangle_filled(x, 200, 50, 50, arcade.color.BANANA_YELLOW)
-        arcade.draw_circle_filled(x + 150, 100, 25, arcade.color.BABY_BLUE)
-        arcade.draw_rectangle_filled(x + 300, 125, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_circle_filled(x - 450, 175, 25, arcade.color.BABY_BLUE)
-        arcade.draw_circle_filled(x - 150, 135, 25, arcade.color.RED)
-        arcade.draw_rectangle_filled(x - 300, 150, 50, 50, arcade.color.FOREST_GREEN)
+        # draws floating shapes
+        arcade.draw_rectangle_filled(x, 200, 50, 50,
+                                     arcade.color.GOLD)
+        arcade.draw_circle_filled(x + 150, 100, 25,
+                                  arcade.color.COAL)
+        arcade.draw_rectangle_filled(x + 300, 125, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_circle_filled(x - 450, 175, 25,
+                                  arcade.color.COAL)
+        arcade.draw_circle_filled(x - 150, 135, 25,
+                                  arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 300, 150, 50, 50,
+                                     arcade.color.AO)
 
     def draw_game(self):
-        global x
-
         for i in self.gsqsprites:
             i.draw()
 
@@ -202,43 +269,62 @@ class SarahGameView(arcade.View):
 
         time = f"Time: {str(int((round(self.timer))))}"
         arcade.draw_text(time, settings.WIDTH / 2, settings.HEIGHT / 8,
-                         arcade.color.BLACK, font_size=18, font_name='GARA', anchor_x="center")
+                         arcade.color.BLACK, font_size=18, font_name='GARA',
+                         anchor_x="center")
 
-        arcade.draw_text(total_points, settings.WIDTH / 2, settings.HEIGHT / 16,
-                         arcade.color.BLACK, font_size=30, font_name='GARA', anchor_x="center")
+        arcade.draw_text(total_points, settings.WIDTH / 2,
+                         settings.HEIGHT / 16, arcade.color.BLACK,
+                         font_size=30, font_name='GARA', anchor_x="center")
 
     def draw_leaderboard(self):
-        # leaderboard slide
-        arcade.draw_rectangle_filled(x, 570, 50, 50, arcade.color.BANANA_YELLOW)
-        arcade.draw_circle_filled(x + 150, 526, 25, arcade.color.BABY_BLUE)
-        arcade.draw_rectangle_filled(x + 300, 560, 50, 50, arcade.color.FOREST_GREEN)
-        arcade.draw_circle_filled(x - 450, 530, 25, arcade.color.BABY_BLUE)
-        arcade.draw_circle_filled(x - 150, 550, 25, arcade.color.RED)
-        arcade.draw_rectangle_filled(x - 300, 574, 50, 50, arcade.color.FOREST_GREEN)
+        # draw floating shapes
+        arcade.draw_rectangle_filled(x, 570, 50, 50,
+                                     arcade.color.GOLD)
+        arcade.draw_circle_filled(x + 150, 526, 25,
+                                  arcade.color.COAL)
+        arcade.draw_rectangle_filled(x + 300, 560, 50, 50,
+                                     arcade.color.AO)
+        arcade.draw_circle_filled(x - 450, 530, 25,
+                                  arcade.color.COAL)
+        arcade.draw_circle_filled(x - 150, 550, 25,
+                                  arcade.color.RED)
+        arcade.draw_rectangle_filled(x - 300, 574, 50, 50,
+                                     arcade.color.AO)
 
+        # draws lines on leaderboard
         Leaderboard.create_divider(settings.HEIGHT / 6)
         Leaderboard.create_divider((settings.HEIGHT / 6) * 2)
         Leaderboard.create_divider((settings.HEIGHT / 6) * 3)
         Leaderboard.create_divider((settings.HEIGHT / 6) * 4)
         Leaderboard.create_divider((settings.HEIGHT / 6) * 5)
 
-        rankings = Leaderboard()
-        rankings.sort_scores()
+        # creates and orders scores on leaderboard
+        ranks = Leaderboard()
+        ranks.sort_scores()
 
-        arcade.draw_text(f"1. {rankings._high_scores[0][0]}---------------{rankings._high_scores[0][1]}",
-                         settings.WIDTH / 10, (settings.HEIGHT / 6) * 5 - 50, arcade.color.BLACK,
-                         font_size=24, font_name='GARA')
-        arcade.draw_text(f"2. {rankings._high_scores[1][0]}---------------{rankings._high_scores[1][1]}",
-                         settings.WIDTH / 10, (settings.HEIGHT / 6) * 4 - 50, arcade.color.BLACK,
-                         font_size=24, font_name='GARA')
-        arcade.draw_text(f"3. {rankings._high_scores[2][0]}---------------{rankings._high_scores[2][1]}",
-                         settings.WIDTH / 10, (settings.HEIGHT / 6) * 3 - 50, arcade.color.BLACK,
-                         font_size=24, font_name='GARA')
-        arcade.draw_text(f"4. {rankings._high_scores[3][0]}---------------{rankings._high_scores[3][1]}",
-                         settings.WIDTH / 10, (settings.HEIGHT / 6) * 2 - 50, arcade.color.BLACK,
-                         font_size=24, font_name='GARA')
-        arcade.draw_text("Press Enter to continue", settings.WIDTH / 2, 30, arcade.color.BLACK, font_size=30,
-                         anchor_x="center", font_name='GARA')
+        o = f"1. {ranks._scores[0][0]} --------------- {ranks._scores[0][1]}"
+        arcade.draw_text(o, settings.WIDTH / 10,
+                         (settings.HEIGHT / 6) * 5 - 50,
+                         arcade.color.BLACK, font_size=24, font_name='GARA')
+
+        o = f"2. {ranks._scores[1][0]} --------------- {ranks._scores[1][1]}"
+        arcade.draw_text(o, settings.WIDTH / 10,
+                         (settings.HEIGHT / 6) * 4 - 50,
+                         arcade.color.BLACK, font_size=24, font_name='GARA')
+
+        o = f"3. {ranks._scores[2][0]} --------------- {ranks._scores[2][1]}"
+        arcade.draw_text(o, settings.WIDTH / 10,
+                         (settings.HEIGHT / 6) * 3 - 50,
+                         arcade.color.BLACK, font_size=24, font_name='GARA')
+
+        o = f"4. {ranks._scores[3][0]} --------------- {ranks._scores[3][1]}"
+        arcade.draw_text(o, settings.WIDTH / 10,
+                         (settings.HEIGHT / 6) * 2 - 50,
+                         arcade.color.BLACK, font_size=24, font_name='GARA')
+
+        arcade.draw_text("Press Enter to continue", settings.WIDTH / 2, 30,
+                         arcade.color.BLACK, font_size=30, anchor_x="center",
+                         font_name='GARA')
 
         Leaderboard.create_title("LEADERBOARD")
 
@@ -248,7 +334,7 @@ class SarahGameView(arcade.View):
         x = 0
 
         self.counter = 35
-        self.prevselection = -1
+        self.prevsel = -1  # indicates which colour was last selected
         self.timer = 60
 
         self.gsqsprites = []
@@ -278,7 +364,10 @@ class SarahGameView(arcade.View):
 
             # define greensquare
             self.gsq = arcade.Sprite(center_x=gsq_posx, center_y=gsq_posy)
-            self.gsq.texture = arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN, outer_alpha=200)
+            texture = arcade.make_soft_square_texture(50,
+                                                      arcade.color.AO,
+                                                      outer_alpha=200)
+            self.gsq.texture = texture
             self.gsq.change_x = speedgsq
 
             self.gsqsprites.append(self.gsq)
@@ -286,7 +375,10 @@ class SarahGameView(arcade.View):
 
             # define yellowsquare
             self.ysq = arcade.Sprite(center_x=ysq_posx, center_y=ysq_posy)
-            self.ysq.texture = arcade.make_soft_square_texture(50, arcade.color.BANANA_YELLOW, outer_alpha=200)
+            texture = arcade.make_soft_square_texture(50,
+                                                      arcade.color.GOLD,
+                                                      outer_alpha=200)
+            self.ysq.texture = texture
             self.ysq.change_x = speedysq
 
             self.ysqsprites.append(self.ysq)
@@ -294,7 +386,10 @@ class SarahGameView(arcade.View):
 
             # define redcircle
             self.rcir = arcade.Sprite(center_x=rcir_posx, center_y=rcir_posy)
-            self.rcir.texture = arcade.make_soft_circle_texture(50, arcade.color.RED, outer_alpha=200)
+            texture = arcade.make_soft_circle_texture(50,
+                                                      arcade.color.RED,
+                                                      outer_alpha=200)
+            self.rcir.texture = texture
             self.rcir.change_x = speedrcir
 
             self.rcirsprites.append(self.rcir)
@@ -302,7 +397,10 @@ class SarahGameView(arcade.View):
 
             # define bluecircle
             self.bcir = arcade.Sprite(center_x=bcir_posx, center_y=bcir_posy)
-            self.bcir.texture = arcade.make_soft_circle_texture(50, arcade.color.BABY_BLUE, outer_alpha=200)
+            texture = arcade.make_soft_circle_texture(50,
+                                                      arcade.color.COAL,
+                                                      outer_alpha=200)
+            self.bcir.texture = texture
             self.bcir.change_x = speedbcir
 
             self.bcirsprites.append(self.bcir)
@@ -311,7 +409,9 @@ class SarahGameView(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
-        if self.current_state == MENU:
+        if self.current_state == CUT_SCREEN:
+            self.draw_cut_scene()
+        elif self.current_state == MENU:
             self.draw_menu()
         elif self.current_state == INSTRUCTIONS:
             self.draw_instructions()
@@ -324,7 +424,9 @@ class SarahGameView(arcade.View):
     def on_key_press(self, key, modifiers):
         # changes slides
         if key == arcade.key.SPACE:
-            if self.current_state == MENU:
+            if self.current_state == CUT_SCREEN:
+                self.current_state = MENU
+            elif self.current_state == MENU:
                 self.current_state = INSTRUCTIONS
             elif self.current_state == INSTRUCTIONS:
                 self.current_state = GAME_RUNNING
@@ -336,12 +438,24 @@ class SarahGameView(arcade.View):
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         global total_points
 
-        self.select = [self.gsqselected, self.ysqselected, self.rcirselected, self.bcirselected]
-        self.sprite = [self.gsqsprites, self.ysqsprites, self.rcirsprites, self.bcirsprites]
-        self.color = [arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN, outer_alpha=200),
-                      arcade.make_soft_square_texture(50, arcade.color.BANANA_YELLOW, outer_alpha=200),
-                      arcade.make_soft_circle_texture(50, arcade.color.RED, outer_alpha=200),
-                      arcade.make_soft_circle_texture(50, arcade.color.BABY_BLUE, outer_alpha=200)]
+        self.select = [self.gsqselected,
+                       self.ysqselected,
+                       self.rcirselected,
+                       self.bcirselected]
+
+        self.sprite = [self.gsqsprites,
+                       self.ysqsprites,
+                       self.rcirsprites,
+                       self.bcirsprites]
+
+        self.color = [arcade.make_soft_square_texture(50,
+                      arcade.color.AO, outer_alpha=200),
+                      arcade.make_soft_square_texture(50,
+                      arcade.color.GOLD, outer_alpha=200),
+                      arcade.make_soft_circle_texture(50,
+                      arcade.color.RED, outer_alpha=200),
+                      arcade.make_soft_circle_texture(50,
+                      arcade.color.COAL, outer_alpha=200)]
 
         self.gsqrid = []
         self.ysqrid = []
@@ -355,86 +469,113 @@ class SarahGameView(arcade.View):
 
         # invalid selection
         for i in range(len(self.gsqsprites)):
-            if self.gsqsprites[i].collides_with_point((x, y)) and self.prevselection != 0:
+            if self.gsqsprites[i].collides_with_point((x, y)):
+                if self.prevsel != 0:
+                    for j in range(len(self.select[self.prevsel])):
+                        self.select[self.prevsel][j] = False
+                        color = self.color[self.prevsel]
+                        self.sprite[self.prevsel][j].texture = color
 
-                for j in range(len(self.select[self.prevselection])):
-                    self.select[self.prevselection][j] = False
-                    self.sprite[self.prevselection][j].texture = self.color[self.prevselection]
-
-                self.prevselection = 0
+                    self.prevsel = 0
 
         for i in range(len(self.ysqsprites)):
-            if self.ysqsprites[i].collides_with_point((x, y)) and self.prevselection != 1:
+            if self.ysqsprites[i].collides_with_point((x, y)):
+                if self.prevsel != 1:
+                    for j in range(len(self.select[self.prevsel])):
+                        self.select[self.prevsel][j] = False
+                        color = self.color[self.prevsel]
+                        self.sprite[self.prevsel][j].texture = color
 
-                for j in range(len(self.select[self.prevselection])):
-                    self.select[self.prevselection][j] = False
-                    self.sprite[self.prevselection][j].texture = self.color[self.prevselection]
-
-                self.prevselection = 1
+                    self.prevsel = 1
 
         for i in range(len(self.rcirsprites)):
-            if self.rcirsprites[i].collides_with_point((x, y)) and self.prevselection != 2:
+            if self.rcirsprites[i].collides_with_point((x, y)):
+                if self.prevsel != 2:
+                    for j in range(len(self.select[self.prevsel])):
+                        self.select[self.prevsel][j] = False
+                        color = self.color[self.prevsel]
+                        self.sprite[self.prevsel][j].texture = color
 
-                for j in range(len(self.select[self.prevselection])):
-                    self.select[self.prevselection][j] = False
-                    self.sprite[self.prevselection][j].texture = self.color[self.prevselection]
-
-                self.prevselection = 2
+                    self.prevsel = 2
 
         for i in range(len(self.bcirsprites)):
-            if self.bcirsprites[i].collides_with_point((x, y)) and self.prevselection != 3:
+            if self.bcirsprites[i].collides_with_point((x, y)):
+                if self.prevsel != 3:
+                    for j in range(len(self.select[self.prevsel])):
+                        self.select[self.prevsel][j] = False
+                        color = self.color[self.prevsel]
+                        self.sprite[self.prevsel][j].texture = color
 
-                for j in range(len(self.select[self.prevselection])):
-                    self.select[self.prevselection][j] = False
-                    self.sprite[self.prevselection][j].texture = self.color[self.prevselection]
-
-                self.prevselection = 3
+                    self.prevsel = 3
 
         for i in range(len(self.gsqsprites)):
             if self.gsqsprites[i].collides_with_point((x, y)):
 
-                if not self.gsqselected[i]:  # character has not been clicked on before
+                # character has not been clicked on before
+                if not self.gsqselected[i]:
+                    texture = arcade.make_soft_square_texture(50,
+                                                              arcade.color.AO)
+                    self.gsqsprites[i].texture = texture
 
-                    self.gsqsprites[i].texture = arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN)
-
-                elif self.gsqselected[i]:  # character texture is returned to before being tampered with
-                    self.gsqsprites[i].texture = arcade.make_soft_square_texture(50, arcade.color.FOREST_GREEN,
-                                                                                 outer_alpha=200)
+                # character texture is returned to before being tampered with
+                elif self.gsqselected[i]:
+                    texture = arcade.make_soft_square_texture(50,
+                                                              arcade.color.AO,
+                                                              outer_alpha=200)
+                    self.gsqsprites[i].texture = texture
 
                 self.gsqselected[i] = not (self.gsqselected[i])
 
         for i in range(len(self.ysqsprites)):
             if self.ysqsprites[i].collides_with_point((x, y)):
 
-                if not self.ysqselected[i]:  # character has not been clicked on before
-                    self.ysqsprites[i].texture = arcade.make_soft_square_texture(50, arcade.color.BANANA_YELLOW)
+                # character has not been clicked on before
+                if not self.ysqselected[i]:
+                    texture = arcade.make_soft_square_texture(50,
+                                                              arcade.color.GOLD)
+                    self.ysqsprites[i].texture = texture
 
-                elif self.ysqselected[i]:  # character texture is returned to before being tampered with
-                    self.ysqsprites[i].texture = arcade.make_soft_square_texture(50, arcade.color.BANANA_YELLOW,
-                                                                                 outer_alpha=200)
+                # character texture is returned to before being tampered with
+                elif self.ysqselected[i]:
+                    texture = arcade.make_soft_square_texture(50,
+                                                              arcade.color.GOLD,
+                                                              outer_alpha=200)
+                    self.ysqsprites[i].texture = texture
 
                 self.ysqselected[i] = not (self.ysqselected[i])
 
         for i in range(len(self.rcirsprites)):
             if self.rcirsprites[i].collides_with_point((x, y)):
 
-                if not self.rcirselected[i]:  # character has not been clicked on before
-                    self.rcirsprites[i].texture = arcade.make_soft_circle_texture(50, arcade.color.RED)
-
-                elif self.rcirselected[i]:  # character texture is returned to before being tampered with
-                    self.rcirsprites[i].texture = arcade.make_soft_circle_texture(50, arcade.color.RED, outer_alpha=200)
+                # character has not been clicked on before
+                if not self.rcirselected[i]:
+                    texture = arcade.make_soft_circle_texture(50,
+                                                              arcade.color.RED)
+                    self.rcirsprites[i].texture = texture
+                # character texture is returned to before being tampered with
+                elif self.rcirselected[i]:
+                    texture = arcade.make_soft_circle_texture(50,
+                                                              arcade.color.RED,
+                                                              outer_alpha=200)
+                    self.rcirsprites[i].texture = texture
 
                 self.rcirselected[i] = not (self.rcirselected[i])
 
         for i in range(len(self.bcirsprites)):
             if self.bcirsprites[i].collides_with_point((x, y)):
 
-                if not self.bcirselected[i]:  # character has not been clicked on before
-                    self.bcirsprites[i].texture = arcade.make_soft_circle_texture(50, arcade.color.BABY_BLUE)
+                # character has not been clicked on before
+                if not self.bcirselected[i]:
+                    texture = arcade.make_soft_circle_texture(50,
+                                                              arcade.color.COAL)
+                    self.bcirsprites[i].texture = texture
 
-                elif self.bcirselected[i]:  # character texture is returned to before being tampered with
-                    self.bcirsprites[i].texture = arcade.make_soft_circle_texture(50, arcade.color.BABY_BLUE,
-                                                                                  outer_alpha=200)
+                # character texture is returned to before being tampered with
+                elif self.bcirselected[i]:
+                    texture = arcade.make_soft_circle_texture(50,
+                                                              arcade.color.COAL,
+                                                              outer_alpha=200)
+                    self.bcirsprites[i].texture = texture
 
                 self.bcirselected[i] = not (self.bcirselected[i])
 
@@ -447,7 +588,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.gsqselected)):
                 if self.gsqselected[i]:
                     self.gsqrid.append(i)
-            total_points = str(int(total_points) + calculate_points(self.gsqclicked))
+            total_points = str(int(total_points)+calc_points(self.gsqclicked))
 
             # bubble sort to reverse list
             gsq_sorted = False
@@ -474,7 +615,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.ysqselected)):
                 if self.ysqselected[i]:
                     self.ysqrid.append(i)
-            total_points = str(int(total_points) + calculate_points(self.ysqclicked))
+            total_points = str(int(total_points)+calc_points(self.ysqclicked))
 
             # bubble sort to reverse list
             ysq_sorted = False
@@ -501,7 +642,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.rcirselected)):
                 if self.rcirselected[i]:
                     self.rcirrid.append(i)
-            total_points = str(int(total_points) + calculate_points(self.rcirclicked))
+            total_points = str(int(total_points)+calc_points(self.rcirclicked))
 
             # bubble sort to reverse list
             rcir_sorted = False
@@ -528,7 +669,7 @@ class SarahGameView(arcade.View):
             for i in range(len(self.bcirselected)):
                 if self.bcirselected[i]:
                     self.bcirrid.append(i)
-            total_points = str(int(total_points) + calculate_points(self.bcirclicked))
+            total_points = str(int(total_points)+calc_points(self.bcirclicked))
 
             # bubble sort to reverse list
             bcir_sorted = False
@@ -571,6 +712,7 @@ class SarahGameView(arcade.View):
         for c in self.bcirsprites:
             c.update()
 
+        # auto change to leaderboard after 60 sec
         if self.current_state == GAME_RUNNING and self.timer <= 0:
             self.current_state = LEADERBOARD
 
