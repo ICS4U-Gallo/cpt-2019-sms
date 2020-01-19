@@ -20,7 +20,7 @@ game_view = None
 def translate_symbol(symbol: int) -> Union[str, None]:
     """ translates symbols of keyboard inputs to corresponding values
     Args:
-        symbol: numerical symbol of keyboard input
+        symbol: numerical symbol represnting a keyboard input
     Returns:
         The corresponding value of the symbol or None if not in translator
     """
@@ -99,6 +99,7 @@ class Sudoku:
     Attrs:
         _ALL_START_BOARDS(List[List[List[int]]]): all sudoku game boards
         _start_board(List[List[int]]): a randomized sudoku gameboard
+        _board(List[List[int]]): game board where the user can input numbers
         _columns(int): the amount of columns in the board
         _rows(int): the amount of rows in the board
         _selected(Tuple[int, int]): most recently clicked board coordinate
@@ -199,7 +200,7 @@ class Sudoku:
 
     @classmethod
     def get_all_start_boards(cls) -> List[List[List[int]]]:
-        """getter for _ALL_START_BOARDS
+        """ getter for _ALL_START_BOARDS
         Args:
             None
         Returns:
@@ -208,7 +209,7 @@ class Sudoku:
         return cls._ALL_START_BOARDS
 
     def get_rows(self) -> int:
-        """getter for _rows
+        """ getter for _rows
         Args:
             None
         Returns:
@@ -217,7 +218,7 @@ class Sudoku:
         return self._rows
 
     def get_columns(self) -> int:
-        """getter for _columns
+        """ getter for _columns
         Args:
             None
         Returns:
@@ -226,7 +227,7 @@ class Sudoku:
         return self._columns
 
     def get_start_board(self) -> List[List[int]]:
-        """getter for _start_board
+        """ getter for _start_board
         Args:
             None
         Returns:
@@ -263,7 +264,7 @@ class Sudoku:
         """ setter for _board
 
         Args:
-            board: a sudoku game board
+            board: sudoku game board where the user can input numbers
         Returns:
             None
         """
@@ -462,7 +463,7 @@ class Sudoku:
         Returns:
             Whether or not the board is solvable
         """
-        if not self.find_empty() and not self.find_invalid_numbers():
+        if not self.find_empty() and not self.get_invalid_numbers():
             return True
         else:
             coordinate = self.find_empty()
@@ -471,7 +472,7 @@ class Sudoku:
 
         for i in range(1, 10):
             self._board[row][column] = i
-            result = self.find_invalid_numbers()
+            result = self.get_invalid_numbers()
             if (row, column) in result:
                 self._board[row][column] = 0
                 continue
@@ -483,7 +484,7 @@ class Sudoku:
 
         return False
 
-    def find_invalid_numbers(self) -> Union[List[None], Set[Tuple[int, int]]]:
+    def get_invalid_numbers(self) -> Union[List[None], Set[Tuple[int, int]]]:
         """ cycles through each coordinate and ensures it abides Sudoku's rules
         Args:
             None
@@ -560,7 +561,7 @@ class Sudoku:
         return set(invalid_coordinates)
 
     def sort_numbers(self, numbers: List[int]) -> List[int]:
-        """ takes a list of numbers and orderes them from greatest to least
+        """ takes a list of numbers and orderes them from least to greatest
         Args:
             numbers: a list of integers
         Returns:
@@ -576,7 +577,6 @@ class Sudoku:
 
         l_pointer = 0
         r_pointer = 0
-
         while l_pointer < len(l_side) and r_pointer < len(r_side):
             if l_side[l_pointer] < r_side[r_pointer]:
                 sorted_list.append(l_side[l_pointer])
@@ -706,10 +706,11 @@ class Sudoku:
         arcade.draw_circle_filled(translated_x, translated_y - 1, 17,
                                   user.get_preferred_color())
 
-    def draw_incorrect_background(self, coordinate: Tuple[int, int]) -> None:
+    def draw_invalid_cord(self, coordinate: Tuple[int, int]) -> None:
         """ draws a red circle if the coordinate has an incorrect number
         Args:
-            coordinate: the coordinate that will have its value checked
+            coordinate: the coordinate at which the indicator
+                        will be drawn
         Returns:
             None
         """
@@ -1063,7 +1064,7 @@ class MaxGameView(arcade.View):
             user.draw_name(WIDTH / 2, 550, True)
         if game.get_incorrect_coordinates():
             for coordinate in game.get_incorrect_coordinates():
-                game.draw_incorrect_background(coordinate)
+                game.draw_invalid_cord(coordinate)
         game.draw_grid()
         game.draw_numbers()
         game.draw_temp_numbers()
@@ -1301,7 +1302,7 @@ class MaxGameView(arcade.View):
             game.set_selected(coordinate)
 
         if game.get_validate_button().collides_with_point([x, y]):
-            incorrect_coordinates = game.find_invalid_numbers()
+            incorrect_coordinates = game.get_invalid_numbers()
             game.set_incorrect_coordinates(incorrect_coordinates)
             if not game.get_incorrect_coordinates() and not game.find_empty():
                 if not user.get_name():
