@@ -602,7 +602,7 @@ class Score:
         else:
             raise Exception("Points should be an integer")
 
-    def find_rank_index(self) -> int:
+    def find_rank(self) -> int:
         """Finds the rank index of the current Score object.
 
         Args:
@@ -822,7 +822,7 @@ class Game(Score):
         Returns:
             int: The rank of the current Score object.
         """
-        return super().find_rank_index() + 1
+        return super().find_rank() + 1
 
     @classmethod
     def get_top_games(cls) -> List["Game"]:
