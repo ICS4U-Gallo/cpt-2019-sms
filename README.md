@@ -9,7 +9,7 @@ To link a word, your current word must end with the same letter as the first let
 Try to link as many words as possible before the time runs out!
 
 #### Sudoku (Max):
-The classic game of Sudoku.
+This is a grid-based game where your objective is to fill out all cells in the board. To do so, follow the rules of Sudoku, which state: 'each row, column, and nonet can contain each number (typically 1 to 9) exactly once'.
 
 #### Match Off (Sarah);
 In this game, the goal is to match up the coloured shapes into sets of 3.
