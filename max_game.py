@@ -295,7 +295,7 @@ class Sudoku:
         self._temp_board = temp_board
 
     def set_temp_number(self, target: int, coordinate: Tuple[int, int]) -> None:
-        """ setter for a coordinate in _temp_board
+        """ setter for a coordinate in _temp_board given a number
         Args:
             target: the number that is to be added/removed
             coordinate: the coordinate in _temp_board that is changed
@@ -311,7 +311,7 @@ class Sudoku:
             self._temp_board[coordinate].append(target)
 
     def set_temp_list(self, coordinate: Tuple[int, int], numbers: List[int]) -> None:
-        """ setter for _temp_board
+        """ setter for a coordinate in _temp_board given a list
         Args:
             coordinate: the coordinate in _temp_board that is to be changed
             numbers: a sorted list of numbers that the coordinate adopts
