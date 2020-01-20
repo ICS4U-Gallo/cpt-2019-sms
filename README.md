@@ -1,5 +1,19 @@
 # The Saturday Newspaper
-Program description. Replace with description of your program. Give a description of each scene.
+
+While reading the Saturday newspaper, you wanted to have some fun and play some games.
+
+
+Word Linker (Sridhar):
+    In this game, your goal is to link words together.
+    To link a word, your current word must end with the same letter as the first letter as the word you want to link.
+    Try to link as many words as possible before the time runs out!
+
+Sudoku (Max):
+    The classic game of Sudoku.
+
+Match Off (Sarah);
+    A game of pairing shapes.
+
 
 ### Group Members:
 - Sridhar S.
