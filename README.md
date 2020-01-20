@@ -12,7 +12,12 @@ Try to link as many words as possible before the time runs out!
 The classic game of Sudoku.
 
 #### Match Off (Sarah);
-A game of pairing shapes.
+In this game, the goal is to match up the coloured shapes into sets of 3.
+Click on the shape to select it. 
+You have 60 seconds to attain the highest score.
+Maybe you'll snag a spot on the leaderboard! 
+Good luck!
+
 
 
 ### Group Members:
