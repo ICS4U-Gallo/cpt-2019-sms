@@ -17,6 +17,7 @@ winner = None
 game = None
 game_view = None
 
+
 def translate_symbol(symbol: int) -> Union[str, None]:
     """ translates symbols of keyboard inputs to corresponding values
     Args:
@@ -253,14 +254,7 @@ class Sudoku:
         Returns:
             None
         """
-        if type(cord) == tuple:
-            if cord[0] >= 1 and cord[0] <= 9 and cord[1] >= 1 and cord[1] <= 9:
-                self._selected = cord
-            else:
-                raise Exception("""The coordinate must have an x-val
-                                greater than -1 and less than 9""")
-        else:
-            raise Exception("The coordinate must be a tuple")
+        self._selected = cord
 
     def set_board(self, board: List[List[int]]) -> None:
         """ setter for _board
@@ -270,10 +264,7 @@ class Sudoku:
         Returns:
             None
         """
-        if type(board) == list:
-            self._board = board
-        else:
-            raise Exception("The board must be a 2D list")
+        self._board = board
 
     def set_number(self, coordinate: Tuple[int, int], value: int) -> None:
         """ setter for a coordinate in _board
@@ -283,11 +274,7 @@ class Sudoku:
         Returns:
             None
         """
-        if type(value) == int and type(coordinate) == tuple:
-            self._board[coordinate[0]][coordinate[1]] = value
-        else:
-            raise Exception("""Value and coordinate must be
-                            integers and tuples respectively""")
+        self._board[coordinate[0]][coordinate[1]] = value
 
     def get_temp_board(self) -> Dict[Tuple, List]:
         """ getter for _temp_board
@@ -305,44 +292,33 @@ class Sudoku:
         Returns:
             None
         """
-        if type(temp_board) == dict:
-            self._temp_board = temp_board
-        else:
-            raise Exception("Temporary board must be a dictionary")
+        self._temp_board = temp_board
 
     def set_temp_number(self, target: int, coordinate: Tuple[int, int]) -> None:
-        """ setter for a coordinate in _temp_board
+        """ setter for a coordinate in _temp_board given a number
         Args:
             target: the number that is to be added/removed
             coordinate: the coordinate in _temp_board that is changed
         Returns:
             None
         """
-        if type(target) == int and type(coordinate) == tuple:
-            present = False
-            for i, num in enumerate(self._temp_board[coordinate]):
-                if num == target:
-                    del self._temp_board[coordinate][i]
-                    present = True
-            if not present:
-                self._temp_board[coordinate].append(target)
-        else:
-            raise Exception("""Value and coordinate must be
-                            integers and tuples respectively""")
+        present = False
+        for i, num in enumerate(self._temp_board[coordinate]):
+            if num == target:
+                del self._temp_board[coordinate][i]
+                present = True
+        if not present:
+            self._temp_board[coordinate].append(target)
 
     def set_temp_list(self, coordinate: Tuple[int, int], numbers: List[int]) -> None:
-        """ setter for _temp_board
+        """ setter for a coordinate in _temp_board given a list
         Args:
             coordinate: the coordinate in _temp_board that is to be changed
             numbers: a sorted list of numbers that the coordinate adopts
         Returns:
             None
         """
-        if type(coordinate) == tuple and type(numbers) == list:
-            self._temp_board[coordinate] = numbers
-        else:
-            raise Exception("""Coordinate and numbers must be a
-                            tuple and list respectively""")
+        self._temp_board[coordinate] = numbers
 
     def get_pencil_mode(self) -> bool:
         """ getter for _pencil_mode
@@ -360,10 +336,7 @@ class Sudoku:
         Returns:
             None
         """
-        if type(value) == bool:
-            self._pencil_mode = value
-        else:
-            raise Exception("Value must be a boolean value")
+        self._pencil_mode = value
 
     def get_incorrect_coordinates(self) -> List[Tuple[int, int]]:
         """ getter for _incorrect_coordinates
@@ -381,10 +354,7 @@ class Sudoku:
         Returns:
             None
         """
-        if type(value) == list or type(value) == set or value is None:
-            self._incorrect_coordinates = value
-        else:
-            raise Exception("Value must be a list")
+        self._incorrect_coordinates = value
 
     def get_validate_button(self) -> "Sprite":
         """ getter for _validate_button
@@ -429,10 +399,7 @@ class Sudoku:
         Returns:
             None
         """
-        try:
-            self._pencil_button.texture = value
-        except:
-            raise Exception("Value must be a texture")
+        self._pencil_button.texture = value
 
     def reset_board(self) -> None:
         """ resets the board to its original state
@@ -767,10 +734,7 @@ class User:
         Returns:
             None
         """
-        if type(value) == str:
-            self._name = value
-        else:
-            raise Exception('Value must be a string')
+        self._name = value
 
     def get_preferred_color(self) -> "color":
         """ getter for _preferred_color
@@ -790,10 +754,7 @@ class User:
         Returns:
             None
         """
-        try:
-            self._preferred_color = value
-        except:
-            raise Exception("Value must be an arcade color")
+        self._preferred_color = value
 
     def draw_info(self, x: float, y: float, center: bool=False) -> None:
         """ Draws the name of the user in their favorite color
@@ -876,10 +837,7 @@ class Winner(User):
         Returns:
             None
         """
-        try:
-            self._time = float(value)
-        except:
-            raise Exception("Time must be a float or integer")
+        self._time = float(value)
 
     @classmethod
     def create_anon_winner(cls, color: "color", time: float) -> "Winner":
@@ -965,7 +923,7 @@ class MenuView(arcade.View):
         if not user.get_name():
             user.draw_unpersonalized_name(WIDTH - 150, 575)
         else:
-            user.draw_name(WIDTH - 150, 575)
+            user.draw_info(WIDTH - 150, 575)
         arcade.draw_text('SUDOKU', WIDTH / 2, 550,
                          user.get_preferred_color(),
                          font_size=30, font_name='arial',
@@ -1063,7 +1021,7 @@ class MaxGameView(arcade.View):
             user.draw_unpersonalized_name(WIDTH / 2,
                                           550, True)
         else:
-            user.draw_name(WIDTH / 2, 550, True)
+            user.draw_info(WIDTH / 2, 550, True)
         if game.get_incorrect_coordinates():
             for coordinate in game.get_incorrect_coordinates():
                 game.draw_invalid_cord(coordinate)
